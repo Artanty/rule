@@ -1,0 +1,23 @@
+<div class="app-container">
+    <div class="nav-bar">
+        <div class="nav-brand">
+            <span class="brand-icon">🎛️</span>
+            <span class="brand-name">MIDI Messenger</span>
+        </div>
+        <div class="nav-links">
+            <a routerLink="/" routerLinkActive="active" class="nav-link">
+                📝 Rules Editor
+            </a>
+            <a routerLink="/validator" routerLinkActive="active" class="nav-link">
+                ✅ Validator
+            </a>
+            <a routerLink="/streambyter" routerLinkActive="active" class="nav-link">
+                🔧 StreamByter
+            </a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <router-outlet></router-outlet>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="validation-container">
+    <div class="validation-header">
+        <h2>📋 MIDI Rules Validator</h2>
+        <p>Validate your exported JSON files against the correct format</p>
+    </div>
+    
+    <div class="upload-section">
+        <div class="upload-area">
+            <input type="file" [id]="fileInputId" style="display: none" (change)="onFileSelected($event)" accept=".json">
+            <button class="btn upload-btn" (click)="triggerFileInput()">
+                📁 Select JSON File
+            </button>
+            <button class="btn example-btn" (click)="downloadCorrectExample()">
+                📥 Download Correct Example
+            </button>
+            <button class="btn clear-btn" (click)="clearValidation()">
+                🗑 Clear
+            </button>
+        </div>
+        
+        @if (fileName) {
+            <div class="file-info">
+                📄 {{ fileName }}
+            </div>
+        }
+    </div>
+    
+    @if (validationResult.length > 0 || isValid) {
+        <div class="result-section">
+            <div class="result-header" [class.valid]="isValid" [class.invalid]="!isValid">
+                @if (isValid) {
+                    <span class="icon">✅</span>
+                    <span class="title">VALIDATION PASSED</span>
+                    <span class="message">The file format is correct!</span>
+                } @else {
+                    <span class="icon">❌</span>
+                    <span class="title">VALIDATION FAILED</span>
+                    <span class="message">Found {{ validationResult.length }} error(s)</span>
+                }
+            </div>
+            
+            @if (!isValid && validationResult.length > 0) {
+                <div class="errors-list">
+                    <h3>Errors:</h3>
+                    @for (error of validationResult; track $index) {
+                        <div class="error-card">
+                            <div class="error-path">📍 {{ error.path }}</div>
+                            <div class="error-message">⚠️ {{ error.message }}</div>
+                            <div class="error-details">
+                                <span class="expected">Expected: {{ error.expected }}</span>
+                                <span class="actual">Actual: {{ error.actual }}</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+    
+    <div class="info-section">
+        <h3>🔍 Common Issues:</h3>
+        <ul>
+            <li><strong>String instead of Number:</strong> CC numbers, channels, and values must be numbers, not strings (e.g., <code>38</code> not <code>"38"</code>)</li>
+            <li><strong>Missing required fields:</strong> All rules must have valid <code>output</code> and <code>trigger</code> objects</li>
+            <li><strong>Invalid ranges:</strong> Note numbers and CC values should be between 0-127</li>
+            <li><strong>Wrong message type:</strong> Use <code>Protocol</code> for CC/Note messages, <code>ProgramChange</code> for program changes</li>
+        </ul>
+    </div>
+</div>

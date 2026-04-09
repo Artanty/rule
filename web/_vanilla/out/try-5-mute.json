@@ -1,0 +1,574 @@
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "set [c4] voice 1 enable from [zoom L6]",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 0
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 93,
+                            "last": 93
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 93,
+                            "last": 93
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": "set [c4] voice 2 enable from [zoom L6]",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 94,
+                            "last": 94
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 94,
+                            "last": 94
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": "set [c4] voice 3 enable from [zoom L6]",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 2
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 95,
+                            "last": 95
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 95,
+                            "last": 95
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": "set [c4] voice 4 enable from [zoom L6]",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 3
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 102,
+                            "last": 102
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 102,
+                            "last": 102
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": "set [c4] mix 1 enable from [zoom L6]",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 32
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 103,
+                            "last": 103
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 103,
+                            "last": 103
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": "set [c4] mix 2 enable from [zoom L6]",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 33
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 104,
+                            "last": 104
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 104,
+                            "last": 104
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

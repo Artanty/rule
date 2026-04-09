@@ -1,0 +1,177 @@
+<div class="app">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <span class="title">🎛️ MMv3 Angular</span>
+            <span class="status-badge">CC lib shows device</span>
+        </div>
+        <!-- <div class="top-bar-right">
+            <input type="file" [id]="importFileInputId" style="display: none" (change)="onImportFile($event)" accept=".json">
+            <button class="btn" (click)="triggerImportFile()">📂 Import</button>
+            <button class="btn primary" (click)="onExport()">⬇️ Export</button>
+            <button class="btn warn" (click)="addRule()">➕ Add</button>
+        </div> -->
+        <div class="top-bar-right">
+            <button class="btn" [routerLink]="['/']">🎛️ Rules</button>
+            <button class="btn" [routerLink]="['/validator']">✅ Validator</button>
+            <input type="file" [id]="importFileInputId" style="display: none" (change)="onImportFile($event)" accept=".json">
+            <button class="btn" (click)="triggerImportFile()">📂 Import</button>
+            <button class="btn primary" (click)="onExport()">⬇️ Export</button>
+            <button class="btn warn" (click)="addRule()">➕ Add</button>
+        </div>
+    </div>
+
+    <!-- Maps Panel -->
+    <div class="maps-panel">
+        <div class="map-section">
+            <span class="map-title">📋 devices:</span>
+            <span class="status-value">{{ getDeviceMapStatus() }}</span>
+            <input type="file" [id]="deviceMapInputId" style="display: none" (change)="onUploadDeviceMap($event)" accept=".json">
+            <button class="btn" (click)="triggerDeviceMapUpload()">📎 upload</button>
+            <button class="btn" (click)="clearDeviceMap()">🗑 clear</button>
+        </div>
+        <div class="map-section">
+            <span class="map-title">🎚️ CC/NOTE lib:</span>
+            <span class="status-value">{{ getCcLibStatus() }}</span>
+            <select [(ngModel)]="selectedCcChannel" class="device-channel-select">
+                @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
+                    <option [value]="ch">ch{{ ch }} {{ getDeviceShortName(ch) !== 'ch'+ch ? '(' + getDeviceShortName(ch) + ')' : '' }}</option>
+                }
+            </select>
+            <input type="file" [id]="ccMapInputId" style="display: none" (change)="onUploadCcMap($event)" accept=".json">
+            <button class="btn" (click)="triggerCcMapUpload()">📤 upload typed</button>
+            <button class="btn" (click)="clearAllCcMaps()">🗑 all</button>
+        </div>
+    </div>
+
+    <!-- Rules Container -->
+    <div class="rules-container">
+        @for (rule of rules; track $index; let i = $index) {
+            <div class="rule-card">
+                <!-- Header -->
+                <div class="rule-header">
+                    <input type="text" class="rule-name-input" [value]="rule.name" 
+                           (change)="updateRuleName(i, $any($event.target).value)" placeholder="name">
+                    <button class="badge-btn" (click)="generateNameForRule(i)">🎨 name</button>
+                    <button class="badge-btn" (click)="duplicateRule(i)">📋 dup</button>
+                    <div class="enable-toggle">
+                        <span>🔵</span>
+                        <input type="checkbox" [(ngModel)]="rule.enabled">
+                    </div>
+                    <button class="delete-btn" (click)="deleteRule(i)">🗑</button>
+                </div>
+
+                <!-- Output Row -->
+                <div class="param-row">
+                    <div class="param-group">
+                        <span class="param-label">📤 out</span>
+                        <select class="output-type-select" [(ngModel)]="rule.output.type">
+                            <option value="cc">CC</option>
+                            <option value="program">Pgm</option>
+                            <option value="note">Note</option>
+                        </select>
+                        <select class="channel-select" [(ngModel)]="rule.output.channel">
+                            @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
+                                <option [value]="ch">{{ getDeviceShortName(ch) }}</option>
+                            }
+                        </select>
+                        <input type="number" class="out-delay" [(ngModel)]="rule.output.delayMs" placeholder="delay">
+                    </div>
+                    
+                    <div class="param-group">
+                        @if (rule.output.type === 'cc') {
+                            <span>#</span>
+                            <select class="typed-select" [(ngModel)]="rule.output.ccNumber">
+                                @for (opt of getOptionsForType(rule.output.channel, 'cc', rule.output.ccNumber); track opt.value) {
+                                    <option [value]="opt.value">{{ opt.name }}</option>
+                                }
+                            </select>
+                            <select class="out-value-mode" [(ngModel)]="rule.output.valueMode">
+                                <option value="constant">const</option>
+                                <option value="trigger">trig</option>
+                            </select>
+                            @if (rule.output.valueMode === 'constant') {
+                                <input type="number" class="out-const-val" [(ngModel)]="rule.output.constantValue">
+                            }
+                        } @else if (rule.output.type === 'program') {
+                            <span>bank</span>
+                            <input type="number" class="out-bank" [(ngModel)]="rule.output.bank">
+                            <span>prog</span>
+                            <input type="number" class="out-program" [(ngModel)]="rule.output.program">
+                        } @else {
+                            <span>#</span>
+                            <select class="typed-select" [(ngModel)]="rule.output.note">
+                                @for (opt of getOptionsForType(rule.output.channel, 'note', rule.output.note); track opt.value) {
+                                    <option [value]="opt.value">{{ opt.name }}</option>
+                                }
+                            </select>
+                            <select class="out-velocity-mode" [(ngModel)]="rule.output.velocityMode">
+                                <option value="constant">vel const</option>
+                                <option value="trigger">vel trig</option>
+                            </select>
+                            @if (rule.output.velocityMode === 'constant') {
+                                <input type="number" class="out-velocity" [(ngModel)]="rule.output.velocity">
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Trigger Row -->
+                <div class="param-row">
+                    <div class="param-group">
+                        <span class="param-label">⚡ trig</span>
+                        <select class="trigger-type-select" [(ngModel)]="rule.trigger.type">
+                            <option value="noteOn">NoteOn</option>
+                            <option value="controlChange">CC</option>
+                        </select>
+                        <select class="channel-select" [(ngModel)]="rule.trigger.channel">
+                            @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
+                                <option [value]="ch">{{ getDeviceShortName(ch) }}</option>
+                            }
+                        </select>
+                        <select class="consume-select" [(ngModel)]="rule.trigger.consume">
+                            <option value="eat">eat</option>
+                            <option value="pass">pass</option>
+                        </select>
+                    </div>
+                    
+                    <div class="param-group">
+                        @if (rule.trigger.type === 'noteOn') {
+                            <select class="trig-note-mode" [(ngModel)]="rule.trigger.noteMode">
+                                <option value="specific">spec</option>
+                                <option value="any">any</option>
+                            </select>
+                            @if (rule.trigger.noteMode === 'specific') {
+                                <select class="typed-select" [(ngModel)]="rule.trigger.specificNote">
+                                    @for (opt of getOptionsForType(rule.trigger.channel, 'note', rule.trigger.specificNote); track opt.value) {
+                                        <option [value]="opt.value">{{ opt.name }}</option>
+                                    }
+                                </select>
+                            }
+                        } @else {
+                            <span>#</span>
+                            <select class="typed-select" [(ngModel)]="rule.trigger.ccNumber">
+                                @for (opt of getOptionsForType(rule.trigger.channel, 'cc', rule.trigger.ccNumber); track opt.value) {
+                                    <option [value]="opt.value">{{ opt.name }}</option>
+                                }
+                            </select>
+                            <select class="trig-value-mode" [(ngModel)]="rule.trigger.valueMode">
+                                <option value="specific">spec</option>
+                                <option value="any">any</option>
+                            </select>
+                            @if (rule.trigger.valueMode === 'specific') {
+                                <input type="number" class="trig-spec-val" [(ngModel)]="rule.trigger.specificValue">
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-actions">
+        <span>⚡ CC lib channel dropdown shows device names · maps filtered by type</span>
+        <button class="reset-btn" (click)="loadExampleRules()">↺ example</button>
+    </div>
+</div>

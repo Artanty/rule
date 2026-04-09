@@ -1,0 +1,99 @@
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "Message #1 test",
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 13
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "FromTrigger": {
+                  "_0": {
+                    "ControlerValue": {}
+                  }
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 64
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 15,
+                            "last": 15
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 15,
+                            "last": 15
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 127
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

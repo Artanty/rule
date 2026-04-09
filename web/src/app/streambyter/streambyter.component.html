@@ -1,0 +1,188 @@
+<div class="streambyter-container">
+    <div class="header">
+        <h1>🔧 StreamByter Script Generator</h1>
+        <p>Convert MIDI Messenger rules to StreamByter scripts for iOS/macOS</p>
+    </div>
+    
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <input type="file" [id]="importFileInputId" style="display: none" (change)="onFileSelected($event)" accept=".json">
+            <button class="btn" (click)="triggerFileInput()">
+                📂 Import Rules
+            </button>
+            <button class="btn primary" (click)="loadExample()">
+                📝 Load Example
+            </button>
+            <button class="btn warn" (click)="clearRules()">
+                🗑 Clear All
+            </button>
+            <button class="btn success" (click)="addRule()">
+                ➕ Add Rule
+            </button>
+        </div>
+    </div>
+    
+    <div class="rules-panel">
+        <h3>Rules ({{ rules.length }})</h3>
+        
+        @if (rules.length === 0) {
+            <div class="empty-state">
+                <p>No rules yet. Click "Add Rule" or "Load Example" to get started.</p>
+            </div>
+        }
+        
+        @for (rule of rules; track $index; let i = $index) {
+            <div class="rule-item">
+                <div class="rule-header">
+                    <div class="rule-title">
+                        <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled">
+                        <input type="text" [(ngModel)]="rule.name" class="rule-name" placeholder="Rule name">
+                    </div>
+                    <button class="delete-btn-small" (click)="deleteRule(i)">🗑</button>
+                </div>
+                
+                <div class="rule-body">
+                    <div class="trigger-section">
+                        <div class="section-title">⚡ Trigger</div>
+                        <div class="param-row">
+                            <select [(ngModel)]="rule.trigger.type" class="param-select">
+                                <option value="noteOn">Note On</option>
+                                <option value="controlChange">Control Change (CC)</option>
+                            </select>
+                            
+                            <select [(ngModel)]="rule.trigger.channel" class="param-select-small">
+                                @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
+                                    <option [value]="ch">Ch {{ ch }}</option>
+                                }
+                            </select>
+                            
+                            @if (rule.trigger.type === 'noteOn') {
+                                <select [(ngModel)]="rule.trigger.noteMode" class="param-select-small">
+                                    <option value="specific">Specific Note</option>
+                                    <option value="any">Any Note</option>
+                                </select>
+                                @if (rule.trigger.noteMode === 'specific') {
+                                    <input type="number" [(ngModel)]="rule.trigger.specificNote" 
+                                           min="0" max="127" class="param-input-small">
+                                }
+                            } @else {
+                                <input type="number" [(ngModel)]="rule.trigger.ccNumber" 
+                                       placeholder="CC#" min="0" max="127" class="param-input-small">
+                                <select [(ngModel)]="rule.trigger.valueMode" class="param-select-small">
+                                    <option value="any">Any Value</option>
+                                    <option value="specific">Specific Value</option>
+                                </select>
+                                @if (rule.trigger.valueMode === 'specific') {
+                                    <input type="number" [(ngModel)]="rule.trigger.specificValue" 
+                                           min="0" max="127" class="param-input-small">
+                                }
+                            }
+                            
+                            <select [(ngModel)]="rule.trigger.consume" class="param-select-small">
+                                <option value="eat">Eat (Consume)</option>
+                                <option value="pass">Pass Through</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="output-section">
+                        <div class="section-title">📤 Output</div>
+                        <div class="param-row">
+                            <select [(ngModel)]="rule.output.type" class="param-select">
+                                <option value="cc">CC Message</option>
+                                <option value="note">Note Message</option>
+                                <option value="program">Program Change</option>
+                            </select>
+                            
+                            <select [(ngModel)]="rule.output.channel" class="param-select-small">
+                                @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
+                                    <option [value]="ch">Ch {{ ch }}</option>
+                                }
+                            </select>
+                            
+                            @if (rule.output.type === 'cc') {
+                                <input type="number" [(ngModel)]="rule.output.ccNumber" 
+                                       placeholder="CC#" min="0" max="127" class="param-input-small">
+                                <select [(ngModel)]="rule.output.valueMode" class="param-select-small">
+                                    <option value="constant">Constant Value</option>
+                                    <option value="trigger">Pass Trigger Value</option>
+                                </select>
+                                @if (rule.output.valueMode === 'constant') {
+                                    <input type="number" [(ngModel)]="rule.output.constantValue" 
+                                           min="0" max="127" class="param-input-small">
+                                }
+                            } @else if (rule.output.type === 'note') {
+                                <input type="number" [(ngModel)]="rule.output.note" 
+                                       placeholder="Note" min="0" max="127" class="param-input-small">
+                                <select [(ngModel)]="rule.output.velocityMode" class="param-select-small">
+                                    <option value="constant">Constant Velocity</option>
+                                    <option value="trigger">Pass Trigger Velocity</option>
+                                </select>
+                                @if (rule.output.velocityMode === 'constant') {
+                                    <input type="number" [(ngModel)]="rule.output.velocity" 
+                                           min="0" max="127" class="param-input-small">
+                                }
+                            } @else if (rule.output.type === 'program') {
+                                <input type="number" [(ngModel)]="rule.output.bank" 
+                                       placeholder="Bank" min="0" max="127" class="param-input-small">
+                                <input type="number" [(ngModel)]="rule.output.program" 
+                                       placeholder="Program" min="0" max="127" class="param-input-small">
+                            }
+                            
+                            <input type="number" [(ngModel)]="rule.output.delayMs" 
+                                   placeholder="Delay ms" min="0" class="param-input-small">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="actions-panel">
+        <button class="btn generate-btn" (click)="generateStreamByterScript()">
+            🔧 Generate StreamByter Script
+        </button>
+    </div>
+    
+    @if (showGenerated) {
+        <div class="output-panel">
+            <div class="output-header">
+                <h3>📄 Generated StreamByter Script</h3>
+                <div class="output-actions">
+                    <button class="btn small" (click)="copyToClipboard()">📋 Copy</button>
+                </div>
+            </div>
+            
+            <!-- Поле для ввода имени файла -->
+            <div class="file-name-section">
+                <label for="fileNameInput" class="file-name-label">File name (without extension):</label>
+                <input type="text" id="fileNameInput" [(ngModel)]="fileName" 
+                       placeholder="2026-04-09__20-57" class="file-name-input">
+                <div class="file-name-hint">Leave empty to use current date/time</div>
+            </div>
+            
+            <div class="export-buttons">
+                <button class="btn export-sbr" (click)="downloadScript()">
+                    💾 Export as .sbr (StreamByter)
+                </button>
+                <button class="btn export-json" (click)="downloadAsJson()">
+                    📄 Export as .json
+                </button>
+            </div>
+            
+            <pre class="script-output">{{ generatedScript }}</pre>
+        </div>
+    }
+    
+    <div class="info-panel">
+        <h4>ℹ️ About StreamByter</h4>
+        <p>StreamByter is a MIDI processing script language for iOS/macOS. These scripts can be used in:</p>
+        <ul>
+            <li><strong>MIDI Messenger</strong> - Built-in StreamByter support</li>
+            <li><strong>MIDI Flow</strong> - Advanced MIDI routing</li>
+            <li><strong>AUM</strong> - Audio Unit Mixer with MIDI processing</li>
+            <li><strong>Other apps</strong> that support StreamByter format</li>
+        </ul>
+        <p class="note">Note: Delay parameters may require advanced scripting techniques. The .sbr format is compatible with Audeonic Apps.</p>
+    </div>
+</div>
