@@ -229,8 +229,163 @@ export class StreambyterComponent implements OnInit {
     }
     
     deleteRule(index: number) {
-        this.rules.splice(index, 1);
+        if (confirm(`Delete rule "${this.rules[index].name}"?`)) {
+            this.rules.splice(index, 1);
+            this.showButtonFeedback('delete', index);
+        }
     }
+    
+    // ========== НОВЫЕ МЕТОДЫ ==========
+    
+    /**
+     * Генерация умного имени на основе настроек правила
+     */
+    generateSmartName(rule: Rule): string {
+        const targetDev = this.getDeviceName(rule.output.channel);
+        let targetParam = '';
+        
+        if (rule.output.type === 'cc') {
+            targetParam = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
+        } else if (rule.output.type === 'program') {
+            targetParam = `Program ${rule.output.program}`;
+        } else if (rule.output.type === 'note') {
+            targetParam = this.getParamName(rule.output.channel, 'note', rule.output.note);
+        } else {
+            targetParam = 'message';
+        }
+        
+        const srcDev = this.getDeviceName(rule.trigger.channel);
+        
+        // Добавляем информацию о значении/velocity если нужно
+        let valueInfo = '';
+        if (rule.output.type === 'cc' && rule.output.valueMode === 'constant') {
+            valueInfo = ` = ${rule.output.constantValue}`;
+        } else if (rule.output.type === 'note' && rule.output.velocityMode === 'constant') {
+            valueInfo = ` vel=${rule.output.velocity}`;
+        }
+        
+        return `set [${targetDev}] ${targetParam}${valueInfo} from [${srcDev}]`;
+    }
+    
+    /**
+     * Генерация имени на основе действия (более детальная)
+     */
+    generateActionBasedName(rule: Rule): string {
+        const parts: string[] = [];
+        
+        // Что делает (действие)
+        if (rule.output.type === 'cc') {
+            const paramName = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
+            parts.push(`${paramName}`);
+            if (rule.output.valueMode === 'constant') {
+                parts.push(`=${rule.output.constantValue}`);
+            } else {
+                parts.push(`← trigger`);
+            }
+        } else if (rule.output.type === 'note') {
+            const paramName = this.getParamName(rule.output.channel, 'note', rule.output.note);
+            parts.push(`${paramName}`);
+            if (rule.output.velocityMode === 'constant') {
+                parts.push(`vel=${rule.output.velocity}`);
+            } else {
+                parts.push(`vel←trigger`);
+            }
+        } else if (rule.output.type === 'program') {
+            parts.push(`PGM${rule.output.program}`);
+            if (rule.output.bank > 0) parts.push(`bank${rule.output.bank}`);
+        }
+        
+        // Когда срабатывает (триггер)
+        if (rule.trigger.type === 'noteOn') {
+            if (rule.trigger.noteMode === 'specific') {
+                const noteName = this.getParamName(rule.trigger.channel, 'note', rule.trigger.specificNote);
+                parts.unshift(`${noteName}→`);
+            } else {
+                parts.unshift(`Any Note→`);
+            }
+        } else if (rule.trigger.type === 'controlChange') {
+            const ccName = this.getParamName(rule.trigger.channel, 'cc', rule.trigger.ccNumber);
+            if (rule.trigger.valueMode === 'specific') {
+                parts.unshift(`${ccName}=${rule.trigger.specificValue}→`);
+            } else {
+                parts.unshift(`${ccName}→`);
+            }
+        }
+        
+        // Добавляем устройство если разное
+        const srcDev = this.getDeviceName(rule.trigger.channel);
+        const dstDev = this.getDeviceName(rule.output.channel);
+        
+        if (srcDev !== dstDev) {
+            parts.unshift(`[${srcDev}→${dstDev}]`);
+        }
+        
+        let result = parts.join(' ');
+        // Ограничиваем длину имени
+        if (result.length > 60) {
+            result = result.substring(0, 57) + '...';
+        }
+        return result;
+    }
+    
+    /**
+     * Генерация имени для правила по индексу
+     */
+    generateNameForRule(index: number) {
+        if (this.rules[index]) {
+            // Используем action-based name для более информативного имени
+            const newName = this.generateActionBasedName(this.rules[index]);
+            this.rules[index].name = newName;
+            this.showButtonFeedback('generate', index);
+        }
+    }
+    
+    /**
+     * Дублирование правила
+     */
+    duplicateRule(index: number) {
+        const original = this.rules[index];
+        const copy = JSON.parse(JSON.stringify(original));
+        copy.name = `${original.name} (copy)`;
+        
+        this.rules.splice(index + 1, 0, copy);
+        this.showButtonFeedback('duplicate', index);
+    }
+    
+    /**
+     * Визуальная обратная связь для кнопок
+     */
+    private showButtonFeedback(action: string, index: number) {
+        // Находим карточку правила
+        const cards = document.querySelectorAll('.rule-card');
+        const targetCard = cards[index] as HTMLElement;
+        
+        if (targetCard) {
+            let targetButton: HTMLElement | null = null;
+            
+            if (action === 'generate') {
+                targetButton = targetCard.querySelector('.btn-generate') as HTMLElement;
+            } else if (action === 'duplicate') {
+                targetButton = targetCard.querySelector('.btn-duplicate') as HTMLElement;
+            } else if (action === 'delete') {
+                targetButton = targetCard.querySelector('.btn-delete') as HTMLElement;
+            }
+            
+            if (targetButton) {
+                const originalText = targetButton.textContent || '';
+                const feedbackText = action === 'generate' ? '✓ done!' : 
+                    action === 'duplicate' ? '✓ copied!' : 
+                        action === 'delete' ? '✓ deleted!' : '✓ done!';
+                
+                targetButton.textContent = feedbackText;
+                setTimeout(() => {
+                    targetButton!.textContent = originalText;
+                }, 800);
+            }
+        }
+    }
+    
+    // ========== КОНЕЦ НОВЫХ МЕТОДОВ ==========
     
     generateStreamByterScript() {
         const lines: string[] = [];

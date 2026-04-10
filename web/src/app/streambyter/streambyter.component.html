@@ -35,13 +35,23 @@
         }
         
         @for (rule of rules; track $index; let i = $index) {
-            <div class="rule-item">
+            <div class="rule-item" [attr.data-rule-index]="i">
                 <div class="rule-header">
                     <div class="rule-title">
                         <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled">
                         <input type="text" [(ngModel)]="rule.name" class="rule-name" placeholder="Rule name">
                     </div>
-                    <button class="delete-btn-small" (click)="deleteRule(i)">🗑</button>
+                    <div class="rule-buttons">
+                        <button class="btn-generate" (click)="generateNameForRule(i)" title="Generate smart name from rule settings">
+                            🎨 name
+                        </button>
+                        <button class="btn-duplicate" (click)="duplicateRule(i)" title="Duplicate this rule">
+                            📋 dup
+                        </button>
+                        <button class="btn-delete" (click)="deleteRule(i)" title="Delete this rule">
+                            🗑
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="rule-body">
@@ -214,5 +224,6 @@
         </ul>
         <p class="note">Note: Delay parameters may require advanced scripting techniques. The .sbr format is compatible with Audeonic Apps.</p>
         <p class="note">💡 Device names and CC/Note names are loaded from your MIDI Messenger settings!</p>
+        <p class="note">✨ Click "🎨 name" to auto-generate rule names based on trigger/output settings!</p>
     </div>
 </div>
