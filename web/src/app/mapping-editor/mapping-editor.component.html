@@ -1,0 +1,134 @@
+<div class="mapping-editor-container">
+    <div class="header">
+        <h1>📝 MIDI Mapping Constructor</h1>
+        <p>Create and edit CC/Note mapping files for your MIDI devices</p>
+    </div>
+    
+    <!-- Device Info Bar -->
+    <div class="device-info-bar">
+        <div class="device-stats">
+            <span class="stat">📋 Devices: {{ deviceMap.length }}</span>
+            <span class="stat">📦 Total Mappings: {{ getTotalMappingsCount() }}</span>
+        </div>
+        <div class="device-list">
+            <ng-container *ngFor="let device of deviceMap">
+                <span class="device-tag" [class.active]="selectedChannel === device.midiChannel" 
+                      (click)="selectedChannel = device.midiChannel; onChannelChange()">
+                    {{ device.device }} (CH{{ device.midiChannel }})
+                </span>
+            </ng-container>
+        </div>
+    </div>
+    
+    <!-- Main Controls -->
+    <div class="controls-bar">
+        <div class="channel-selector">
+            <label>Channel:</label>
+            <select [(ngModel)]="selectedChannel" (change)="onChannelChange()" class="channel-select">
+                <option *ngFor="let ch of channels" [value]="ch">CH{{ ch }} — {{ getDeviceName(ch) }}</option>
+            </select>
+        </div>
+        
+        <div class="type-selector">
+            <label>Mapping Type:</label>
+            <div class="type-buttons">
+                <button class="type-btn" [class.active]="selectedMappingType === 'cc'" (click)="selectedMappingType = 'cc'; onMappingTypeChange()">
+                    🎚️ CC Messages
+                </button>
+                <button class="type-btn" [class.active]="selectedMappingType === 'note'" (click)="selectedMappingType = 'note'; onMappingTypeChange()">
+                    🎵 Note Messages
+                </button>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn save-all-btn" (click)="saveAll()">💾 Save All Changes</button>
+            <button class="btn clear-btn" (click)="clearAllMappings()">🗑 Clear Channel</button>
+            <button class="btn clear-all-btn" (click)="clearAllChannels()">⚠️ Clear All Channels</button>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions">
+        <button class="btn quick-btn" (click)="fillPattern()">🎨 Fill Pattern</button>
+        <button class="btn quick-btn" (click)="clearAllNames()">🧹 Clear All Names</button>
+        <button class="btn quick-btn" (click)="copyFromChannel()">📋 Copy from Another Channel</button>
+    </div>
+    
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <span class="stat-item">📊 Total values: 128 (0-127)</span>
+        <span class="stat-item">✅ Named mappings: {{ getTotalMappingsCount() }}</span>
+    </div>
+    
+    <!-- Mappings Grid - 8 columns x 16 rows -->
+    <div class="mappings-grid">
+        <div class="grid-header">
+            <div class="grid-cell header-cell" *ngFor="let col of [0,1,2,3,4,5,6,7]">Value</div>
+        </div>
+        <div class="grid-body">
+            <div class="grid-row" *ngFor="let row of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]">
+                <div class="grid-cell" *ngFor="let col of [0,1,2,3,4,5,6,7]">
+                    <div class="cell-content">
+                        <div class="value-label">{{ getValueAt(row, col) }}</div>
+                        <input type="text" 
+                               [value]="getEntryName(getValueAt(row, col))" 
+                               (input)="updateEntryName(getValueAt(row, col), $any($event.target).value)"
+                               [placeholder]="getPlaceholderText()"
+                               class="name-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Import/Export Section -->
+    <div class="import-export-section">
+        <div class="section-title">📁 Import / Export</div>
+        
+        <input type="file" [id]="importFileInputId" style="display: none" (change)="onImportFile($event)" accept=".json">
+        <input type="file" [id]="importAllInputId" style="display: none" (change)="onUploadAllMappings($event)" accept=".json">
+        
+        <div class="ie-row">
+            <div class="ie-group">
+                <label>Export current channel mappings:</label>
+                <input type="text" [(ngModel)]="exportFileName" placeholder="filename (optional)" class="ie-input">
+                <button class="btn export-btn" (click)="exportMappings()">⬇️ Export as JSON</button>
+            </div>
+            
+            <div class="ie-group">
+                <label>Import mappings to current channel:</label>
+                <button class="btn import-btn" (click)="triggerImportFile()">📂 Import JSON</button>
+                <span class="ie-hint">Merges with existing, overwrites matching values</span>
+            </div>
+        </div>
+        
+        <div class="ie-divider"></div>
+        
+        <div class="ie-row">
+            <div class="ie-group">
+                <label>Export ALL mappings (all channels):</label>
+                <button class="btn export-all-btn" (click)="downloadAllMappings()">💾 Export All</button>
+            </div>
+            
+            <div class="ie-group">
+                <label>Import ALL mappings (full backup):</label>
+                <button class="btn import-all-btn" (click)="triggerImportAll()">📂 Import All</button>
+                <span class="ie-hint warning">⚠️ Replaces all existing mappings!</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h4>💡 Tips</h4>
+        <ul>
+            <li><strong>Save All Changes</strong> - One button saves all your edits at once</li>
+            <li><strong>Fill Pattern</strong> - Auto-generate names using '#' as number placeholder (e.g., "Volume #")</li>
+            <li><strong>Copy from Channel</strong> - Copy all mappings from another channel</li>
+            <li><strong>Grid layout</strong> - 8 columns x 16 rows for easy editing of all 128 values</li>
+            <li><strong>Empty names</strong> - Will show as "CC#X" or "Note#X" in the main editor</li>
+            <li><strong>Import merges</strong> - New entries are added, existing values are overwritten</li>
+        </ul>
+    </div>
+</div>

@@ -19,6 +19,9 @@
             <button class="btn success" (click)="addRule()">
                 ➕ Add Rule
             </button>
+            <button class="btn" (click)="refreshMaps()">
+                🔄 Refresh MIDI Maps
+            </button>
         </div>
     </div>
     
@@ -42,6 +45,7 @@
                 </div>
                 
                 <div class="rule-body">
+                    <!-- TRIGGER SECTION -->
                     <div class="trigger-section">
                         <div class="section-title">⚡ Trigger</div>
                         <div class="param-row">
@@ -50,9 +54,10 @@
                                 <option value="controlChange">Control Change (CC)</option>
                             </select>
                             
+                            <!-- Trigger Channel Select with device names -->
                             <select [(ngModel)]="rule.trigger.channel" class="param-select-small">
-                                @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
-                                    <option [value]="ch">Ch {{ ch }}</option>
+                                @for (ch of channels; track ch) {
+                                    <option [value]="ch">Ch{{ ch }} ({{ getDeviceName(ch) }})</option>
                                 }
                             </select>
                             
@@ -62,19 +67,29 @@
                                     <option value="any">Any Note</option>
                                 </select>
                                 @if (rule.trigger.noteMode === 'specific') {
-                                    <input type="number" [(ngModel)]="rule.trigger.specificNote" 
-                                           min="0" max="127" class="param-input-small">
+                                    <!-- Trigger Note Select with note names from library -->
+                                    <select [(ngModel)]="rule.trigger.specificNote" class="param-select-small">
+                                        @for (opt of getNoteOptions(rule.trigger.channel, rule.trigger.specificNote); track opt.value) {
+                                            <option [value]="opt.value">{{ opt.label }}</option>
+                                        }
+                                    </select>
                                 }
                             } @else {
-                                <input type="number" [(ngModel)]="rule.trigger.ccNumber" 
-                                       placeholder="CC#" min="0" max="127" class="param-input-small">
+                                <!-- Trigger CC Select with CC names from library -->
+                                <select [(ngModel)]="rule.trigger.ccNumber" class="param-select-small">
+                                    @for (opt of getCcOptions(rule.trigger.channel, rule.trigger.ccNumber); track opt.value) {
+                                        <option [value]="opt.value">{{ opt.label }}</option>
+                                    }
+                                </select>
+                                
                                 <select [(ngModel)]="rule.trigger.valueMode" class="param-select-small">
                                     <option value="any">Any Value</option>
                                     <option value="specific">Specific Value</option>
                                 </select>
+                                
                                 @if (rule.trigger.valueMode === 'specific') {
                                     <input type="number" [(ngModel)]="rule.trigger.specificValue" 
-                                           min="0" max="127" class="param-input-small">
+                                           min="0" max="127" class="param-input-small" placeholder="Value">
                                 }
                             }
                             
@@ -85,6 +100,7 @@
                         </div>
                     </div>
                     
+                    <!-- OUTPUT SECTION -->
                     <div class="output-section">
                         <div class="section-title">📤 Output</div>
                         <div class="param-row">
@@ -94,33 +110,46 @@
                                 <option value="program">Program Change</option>
                             </select>
                             
+                            <!-- Output Channel Select with device names -->
                             <select [(ngModel)]="rule.output.channel" class="param-select-small">
-                                @for (ch of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; track ch) {
-                                    <option [value]="ch">Ch {{ ch }}</option>
+                                @for (ch of channels; track ch) {
+                                    <option [value]="ch">Ch{{ ch }} ({{ getDeviceName(ch) }})</option>
                                 }
                             </select>
                             
                             @if (rule.output.type === 'cc') {
-                                <input type="number" [(ngModel)]="rule.output.ccNumber" 
-                                       placeholder="CC#" min="0" max="127" class="param-input-small">
+                                <!-- Output CC Select with CC names from library -->
+                                <select [(ngModel)]="rule.output.ccNumber" class="param-select-small">
+                                    @for (opt of getCcOptions(rule.output.channel, rule.output.ccNumber); track opt.value) {
+                                        <option [value]="opt.value">{{ opt.label }}</option>
+                                    }
+                                </select>
+                                
                                 <select [(ngModel)]="rule.output.valueMode" class="param-select-small">
                                     <option value="constant">Constant Value</option>
                                     <option value="trigger">Pass Trigger Value</option>
                                 </select>
+                                
                                 @if (rule.output.valueMode === 'constant') {
                                     <input type="number" [(ngModel)]="rule.output.constantValue" 
-                                           min="0" max="127" class="param-input-small">
+                                           min="0" max="127" class="param-input-small" placeholder="Value">
                                 }
                             } @else if (rule.output.type === 'note') {
-                                <input type="number" [(ngModel)]="rule.output.note" 
-                                       placeholder="Note" min="0" max="127" class="param-input-small">
+                                <!-- Output Note Select with note names from library -->
+                                <select [(ngModel)]="rule.output.note" class="param-select-small">
+                                    @for (opt of getNoteOptions(rule.output.channel, rule.output.note); track opt.value) {
+                                        <option [value]="opt.value">{{ opt.label }}</option>
+                                    }
+                                </select>
+                                
                                 <select [(ngModel)]="rule.output.velocityMode" class="param-select-small">
                                     <option value="constant">Constant Velocity</option>
                                     <option value="trigger">Pass Trigger Velocity</option>
                                 </select>
+                                
                                 @if (rule.output.velocityMode === 'constant') {
                                     <input type="number" [(ngModel)]="rule.output.velocity" 
-                                           min="0" max="127" class="param-input-small">
+                                           min="0" max="127" class="param-input-small" placeholder="Velocity">
                                 }
                             } @else if (rule.output.type === 'program') {
                                 <input type="number" [(ngModel)]="rule.output.bank" 
@@ -153,7 +182,7 @@
                 </div>
             </div>
             
-            <!-- Поле для ввода имени файла -->
+            <!-- File name input -->
             <div class="file-name-section">
                 <label for="fileNameInput" class="file-name-label">File name (without extension):</label>
                 <input type="text" id="fileNameInput" [(ngModel)]="fileName" 
@@ -184,5 +213,6 @@
             <li><strong>Other apps</strong> that support StreamByter format</li>
         </ul>
         <p class="note">Note: Delay parameters may require advanced scripting techniques. The .sbr format is compatible with Audeonic Apps.</p>
+        <p class="note">💡 Device names and CC/Note names are loaded from your MIDI Messenger settings!</p>
     </div>
 </div>

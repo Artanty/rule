@@ -8,13 +8,15 @@ import { CommonModule } from '@angular/common';
 import { ValidationComponent } from './validation/validation.component';
 import { RulesComponent } from './rules/rules.component';
 import { StreambyterComponent } from './streambyter/streambyter.component';
+import { MappingEditorComponent } from './mapping-editor/mapping-editor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ValidationComponent,
     RulesComponent,
-    StreambyterComponent
+    StreambyterComponent,
+    MappingEditorComponent
   ],
   imports: [
     BrowserModule,

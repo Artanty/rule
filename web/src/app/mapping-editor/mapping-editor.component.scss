@@ -1,0 +1,120 @@
+// Добавьте или замените стили для .mappings-grid
+
+.stats-bar {
+    background: #151523;
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 2rem;
+
+    .stat-item {
+        color: #aab9ff;
+        font-size: 0.85rem;
+    }
+}
+
+.mappings-grid {
+    background: #1e1e34;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+
+    .grid-header {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        background: #2a2a44;
+        border-bottom: 1px solid #4a4a7a;
+
+        .header-cell {
+            padding: 0.8rem;
+            font-weight: bold;
+            color: #aab9ff;
+            font-size: 0.8rem;
+            text-align: center;
+            border-right: 1px solid #3a3a5a;
+
+            &:last-child {
+                border-right: none;
+            }
+        }
+    }
+
+    .grid-body {
+        max-height: 70vh;
+        overflow-y: auto;
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            border-bottom: 1px solid #2a2a44;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        .grid-cell {
+            padding: 0.5rem;
+            border-right: 1px solid #2a2a44;
+
+            &:last-child {
+                border-right: none;
+            }
+        }
+    }
+}
+
+.cell-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+
+    .value-label {
+        font-family: monospace;
+        font-weight: bold;
+        color: #9f7afe;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .name-input {
+        width: 100%;
+        background: #0b0b16;
+        border: 1px solid #4f4f88;
+        color: white;
+        padding: 0.3rem 0.4rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+
+        &:focus {
+            outline: none;
+            border-color: #9f7afe;
+            box-shadow: 0 0 0 2px rgba(159, 122, 254, 0.2);
+        }
+
+        &::placeholder {
+            color: #4a4a7a;
+            font-size: 0.65rem;
+        }
+    }
+}
+
+// Обновите остальные стили, удалив пагинацию
+.pagination-bar {
+    display: none;
+}
+
+// Убедитесь, что quick-actions и другие стили остаются
+.quick-actions {
+    background: #151523;
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+// Остальные стили остаются без изменений...
