@@ -235,109 +235,86 @@ export class StreambyterComponent implements OnInit {
         }
     }
     
-    // ========== НОВЫЕ МЕТОДЫ ==========
+    // ========== МЕТОДЫ ГЕНЕРАЦИИ ИМЕН ==========
     
     /**
-     * Генерация умного имени на основе настроек правила
+     * Получение имени параметра из карты (для триггера)
      */
-    generateSmartName(rule: Rule): string {
-        const targetDev = this.getDeviceName(rule.output.channel);
-        let targetParam = '';
-        
-        if (rule.output.type === 'cc') {
-            targetParam = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
-        } else if (rule.output.type === 'program') {
-            targetParam = `Program ${rule.output.program}`;
-        } else if (rule.output.type === 'note') {
-            targetParam = this.getParamName(rule.output.channel, 'note', rule.output.note);
-        } else {
-            targetParam = 'message';
-        }
-        
-        const srcDev = this.getDeviceName(rule.trigger.channel);
-        
-        // Добавляем информацию о значении/velocity если нужно
-        let valueInfo = '';
-        if (rule.output.type === 'cc' && rule.output.valueMode === 'constant') {
-            valueInfo = ` = ${rule.output.constantValue}`;
-        } else if (rule.output.type === 'note' && rule.output.velocityMode === 'constant') {
-            valueInfo = ` vel=${rule.output.velocity}`;
-        }
-        
-        return `set [${targetDev}] ${targetParam}${valueInfo} from [${srcDev}]`;
-    }
-    
-    /**
-     * Генерация имени на основе действия (более детальная)
-     */
-    generateActionBasedName(rule: Rule): string {
-        const parts: string[] = [];
-        
-        // Что делает (действие)
-        if (rule.output.type === 'cc') {
-            const paramName = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
-            parts.push(`${paramName}`);
-            if (rule.output.valueMode === 'constant') {
-                parts.push(`=${rule.output.constantValue}`);
-            } else {
-                parts.push(`← trigger`);
-            }
-        } else if (rule.output.type === 'note') {
-            const paramName = this.getParamName(rule.output.channel, 'note', rule.output.note);
-            parts.push(`${paramName}`);
-            if (rule.output.velocityMode === 'constant') {
-                parts.push(`vel=${rule.output.velocity}`);
-            } else {
-                parts.push(`vel←trigger`);
-            }
-        } else if (rule.output.type === 'program') {
-            parts.push(`PGM${rule.output.program}`);
-            if (rule.output.bank > 0) parts.push(`bank${rule.output.bank}`);
-        }
-        
-        // Когда срабатывает (триггер)
-        if (rule.trigger.type === 'noteOn') {
+    getTriggerParamName(rule: Rule): string {
+        if (rule.trigger.type === 'controlChange') {
+            const ccNumber = Number(rule.trigger.ccNumber); // Ensure it's a number
+            return this.getParamName(rule.trigger.channel, 'cc', ccNumber);
+        } else if (rule.trigger.type === 'noteOn') {
             if (rule.trigger.noteMode === 'specific') {
-                const noteName = this.getParamName(rule.trigger.channel, 'note', rule.trigger.specificNote);
-                parts.unshift(`${noteName}→`);
+                const noteNumber = Number(rule.trigger.specificNote);
+                return this.getParamName(rule.trigger.channel, 'note', noteNumber);
             } else {
-                parts.unshift(`Any Note→`);
-            }
-        } else if (rule.trigger.type === 'controlChange') {
-            const ccName = this.getParamName(rule.trigger.channel, 'cc', rule.trigger.ccNumber);
-            if (rule.trigger.valueMode === 'specific') {
-                parts.unshift(`${ccName}=${rule.trigger.specificValue}→`);
-            } else {
-                parts.unshift(`${ccName}→`);
+                return 'any note';
             }
         }
-        
-        // Добавляем устройство если разное
-        const srcDev = this.getDeviceName(rule.trigger.channel);
-        const dstDev = this.getDeviceName(rule.output.channel);
-        
-        if (srcDev !== dstDev) {
-            parts.unshift(`[${srcDev}→${dstDev}]`);
-        }
-        
-        let result = parts.join(' ');
-        // Ограничиваем длину имени
-        if (result.length > 60) {
-            result = result.substring(0, 57) + '...';
-        }
-        return result;
+        return 'unknown';
     }
     
     /**
-     * Генерация имени для правила по индексу
+     * Получение имени параметра из карты (для выхода)
+     */
+    getOutputParamName(rule: Rule): string {
+        if (rule.output.type === 'cc') {
+            const ccNumber = Number(rule.output.ccNumber);
+            return this.getParamName(rule.output.channel, 'cc', ccNumber);
+        } else if (rule.output.type === 'note') {
+            const noteNumber = Number(rule.output.note);
+            return this.getParamName(rule.output.channel, 'note', noteNumber);
+        } else if (rule.output.type === 'program') {
+            return `program ${rule.output.program}`;
+        }
+        return 'unknown';
+    }
+    
+    /**
+     * Генерация имени для правила
      */
     generateNameForRule(index: number) {
         if (this.rules[index]) {
-            // Используем action-based name для более информативного имени
-            const newName = this.generateActionBasedName(this.rules[index]);
+            const rule = this.rules[index];
+            const srcDev = this.getDeviceName(rule.trigger.channel);
+            const dstDev = this.getDeviceName(rule.output.channel);
+            
+            const srcParam = this.getTriggerParamName(rule);
+            const dstParam = this.getOutputParamName(rule);
+            
+            let newName = `[${srcDev}] ${srcParam} → [${dstDev}] ${dstParam}`;
+            
+            // Add constant value info if needed
+            if (rule.output.type === 'cc' && rule.output.valueMode === 'constant') {
+                newName += ` = ${rule.output.constantValue}`;
+            } else if (rule.output.type === 'note' && rule.output.velocityMode === 'constant') {
+                newName += ` vel=${rule.output.velocity}`;
+            }
+            
             this.rules[index].name = newName;
             this.showButtonFeedback('generate', index);
         }
+    }
+    
+    /**
+     * Генерация комментария для правила в скрипте
+     */
+    generateRuleComment(rule: Rule, index: number): string {
+        const srcDev = this.getDeviceName(rule.trigger.channel);
+        const dstDev = this.getDeviceName(rule.output.channel);
+        
+        const srcParam = this.getTriggerParamName(rule);
+        const dstParam = this.getOutputParamName(rule);
+        
+        let action = '→';
+        if (rule.output.type === 'cc' && rule.output.valueMode === 'constant') {
+            action = ` = ${rule.output.constantValue}`;
+        } else if (rule.output.type === 'note' && rule.output.velocityMode === 'constant') {
+            action = ` vel=${rule.output.velocity}`;
+        }
+        
+        return `# == RULE ${index + 1}: [${srcDev}] ${srcParam} → [${dstDev}] ${dstParam} ${action} ==`;
     }
     
     /**
@@ -356,7 +333,6 @@ export class StreambyterComponent implements OnInit {
      * Визуальная обратная связь для кнопок
      */
     private showButtonFeedback(action: string, index: number) {
-        // Находим карточку правила
         const cards = document.querySelectorAll('.rule-card');
         const targetCard = cards[index] as HTMLElement;
         
@@ -385,24 +361,14 @@ export class StreambyterComponent implements OnInit {
         }
     }
     
-    // ========== КОНЕЦ НОВЫХ МЕТОДОВ ==========
+    // ========== ГЕНЕРАЦИЯ STREAMBYTER SCRIPT ==========
     
     generateStreamByterScript() {
         const lines: string[] = [];
         
         lines.push('# StreamByter Script generated by MIDI Messenger');
         lines.push(`# Generated: ${new Date().toLocaleString()}`);
-        lines.push(`# Total rules: ${this.rules.length}`);
         lines.push('');
-        
-        // Добавляем информацию о MIDI картах в комментарии
-        if (this.deviceMap.length > 0) {
-            lines.push('# ========== MIDI DEVICE MAP ==========');
-            this.deviceMap.forEach(device => {
-                lines.push(`# ${device.device} -> Channel ${device.midiChannel}`);
-            });
-            lines.push('');
-        }
         
         const enabledRules = this.rules.filter(r => r.enabled);
         
@@ -413,31 +379,18 @@ export class StreambyterComponent implements OnInit {
             return;
         }
         
-        // INITIALIZATION section (IF LOAD)
-        lines.push('# ========== INITIALIZATION ==========');
-        lines.push('IF LOAD');
-        
-        enabledRules.forEach((rule, index) => {
-            const triggerDev = this.getDeviceName(rule.trigger.channel);
-            const outputDev = this.getDeviceName(rule.output.channel);
-            lines.push(`  # Rule ${index + 1}: ${rule.name} (${triggerDev} -> ${outputDev})`);
-            lines.push(`  ASS K${index} = 0`);
-        });
-        
-        lines.push('END');
-        lines.push('');
-        
         // RULES section
         enabledRules.forEach((rule, index) => {
-            const triggerDev = this.getDeviceName(rule.trigger.channel);
-            const outputDev = this.getDeviceName(rule.output.channel);
+            const srcParam = this.getTriggerParamName(rule);
+            const dstParam = this.getOutputParamName(rule);
+            const srcDev = this.getDeviceName(rule.trigger.channel);
+            const dstDev = this.getDeviceName(rule.output.channel);
             
-            lines.push(`# ========== RULE ${index + 1}: ${rule.name} ==========`);
-            lines.push(`# ${triggerDev} -> ${outputDev}`);
+            lines.push(`# == RULE ${index + 1}: [${srcDev}] ${srcParam} → [${dstDev}] ${dstParam} ==`);
             
-            const ruleLine = this.generateStreamByterIRule(rule);
-            if (ruleLine) {
-                lines.push(ruleLine);
+            const ruleLines = this.generateStreamByterIIRule(rule);
+            if (ruleLines) {
+                lines.push(...ruleLines);
             }
             
             lines.push('');
@@ -447,89 +400,97 @@ export class StreambyterComponent implements OnInit {
         this.showGenerated = true;
     }
     
-    private generateStreamByterIRule(rule: Rule): string {
-        let triggerPattern = '';
+    private generateStreamByterIIRule(rule: Rule): string[] {
+        const lines: string[] = [];
+        let condition = '';
+    
+        // Helper function to convert decimal to hex string WITHOUT padding for channel
+        const toHex = (value: any, padding: number = 2): string => {
+            const num = typeof value === 'string' ? parseInt(value, 10) : value;
+            return num.toString(16).toUpperCase().padStart(padding, '0');
+        };
+    
+        // Helper for channel hex (no padding)
+        const toChannelHex = (channel: number): string => {
+            const channelNum = typeof channel === 'string' ? parseInt(channel, 10) : channel;
+            return (channelNum - 1).toString(16).toUpperCase();
+        };
+    
+        // Build the IF condition based on trigger type
+        if (rule.trigger.type === 'controlChange') {
+            const triggerChannelHex = toChannelHex(rule.trigger.channel);
+            const ccHex = toHex(rule.trigger.ccNumber);
         
-        if (rule.trigger.type === 'noteOn') {
-            const channelNibble = (rule.trigger.channel - 1).toString(16).toUpperCase();
-            triggerPattern = `9${channelNibble}`;
-            
-            if (rule.trigger.noteMode === 'specific') {
-                const noteHex = rule.trigger.specificNote.toString(16).toUpperCase().padStart(2, '0');
-                triggerPattern += ` ${noteHex}`;
-            } else {
-                triggerPattern += ` XX`;
-            }
-            
-            triggerPattern += ` XX`;
-        } 
-        else if (rule.trigger.type === 'controlChange') {
-            const channelNibble = (rule.trigger.channel - 1).toString(16).toUpperCase();
-            triggerPattern = `B${channelNibble}`;
-            
-            const ccHex = rule.trigger.ccNumber.toString(16).toUpperCase().padStart(2, '0');
-            triggerPattern += ` ${ccHex}`;
-            
             if (rule.trigger.valueMode === 'specific') {
-                const valueHex = rule.trigger.specificValue.toString(16).toUpperCase().padStart(2, '0');
-                triggerPattern += ` ${valueHex}`;
+                const valueHex = toHex(rule.trigger.specificValue);
+                condition = `IF M0 == B${triggerChannelHex} ${ccHex} ${valueHex}`;
             } else {
-                triggerPattern += ` XX`;
+                condition = `IF M0 == B${triggerChannelHex} ${ccHex}`;
+            }
+        } 
+        else if (rule.trigger.type === 'noteOn') {
+            const triggerChannelHex = toChannelHex(rule.trigger.channel);
+            if (rule.trigger.noteMode === 'specific') {
+                const noteHex = toHex(rule.trigger.specificNote);
+                condition = `IF M0 == 9${triggerChannelHex} ${noteHex}`;
+            } else {
+                condition = `IF M0 >= 0x90 && M0 <= 0x9F`;
             }
         }
-        
-        let outputPattern = '';
-        let flags = '';
-        
+    
+        if (!condition) return lines;
+    
+        lines.push(condition);
+    
+        // Build the SND command for output
         if (rule.output.type === 'cc') {
-            const channelNibble = (rule.output.channel - 1).toString(16).toUpperCase();
-            outputPattern = `B${channelNibble}`;
-            
-            const ccHex = rule.output.ccNumber.toString(16).toUpperCase().padStart(2, '0');
-            outputPattern += ` ${ccHex}`;
-            
+            const outputChannelHex = toChannelHex(rule.output.channel);
+            const ccHex = toHex(rule.output.ccNumber);
+        
+            lines.push(`  ASS M0 = B${outputChannelHex}`);
+            lines.push(`  ASS M1 = ${ccHex}`);
+        
+            // Only set M2 if constant value, otherwise keep original
             if (rule.output.valueMode === 'constant') {
-                const valueHex = rule.output.constantValue.toString(16).toUpperCase().padStart(2, '0');
-                outputPattern += ` ${valueHex}`;
-            } else {
-                outputPattern += ` XX`;
+                const valueHex = toHex(rule.output.constantValue);
+                lines.push(`  ASS M2 = ${valueHex}`);
             }
+            // If trigger mode, don't set M2 - keep original value
+        
         } 
         else if (rule.output.type === 'note') {
-            const channelNibble = (rule.output.channel - 1).toString(16).toUpperCase();
-            outputPattern = `9${channelNibble}`;
-            
-            const noteHex = rule.output.note.toString(16).toUpperCase().padStart(2, '0');
-            outputPattern += ` ${noteHex}`;
-            
+            const outputChannelHex = toChannelHex(rule.output.channel);
+            const noteHex = toHex(rule.output.note);
+        
+            lines.push(`  ASS M0 = 9${outputChannelHex}`);
+            lines.push(`  ASS M1 = ${noteHex}`);
+        
             if (rule.output.velocityMode === 'constant') {
-                const velocityHex = rule.output.velocity.toString(16).toUpperCase().padStart(2, '0');
-                outputPattern += ` ${velocityHex}`;
-            } else {
-                outputPattern += ` XX`;
+                const velocityHex = toHex(rule.output.velocity);
+                lines.push(`  ASS M2 = ${velocityHex}`);
             }
+            // If trigger mode, don't set M2 - keep original velocity
+        
         } 
         else if (rule.output.type === 'program') {
-            const channelNibble = (rule.output.channel - 1).toString(16).toUpperCase();
-            outputPattern = `C${channelNibble}`;
-            
-            const programHex = rule.output.program.toString(16).toUpperCase().padStart(2, '0');
-            outputPattern += ` ${programHex}`;
-        }
+            const outputChannelHex = toChannelHex(rule.output.channel);
+            const programHex = toHex(rule.output.program);
         
+            lines.push(`  ASS M0 = C${outputChannelHex}`);
+            lines.push(`  ASS M1 = ${programHex}`);
+        }
+    
+        const delayFlag = rule.output.delayMs > 0 ? ` +D${rule.output.delayMs}` : '';
+        lines.push(`  SND M0 M1 M2${delayFlag}`);
+    
+        // Only block if consume is 'eat'
         if (rule.trigger.consume === 'eat') {
-            flags = ' +B';
+            lines.push(`  BLOCK`);
         }
-        
-        if (rule.output.delayMs > 0) {
-            flags += ` +D${rule.output.delayMs}`;
-        }
-        
-        if (rule.trigger.valueMode === 'any' && rule.output.valueMode === 'trigger') {
-            flags += ' +C';
-        }
-        
-        return `${triggerPattern} = ${outputPattern}${flags}`;
+    
+        lines.push(`END`);
+    
+        return lines;
     }
     
     copyToClipboard() {
