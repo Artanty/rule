@@ -178,6 +178,14 @@
     </div>
     
     <div class="actions-panel">
+        <!-- File name input moved here -->
+        <div class="file-name-section">
+            <label for="fileNameInput" class="file-name-label">Script name (for export):</label>
+            <input type="text" id="fileNameInput" [(ngModel)]="fileName" 
+                   placeholder="My MIDI Script" class="file-name-input">
+            <div class="file-name-hint">This will appear as the first line in the script</div>
+        </div>
+        
         <div class="override-control">
             <label for="overrideChannel">Override trigger channel:</label>
             <select id="overrideChannel" [(ngModel)]="overrideTriggerChannel">
@@ -189,7 +197,6 @@
         <button class="btn generate-btn" (click)="generateStreamByterScript()">
             🔧 Generate StreamByter Script
         </button>
-
     </div>
  
     
@@ -200,14 +207,6 @@
                 <div class="output-actions">
                     <button class="btn small" (click)="copyToClipboard()">📋 Copy</button>
                 </div>
-            </div>
-            
-            <!-- File name input -->
-            <div class="file-name-section">
-                <label for="fileNameInput" class="file-name-label">File name (without extension):</label>
-                <input type="text" id="fileNameInput" [(ngModel)]="fileName" 
-                       placeholder="2026-04-09__20-57" class="file-name-input">
-                <div class="file-name-hint">Leave empty to use current date/time</div>
             </div>
             
             <div class="export-buttons">
