@@ -6,7 +6,7 @@
     
     <div class="toolbar">
         <div class="toolbar-group">
-            <input type="file" [id]="importFileInputId" style="display: none" (change)="onFileSelected($event)" accept=".json">
+            <input type="file" [id]="importFileInputId" style="display: none" (change)="onFileSelected($event)" accept=".sbr">
             <button class="btn" (click)="triggerFileInput()">
                 📂 Import Rules
             </button>
@@ -178,10 +178,20 @@
     </div>
     
     <div class="actions-panel">
+        <div class="override-control">
+            <label for="overrideChannel">Override trigger channel:</label>
+            <select id="overrideChannel" [(ngModel)]="overrideTriggerChannel">
+                <option [ngValue]="null">None (use rule's channel)</option>
+                <option *ngFor="let ch of channels" [ngValue]="ch">Channel {{ ch }} ({{ getDeviceName(ch) }})</option>
+            </select>
+        </div>
+
         <button class="btn generate-btn" (click)="generateStreamByterScript()">
             🔧 Generate StreamByter Script
         </button>
+
     </div>
+ 
     
     @if (showGenerated) {
         <div class="output-panel">
