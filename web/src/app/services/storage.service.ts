@@ -56,7 +56,8 @@ export class StorageService {
     
   getDeviceName(channel: number): string {
     const deviceMap = this.getDeviceMap();
-    const entry = deviceMap.find(d => d.midiChannel === channel);
+    // Ensure we're comparing numbers properly
+    const entry = deviceMap.find(d => Number(d.midiChannel) === Number(channel));
     return entry ? entry.device : `ch${channel}`;
   }
     

@@ -242,7 +242,7 @@ export class StreambyterComponent implements OnInit {
      */
     getTriggerParamName(rule: Rule): string {
         if (rule.trigger.type === 'controlChange') {
-            const ccNumber = Number(rule.trigger.ccNumber); // Ensure it's a number
+            const ccNumber = Number(rule.trigger.ccNumber);
             return this.getParamName(rule.trigger.channel, 'cc', ccNumber);
         } else if (rule.trigger.type === 'noteOn') {
             if (rule.trigger.noteMode === 'specific') {
@@ -361,6 +361,212 @@ export class StreambyterComponent implements OnInit {
         }
     }
     
+    // ========== ИМПОРТ ИЗ ФАЙЛОВ ==========
+    
+    onFileSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (!input.files?.length) return;
+        
+        const file = input.files[0];
+        const fileName = file.name;
+        
+        if (fileName.endsWith('.sbr')) {
+            this.importSbrFile(file);
+        } else if (fileName.endsWith('.json')) {
+            this.importJsonFile(file);
+        } else {
+            alert('Please select a .sbr or .json file');
+        }
+        
+        input.value = '';
+    }
+    
+    private importSbrFile(file: File) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target?.result as string;
+                // Parse plist XML content
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(content, 'text/xml');
+                
+                // Find the StreamByter-Rules key and get its string value
+                const dict = xmlDoc.querySelector('dict');
+                if (dict) {
+                    const keys = dict.querySelectorAll('key');
+                    for (let i = 0; i < keys.length; i++) {
+                        if (keys[i].textContent === 'StreamByter-Rules') {
+                            const stringElement = keys[i].nextElementSibling;
+                            if (stringElement && stringElement.tagName === 'string') {
+                                const scriptContent = stringElement.textContent || '';
+                                this.parseStreamByterScript(scriptContent);
+                                alert(`Successfully imported ${this.rules.length} rules from .sbr file!`);
+                                return;
+                            }
+                        }
+                    }
+                }
+                throw new Error('Could not find StreamByter-Rules in plist');
+            } catch (ex) {
+                console.error('Error parsing .sbr file:', ex);
+                alert('Error parsing .sbr file. Make sure it\'s a valid StreamByter preset file.');
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    private importJsonFile(file: File) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target?.result as string);
+                if (json.rules) {
+                    this.rules = this.convertFromExternal(json.rules);
+                    alert(`Loaded ${this.rules.length} rules from JSON file!`);
+                } else if (json.script) {
+                    this.parseStreamByterScript(json.script);
+                    alert(`Successfully imported ${this.rules.length} rules from JSON script!`);
+                } else {
+                    alert('Invalid JSON format');
+                }
+            } catch (ex) {
+                alert('Error parsing JSON file');
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    private parseStreamByterScript(script: string) {
+        // Clear existing rules
+        this.rules = [];
+        
+        // Split script into lines
+        const lines = script.split('\n');
+        
+        // Parse each IF block
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Look for IF M0 == B... pattern
+            const ifMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})/i);
+            if (ifMatch) {
+                const rule = this.createDefaultRule();
+                const triggerChannel = parseInt(ifMatch[1], 16) + 1;
+                const triggerCC = parseInt(ifMatch[2], 16);
+                
+                rule.trigger.type = 'controlChange';
+                rule.trigger.channel = triggerChannel;
+                rule.trigger.ccNumber = triggerCC;
+                rule.trigger.valueMode = 'any';
+                rule.trigger.consume = 'eat';
+                
+                // Look for ASS M0 = B... and ASS M1 = ... in following lines
+                let j = i + 1;
+                let foundEnd = false;
+                
+                while (j < lines.length && !foundEnd) {
+                    const currentLine = lines[j].trim();
+                    
+                    // Check for ASS M0 = B...
+                    const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+                    if (assM0Match) {
+                        rule.output.channel = parseInt(assM0Match[1], 16) + 1;
+                    }
+                    
+                    // Check for ASS M1 = ...
+                    const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+                    if (assM1Match) {
+                        rule.output.ccNumber = parseInt(assM1Match[1], 16);
+                        rule.output.type = 'cc';
+                    }
+                    
+                    // Check for ASS M2 = ... (constant value)
+                    const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+                    if (assM2Match) {
+                        rule.output.valueMode = 'constant';
+                        rule.output.constantValue = parseInt(assM2Match[1], 16);
+                    }
+                    
+                    // Check for BLOCK
+                    if (currentLine.match(/BLOCK/i)) {
+                        rule.trigger.consume = 'eat';
+                    }
+                    
+                    // Check for END
+                    if (currentLine.match(/^END$/i)) {
+                        foundEnd = true;
+                        break;
+                    }
+                    
+                    j++;
+                }
+                
+                // Generate a name for the rule
+                rule.name = this.generateActionBasedName(rule);
+                this.rules.push(rule);
+                i = j;
+            }
+        }
+        
+        if (this.rules.length === 0) {
+            alert('No rules could be parsed from the script. The script may use unsupported syntax.');
+        }
+    }
+    
+    private createDefaultRule(): Rule {
+        return {
+            name: "Imported Rule",
+            enabled: true,
+            output: {
+                type: "cc",
+                channel: 1,
+                ccNumber: 0,
+                valueMode: "trigger",
+                constantValue: 0,
+                bank: 0,
+                program: 0,
+                note: 60,
+                velocity: 64,
+                velocityMode: "trigger",
+                delayMs: 0
+            },
+            trigger: {
+                type: "controlChange",
+                channel: 1,
+                noteMode: "specific",
+                specificNote: 60,
+                ccNumber: 0,
+                valueMode: "any",
+                specificValue: 0,
+                consume: "eat"
+            }
+        };
+    }
+    
+    private generateActionBasedName(rule: Rule): string {
+        const srcDev = this.getDeviceName(rule.trigger.channel);
+        const dstDev = this.getDeviceName(rule.output.channel);
+        
+        let srcParam = `CC${rule.trigger.ccNumber}`;
+        let dstParam = `CC${rule.output.ccNumber}`;
+        
+        if (rule.trigger.type === 'controlChange') {
+            const mappedName = this.getParamName(rule.trigger.channel, 'cc', rule.trigger.ccNumber);
+            if (mappedName && !mappedName.startsWith('CC#')) {
+                srcParam = mappedName;
+            }
+        }
+        
+        if (rule.output.type === 'cc') {
+            const mappedName = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
+            if (mappedName && !mappedName.startsWith('CC#')) {
+                dstParam = mappedName;
+            }
+        }
+        
+        return `[${srcDev}] ${srcParam} → [${dstDev}] ${dstParam}`;
+    }
+    
     // ========== ГЕНЕРАЦИЯ STREAMBYTER SCRIPT ==========
     
     generateStreamByterScript() {
@@ -403,24 +609,24 @@ export class StreambyterComponent implements OnInit {
     private generateStreamByterIIRule(rule: Rule): string[] {
         const lines: string[] = [];
         let condition = '';
-    
-        // Helper function to convert decimal to hex string WITHOUT padding for channel
+        
+        // Helper function to convert decimal to hex string
         const toHex = (value: any, padding: number = 2): string => {
             const num = typeof value === 'string' ? parseInt(value, 10) : value;
             return num.toString(16).toUpperCase().padStart(padding, '0');
         };
-    
+        
         // Helper for channel hex (no padding)
         const toChannelHex = (channel: number): string => {
             const channelNum = typeof channel === 'string' ? parseInt(channel, 10) : channel;
             return (channelNum - 1).toString(16).toUpperCase();
         };
-    
+        
         // Build the IF condition based on trigger type
         if (rule.trigger.type === 'controlChange') {
             const triggerChannelHex = toChannelHex(rule.trigger.channel);
             const ccHex = toHex(rule.trigger.ccNumber);
-        
+            
             if (rule.trigger.valueMode === 'specific') {
                 const valueHex = toHex(rule.trigger.specificValue);
                 condition = `IF M0 == B${triggerChannelHex} ${ccHex} ${valueHex}`;
@@ -437,59 +643,57 @@ export class StreambyterComponent implements OnInit {
                 condition = `IF M0 >= 0x90 && M0 <= 0x9F`;
             }
         }
-    
+        
         if (!condition) return lines;
-    
+        
         lines.push(condition);
-    
+        
         // Build the SND command for output
         if (rule.output.type === 'cc') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const ccHex = toHex(rule.output.ccNumber);
-        
+            
             lines.push(`  ASS M0 = B${outputChannelHex}`);
             lines.push(`  ASS M1 = ${ccHex}`);
-        
+            
             // Only set M2 if constant value, otherwise keep original
             if (rule.output.valueMode === 'constant') {
                 const valueHex = toHex(rule.output.constantValue);
                 lines.push(`  ASS M2 = ${valueHex}`);
             }
-            // If trigger mode, don't set M2 - keep original value
-        
+            
         } 
         else if (rule.output.type === 'note') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const noteHex = toHex(rule.output.note);
-        
+            
             lines.push(`  ASS M0 = 9${outputChannelHex}`);
             lines.push(`  ASS M1 = ${noteHex}`);
-        
+            
             if (rule.output.velocityMode === 'constant') {
                 const velocityHex = toHex(rule.output.velocity);
                 lines.push(`  ASS M2 = ${velocityHex}`);
             }
-            // If trigger mode, don't set M2 - keep original velocity
-        
+            
         } 
         else if (rule.output.type === 'program') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const programHex = toHex(rule.output.program);
-        
+            
             lines.push(`  ASS M0 = C${outputChannelHex}`);
             lines.push(`  ASS M1 = ${programHex}`);
         }
-    
+        
         const delayFlag = rule.output.delayMs > 0 ? ` +D${rule.output.delayMs}` : '';
         lines.push(`  SND M0 M1 M2${delayFlag}`);
-    
+        
         // Only block if consume is 'eat'
         if (rule.trigger.consume === 'eat') {
             lines.push(`  BLOCK`);
         }
-    
+        
         lines.push(`END`);
-    
+        
         return lines;
     }
     
@@ -583,53 +787,32 @@ export class StreambyterComponent implements OnInit {
         URL.revokeObjectURL(a.href);
     }
     
-    onFileSelected(event: Event) {
-        const input = event.target as HTMLInputElement;
-        if (!input.files?.length) return;
-        
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const json = JSON.parse(e.target?.result as string);
-                if (json.rules) {
-                    this.rules = this.convertFromExternal(json.rules);
-                    alert(`Loaded ${this.rules.length} rules from file!`);
-                }
-            } catch (ex) {
-                alert('Invalid JSON file');
-            }
-        };
-        reader.readAsText(file);
-        input.value = '';
-    }
-    
     private convertFromExternal(externalRules: any[]): Rule[] {
         return externalRules.map(ext => ({
             name: ext.name || 'Imported Rule',
             enabled: ext.enabled !== false,
             output: {
-                type: 'cc',
-                channel: 1,
-                ccNumber: 0,
-                valueMode: 'constant',
-                constantValue: 0,
-                bank: 0,
-                program: 0,
-                note: 60,
-                velocity: 64,
-                velocityMode: 'constant',
-                delayMs: 0
+                type: ext.output?.type || 'cc',
+                channel: ext.output?.channel || 1,
+                ccNumber: ext.output?.ccNumber || 0,
+                valueMode: ext.output?.valueMode || 'trigger',
+                constantValue: ext.output?.constantValue || 0,
+                bank: ext.output?.bank || 0,
+                program: ext.output?.program || 0,
+                note: ext.output?.note || 60,
+                velocity: ext.output?.velocity || 64,
+                velocityMode: ext.output?.velocityMode || 'trigger',
+                delayMs: ext.output?.delayMs || 0
             },
             trigger: {
-                type: 'noteOn',
-                channel: 1,
-                noteMode: 'any',
-                specificNote: 60,
-                ccNumber: 0,
-                valueMode: 'any',
-                specificValue: 0,
-                consume: 'eat'
+                type: ext.trigger?.type || 'controlChange',
+                channel: ext.trigger?.channel || 1,
+                noteMode: ext.trigger?.noteMode || 'specific',
+                specificNote: ext.trigger?.specificNote || 60,
+                ccNumber: ext.trigger?.ccNumber || 0,
+                valueMode: ext.trigger?.valueMode || 'any',
+                specificValue: ext.trigger?.specificValue || 0,
+                consume: ext.trigger?.consume || 'eat'
             }
         }));
     }
