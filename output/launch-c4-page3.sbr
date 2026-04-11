@@ -5,7 +5,7 @@
     <key>StreamByter-Rules</key>
     <string># launch-c4-page3
 # Generated: 11.04.2026, 19:30:40
-# Override trigger channel: 2
+# Override trigger channel: [1->2]
 
 # == RULE 1: [c4] master treble → [c4] voice 1 octave ==
 IF M0 == B1 29

@@ -3,70 +3,70 @@
 <plist version="1.0">
 <dict>
     <key>StreamByter-Rules</key>
-    <string># launch-c4-page2
-# Generated: 11.04.2026, 19:07:04
-# Override trigger channel: [1->2]
+    <string># launch-c4-page4
+# Generated: 11.04.2026, 20:49:21
+# Override trigger channel: [1-&gt;2]
 
-# == RULE 1: [launch] knob 1 → [c4] voice 1 mode ==
+# == RULE 1: [launch] knob 1 → [c4] voice 1 source ==
 IF M0 == B1 29
   ASS M0 = B1
-  ASS M1 = 09
+  ASS M1 = 2A
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 2: [launch] knob 2 → [c4] voice 2 mode ==
+# == RULE 2: [launch] knob 2 → [c4] voice 2 source ==
 IF M0 == B1 2A
   ASS M0 = B1
-  ASS M1 = 0A
+  ASS M1 = 2B
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 3: [launch] knob 3 → [c4] voice 3 mode ==
+# == RULE 3: [launch] knob 3 → [c4] voice 3 source ==
 IF M0 == B1 2B
   ASS M0 = B1
-  ASS M1 = 0B
+  ASS M1 = 2C
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 4: [launch] knob 4 → [c4] voice 4 mode ==
+# == RULE 4: [launch] knob 4 → [c4] voice 4 source ==
 IF M0 == B1 2C
   ASS M0 = B1
-  ASS M1 = 0C
+  ASS M1 = 2D
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 5: [launch] knob 5 → [c4] voice 1 envelope ==
+# == RULE 5: [launch] knob 5 → [c4] voice 1 destination ==
 IF M0 == B1 2D
   ASS M0 = B1
-  ASS M1 = 1B
+  ASS M1 = 2E
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 6: [launch] knob 6 → [c4] voice 2 envelope ==
+# == RULE 6: [launch] knob 6 → [c4] voice 2 destination ==
 IF M0 == B1 2E
   ASS M0 = B1
-  ASS M1 = 1C
+  ASS M1 = 2F
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 7: [launch] knob 7 → [c4] voice 3 envelope ==
+# == RULE 7: [launch] knob 7 → [c4] voice 3 destination ==
 IF M0 == B1 2F
   ASS M0 = B1
-  ASS M1 = 1D
+  ASS M1 = 30
   SND M0 M1 M2
   BLOCK
 END
 
-# == RULE 8: [launch] knob 8 → [c4] voice 4 envelope ==
+# == RULE 8: [launch] knob 8 → [c4] voice 4 destination ==
 IF M0 == B1 30
   ASS M0 = B1
-  ASS M1 = 1E
+  ASS M1 = 31
   SND M0 M1 M2
   BLOCK
 END

@@ -54,6 +54,8 @@ export class StreambyterComponent implements OnInit {
     
     // Override trigger channel
     overrideTriggerChannel: number | null = null;
+    // Store original trigger channel for display in comments
+    originalTriggerChannel: Map<number, number> = new Map();
     
     exampleRules: Rule[] = [
         {
@@ -191,6 +193,9 @@ export class StreambyterComponent implements OnInit {
     
     loadExample() {
         this.rules = JSON.parse(JSON.stringify(this.exampleRules));
+        this.overrideTriggerChannel = null;
+        this.originalTriggerChannel.clear();
+        this.fileName = '';
     }
     
     clearRules() {
@@ -198,6 +203,8 @@ export class StreambyterComponent implements OnInit {
         this.showGenerated = false;
         this.generatedScript = '';
         this.fileName = '';
+        this.overrideTriggerChannel = null;
+        this.originalTriggerChannel.clear();
     }
     
     addRule() {
@@ -373,6 +380,10 @@ export class StreambyterComponent implements OnInit {
         const file = input.files[0];
         const fileName = file.name;
         
+        // Extract base filename without extension for the script name input
+        const baseFileName = fileName.replace(/\.(sbr|json)$/i, '');
+        this.fileName = baseFileName;
+        
         if (fileName.endsWith('.sbr')) {
             this.importSbrFile(file);
         } else if (fileName.endsWith('.json')) {
@@ -439,65 +450,85 @@ export class StreambyterComponent implements OnInit {
     
     private parseStreamByterScript(script: string) {
         this.rules = [];
-        
+        let overrideOriginalChannel: number | null = null;
+        let overrideNewChannel: number | null = null;
+    
         const lines = script.split('\n');
-        
+    
+        // Parse override information from header FIRST
+        for (const line of lines) {
+            const overrideMatch = line.match(/# Override trigger channel: \[(\d+)->(\d+)\]/);
+            if (overrideMatch) {
+                overrideOriginalChannel = parseInt(overrideMatch[1], 10);
+                overrideNewChannel = parseInt(overrideMatch[2], 10);
+                this.overrideTriggerChannel = overrideNewChannel;
+                break;
+            }
+        }
+    
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
-            
+        
             const ifMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})/i);
             if (ifMatch) {
                 const rule = this.createDefaultRule();
-                const triggerChannel = parseInt(ifMatch[1], 16) + 1;
+                const parsedChannel = parseInt(ifMatch[1], 16) + 1;
                 const triggerCC = parseInt(ifMatch[2], 16);
-                
+            
                 rule.trigger.type = 'controlChange';
-                rule.trigger.channel = triggerChannel;
                 rule.trigger.ccNumber = triggerCC;
                 rule.trigger.valueMode = 'any';
                 rule.trigger.consume = 'eat';
-                
+            
+                // If we have an override and the parsed channel matches the overridden channel,
+                // restore the original channel
+                if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
+                    rule.trigger.channel = overrideOriginalChannel;
+                } else {
+                    rule.trigger.channel = parsedChannel;
+                }
+            
                 let j = i + 1;
                 let foundEnd = false;
-                
+            
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                    
+                
                     const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                     if (assM0Match) {
                         rule.output.channel = parseInt(assM0Match[1], 16) + 1;
                     }
-                    
+                
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
                         rule.output.ccNumber = parseInt(assM1Match[1], 16);
                         rule.output.type = 'cc';
                     }
-                    
+                
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
                         rule.output.valueMode = 'constant';
                         rule.output.constantValue = parseInt(assM2Match[1], 16);
                     }
-                    
+                
                     if (currentLine.match(/BLOCK/i)) {
                         rule.trigger.consume = 'eat';
                     }
-                    
+                
                     if (currentLine.match(/^END$/i)) {
                         foundEnd = true;
                         break;
                     }
-                    
+                
                     j++;
                 }
-                
+            
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
             }
         }
-        
+    
         if (this.rules.length === 0) {
             alert('No rules could be parsed from the script. The script may use unsupported syntax.');
         }
@@ -561,7 +592,7 @@ export class StreambyterComponent implements OnInit {
     
     generateStreamByterScript() {
         const lines: string[] = [];
-    
+        
         // Use filename as first line if provided, otherwise use default
         const scriptName = this.fileName.trim();
         if (scriptName) {
@@ -569,24 +600,26 @@ export class StreambyterComponent implements OnInit {
         } else {
             lines.push(`# StreamByter Script`);
         }
-    
+        
         lines.push(`# Generated: ${new Date().toLocaleString()}`);
-    
-        if (this.overrideTriggerChannel !== null) {
-            lines.push(`# Override trigger channel: ${this.overrideTriggerChannel}`);
+        
+        if (this.overrideTriggerChannel !== null && this.rules.length > 0) {
+            // Show original channel from first rule (assuming all rules have same original channel)
+            const originalChannel = this.rules[0].trigger.channel;
+            lines.push(`# Override trigger channel: [${originalChannel}->${this.overrideTriggerChannel}]`);
         }
-    
+        
         lines.push('');
-    
+        
         const enabledRules = this.rules.filter(r => r.enabled);
-    
+        
         if (enabledRules.length === 0) {
             lines.push('# No enabled rules');
             this.generatedScript = lines.join('\n');
             this.showGenerated = true;
             return;
         }
-    
+        
         // RULES section
         enabledRules.forEach((rule, index) => {
             // Use ORIGINAL rule for comment (show original source)
@@ -594,16 +627,16 @@ export class StreambyterComponent implements OnInit {
             const dstParam = this.getOutputParamName(rule);
             const srcDev = this.getDeviceName(rule.trigger.channel);
             const dstDev = this.getDeviceName(rule.output.channel);
-    
+        
             lines.push(`# == RULE ${index + 1}: [${srcDev}] ${srcParam} → [${dstDev}] ${dstParam} ==`);
-    
+        
             // Apply override ONLY for the actual MIDI condition
             const processedRule = this.applyOverrideToRule(rule);
             const ruleLines = this.generateStreamByterIIRule(processedRule);
             if (ruleLines) {
                 lines.push(...ruleLines);
             }
-    
+        
             lines.push('');
         });
     
@@ -753,19 +786,19 @@ export class StreambyterComponent implements OnInit {
             alert('Please generate a script first!');
             return;
         }
-    
+        
         let finalFileName = this.fileName.trim();
         if (!finalFileName) {
             // Use date as fallback if no name provided
             finalFileName = this.getFormattedDate();
         }
-    
+        
         if (!finalFileName.endsWith('.sbr')) {
             finalFileName += '.sbr';
         }
-    
+        
         const plistContent = this.generatePlistContent(this.generatedScript);
-    
+        
         const blob = new Blob([plistContent], { type: 'application/xml' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
