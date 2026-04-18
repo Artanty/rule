@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
     <key>StreamByter-Rules</key>
-    <string># launch-c4-page3-5
-# Generated: 18.04.2026, 14:20:07
+    <string># launch-c4-page3-7
+# Generated: 18.04.2026, 16:47:24
 # Override trigger channel: [1-&gt;2]
 
 # == RULE 1: [launch] knob 1 [0-17] → [c4] voice 1 octave ==
@@ -93,10 +93,10 @@ END
 
 # == CUSTOM_RULE ==
 IF M0 == B1 17
-  IF M2 > 0
+  IF M2 &gt; 0
     MAT M2 = M2 - 1
     SND B9 17 M2
-    # No BLOCK here - original continues to output on channel 2
+    BLOCK
   END
 END
 
@@ -156,7 +156,7 @@ IF M0 == B1 30
   BLOCK
 END
 
-# == RULE 15: [c4] voice 1 octave → [ch10] CC#23 ==
+# == RULE 15: [launch] CC#23 → [ch10] CC#23 ==
 IF M0 == B1 17
   ASS M0 = B9
   ASS M1 = 17
