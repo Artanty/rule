@@ -6,7 +6,7 @@
     
     <div class="toolbar">
         <div class="toolbar-group">
-            <input type="file" [id]="importFileInputId" style="display: none" (change)="onFileSelected($event)" accept=".sbr">
+            <input type="file" [id]="importFileInputId" style="display: none" (change)="onFileSelected($event)" accept=".sbr,.json">
             <button class="btn" (click)="triggerFileInput()">
                 📂 Import Rules
             </button>
@@ -95,11 +95,22 @@
                                 <select [(ngModel)]="rule.trigger.valueMode" class="param-select-small">
                                     <option value="any">Any Value</option>
                                     <option value="specific">Specific Value</option>
+                                    <option value="range">Value Range</option>
                                 </select>
                                 
                                 @if (rule.trigger.valueMode === 'specific') {
                                     <input type="number" [(ngModel)]="rule.trigger.specificValue" 
                                            min="0" max="127" class="param-input-small" placeholder="Value">
+                                }
+                                
+                                @if (rule.trigger.valueMode === 'range') {
+                                    <div class="range-inputs">
+                                        <input type="number" [(ngModel)]="rule.trigger.rangeMin" 
+                                               min="0" max="127" class="param-input-small" placeholder="Min">
+                                        <span>→</span>
+                                        <input type="number" [(ngModel)]="rule.trigger.rangeMax" 
+                                               min="0" max="127" class="param-input-small" placeholder="Max">
+                                    </div>
                                 }
                             }
                             
@@ -234,5 +245,6 @@
         <p class="note">Note: Delay parameters may require advanced scripting techniques. The .sbr format is compatible with Audeonic Apps.</p>
         <p class="note">💡 Device names and CC/Note names are loaded from your MIDI Messenger settings!</p>
         <p class="note">✨ Click "🎨 name" to auto-generate rule names based on trigger/output settings!</p>
+        <p class="note">🎯 Value Range allows you to trigger only when CC value is between min and max!</p>
     </div>
 </div>
