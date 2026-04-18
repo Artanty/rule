@@ -518,9 +518,9 @@ export class StreambyterComponent implements OnInit {
         this.rules = [];
         let overrideOriginalChannel: number | null = null;
         let overrideNewChannel: number | null = null;
-    
+
         const lines = script.split('\n');
-    
+
         // Parse override information from header FIRST
         for (const line of lines) {
             const overrideMatch = line.match(/# Override trigger channel: \[(\d+)->(\d+)\]/);
@@ -531,21 +531,21 @@ export class StreambyterComponent implements OnInit {
                 break;
             }
         }
-        
+    
         let i = 0;
         while (i < lines.length) {
             const line = lines[i].trim();
-            
+        
             // Check for CUSTOM_RULE marker
             if (line === '# == CUSTOM_RULE ==') {
                 const rule = this.createDefaultRule();
                 rule.type = 'custom';
                 rule.enabled = true;
-                
+            
                 // Collect all lines until next rule marker or end of file
                 let customCodeLines: string[] = [];
                 i++;
-                
+            
                 while (i < lines.length) {
                     const currentLine = lines[i];
                     // Stop if we encounter another rule marker
@@ -556,13 +556,13 @@ export class StreambyterComponent implements OnInit {
                     customCodeLines.push(currentLine);
                     i++;
                 }
-                
+            
                 rule.customCode = customCodeLines.join('\n').trim();
                 rule.name = "Custom Rule";
                 this.rules.push(rule);
                 continue;
             }
-            
+        
             // Check for range condition with nested IF (hex values)
             const rangeMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})/i);
             if (rangeMatch) {
@@ -570,28 +570,30 @@ export class StreambyterComponent implements OnInit {
                 rule.type = 'standard';
                 const parsedChannel = parseInt(rangeMatch[1], 16) + 1;
                 const triggerCC = parseInt(rangeMatch[2], 16);
-                
+            
                 rule.trigger.type = 'controlChange';
                 rule.trigger.ccNumber = triggerCC;
+                // Default to 'eat', will be updated if BLOCK is found
                 rule.trigger.consume = 'eat';
-                
+            
                 // If we have an override and the parsed channel matches the overridden channel
                 if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
                     rule.trigger.channel = overrideOriginalChannel;
                 } else {
                     rule.trigger.channel = parsedChannel;
                 }
-                
+            
                 let j = i + 1;
                 let foundEnd = false;
                 let rangeMin: number | null = null;
                 let rangeMax: number | null = null;
                 let nestedLevel = 1;
-                
+                let hasBlock = false;
+            
                 // Parse nested IF statements for range
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                    
+                
                     // Check for M2 >= value (supports both decimal and hex)
                     const minMatch = currentLine.match(/IF\s+M2\s*>=\s*(?:0x)?([0-9A-F]+)/i);
                     if (minMatch && rangeMin === null) {
@@ -600,7 +602,7 @@ export class StreambyterComponent implements OnInit {
                         j++;
                         continue;
                     }
-                    
+                
                     // Check for M2 <= value (supports both decimal and hex)
                     const maxMatch = currentLine.match(/IF\s+M2\s*<=\s*(?:0x)?([0-9A-F]+)/i);
                     if (maxMatch && rangeMax === null) {
@@ -609,29 +611,30 @@ export class StreambyterComponent implements OnInit {
                         j++;
                         continue;
                     }
-                    
+                
                     // Parse output assignments
                     const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                     if (assM0Match) {
                         rule.output.channel = parseInt(assM0Match[1], 16) + 1;
                     }
-                    
+                
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
                         rule.output.ccNumber = parseInt(assM1Match[1], 16);
                         rule.output.type = 'cc';
                     }
-                    
+                
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
                         rule.output.valueMode = 'constant';
                         rule.output.constantValue = parseInt(assM2Match[1], 16);
                     }
-                    
+                
+                    // Check for BLOCK command
                     if (currentLine.match(/BLOCK/i)) {
-                        rule.trigger.consume = 'eat';
+                        hasBlock = true;
                     }
-                    
+                
                     // Count END statements
                     if (currentLine.match(/^END$/i)) {
                         nestedLevel--;
@@ -640,10 +643,13 @@ export class StreambyterComponent implements OnInit {
                             break;
                         }
                     }
-                    
+                
                     j++;
                 }
-                
+            
+                // Set consume based on whether BLOCK was found
+                rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+            
                 // Set range values if found
                 if (rangeMin !== null && rangeMax !== null) {
                     rule.trigger.valueMode = 'range';
@@ -652,13 +658,13 @@ export class StreambyterComponent implements OnInit {
                 } else {
                     rule.trigger.valueMode = 'any';
                 }
-                
+            
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
                 continue;
             }
-            
+        
             // Check for simple condition with specific value (hex)
             const ifMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
             if (ifMatch) {
@@ -667,61 +673,67 @@ export class StreambyterComponent implements OnInit {
                 const parsedChannel = parseInt(ifMatch[1], 16) + 1;
                 const triggerCC = parseInt(ifMatch[2], 16);
                 const specificValue = parseInt(ifMatch[3], 16);
-                
+            
                 rule.trigger.type = 'controlChange';
                 rule.trigger.ccNumber = triggerCC;
                 rule.trigger.valueMode = 'specific';
                 rule.trigger.specificValue = specificValue;
+                // Default to 'eat', will be updated if BLOCK is found
                 rule.trigger.consume = 'eat';
-                
+            
                 // If we have an override and the parsed channel matches the overridden channel
                 if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
                     rule.trigger.channel = overrideOriginalChannel;
                 } else {
                     rule.trigger.channel = parsedChannel;
                 }
-                
+            
                 let j = i + 1;
                 let foundEnd = false;
-                
+                let hasBlock = false;
+            
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                    
+                
                     const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                     if (assM0Match) {
                         rule.output.channel = parseInt(assM0Match[1], 16) + 1;
                     }
-                    
+                
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
                         rule.output.ccNumber = parseInt(assM1Match[1], 16);
                         rule.output.type = 'cc';
                     }
-                    
+                
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
                         rule.output.valueMode = 'constant';
                         rule.output.constantValue = parseInt(assM2Match[1], 16);
                     }
-                    
+                
+                    // Check for BLOCK command
                     if (currentLine.match(/BLOCK/i)) {
-                        rule.trigger.consume = 'eat';
+                        hasBlock = true;
                     }
-                    
+                
                     if (currentLine.match(/^END$/i)) {
                         foundEnd = true;
                         break;
                     }
-                    
+                
                     j++;
                 }
-                
+            
+                // Set consume based on whether BLOCK was found
+                rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+            
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
                 continue;
             }
-            
+        
             // Check for simple condition (any value)
             const anyMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
             if (anyMatch && !line.includes('0x') && !line.match(/B[0-9A-F]\s+[0-9A-F]{2}\s+[0-9A-F]{2}/)) {
@@ -729,62 +741,68 @@ export class StreambyterComponent implements OnInit {
                 rule.type = 'standard';
                 const parsedChannel = parseInt(anyMatch[1], 16) + 1;
                 const triggerCC = parseInt(anyMatch[2], 16);
-                
+            
                 rule.trigger.type = 'controlChange';
                 rule.trigger.ccNumber = triggerCC;
                 rule.trigger.valueMode = 'any';
+                // Default to 'eat', will be updated if BLOCK is found
                 rule.trigger.consume = 'eat';
-                
+            
                 // If we have an override and the parsed channel matches the overridden channel
                 if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
                     rule.trigger.channel = overrideOriginalChannel;
                 } else {
                     rule.trigger.channel = parsedChannel;
                 }
-                
+            
                 let j = i + 1;
                 let foundEnd = false;
-                
+                let hasBlock = false;
+            
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                    
+                
                     const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                     if (assM0Match) {
                         rule.output.channel = parseInt(assM0Match[1], 16) + 1;
                     }
-                    
+                
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
                         rule.output.ccNumber = parseInt(assM1Match[1], 16);
                         rule.output.type = 'cc';
                     }
-                    
+                
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
                         rule.output.valueMode = 'constant';
                         rule.output.constantValue = parseInt(assM2Match[1], 16);
                     }
-                    
+                
+                    // Check for BLOCK command
                     if (currentLine.match(/BLOCK/i)) {
-                        rule.trigger.consume = 'eat';
+                        hasBlock = true;
                     }
-                    
+                
                     if (currentLine.match(/^END$/i)) {
                         foundEnd = true;
                         break;
                     }
-                    
+                
                     j++;
                 }
-                
+            
+                // Set consume based on whether BLOCK was found
+                rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+            
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
             }
-            
+        
             i++;
         }
-    
+
         if (this.rules.length === 0) {
             alert('No rules could be parsed from the script. The script may use unsupported syntax.');
         }

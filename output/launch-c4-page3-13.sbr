@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
     <key>StreamByter-Rules</key>
-    <string># launch-c4-page3-12
-# Generated: 18.04.2026, 18:55:18
+    <string># launch-c4-page3-13
+# Generated: 18.04.2026, 18:59:11
 # Override trigger channel: [1-&gt;2]
 
 # == RULE 1: [launch] knob 1 [0-17] → [c4] voice 1 octave ==
@@ -297,9 +297,9 @@ IF M0 == B1 2F
   BLOCK
 END
 
-# == RULE 28: [launch] knob 8 → [launch] CC#108 ==
+# == RULE 28: [launch] knob 8 → [launch] program 108 ==
 IF M0 == B1 30
-  ASS M0 = B0
+  ASS M0 = C0
   ASS M1 = 6C
   SND M0 M1 M2
   BLOCK
