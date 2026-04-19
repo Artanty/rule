@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>StreamByter-Rules</key>
+    <string># launch-c4-page3-20
+# Generated: 18.04.2026, 20:02:26
+# Override trigger channel: [1-&gt;2]
+
+# == RULE 1: [launch] knob 8 → [c4] program 108 ==
+IF M0 == B1 30
+  ASS M0 = C1
+  ASS M1 = 6C
+  SND M0 M1
+  BLOCK
+END
+</string>
+</dict>
+</plist>

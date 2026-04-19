@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
     <key>StreamByter-Rules</key>
-    <string># launch-c4-page3-11
-# Generated: 18.04.2026, 18:46:32
+    <string># launch-c4-page3-14
+# Generated: 18.04.2026, 19:22:28
 # Override trigger channel: [1-&gt;2]
 
 # == RULE 1: [launch] knob 1 [0-17] → [c4] voice 1 octave ==
@@ -15,7 +15,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 01
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -28,7 +27,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 02
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -41,7 +39,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 03
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -54,7 +51,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 04
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -67,7 +63,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 05
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -80,7 +75,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 06
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -93,7 +87,6 @@ IF M0 == B1 29
     ASS M1 = 17
     ASS M2 = 07
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -115,7 +108,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 01
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -128,7 +120,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 02
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -141,7 +132,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 03
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -154,7 +144,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 04
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -167,7 +156,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 05
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -180,7 +168,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 06
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -193,7 +180,6 @@ IF M0 == B1 2A
     ASS M1 = 18
     ASS M2 = 07
     SND M0 M1 M2
-    BLOCK
   END
   END
 END
@@ -255,67 +241,67 @@ IF M0 == B1 18
   END
 END
 
-# == RULE 21: [launch] knob 1 → [ch10] program 111 ==
+# == RULE 21: [launch] knob 1 → [launch] program 111 ==
 IF M0 == B1 29
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6F
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 22: [launch] knob 2 → [ch10] program 110 ==
+# == RULE 22: [launch] knob 2 → [launch] program 110 ==
 IF M0 == B1 2A
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6E
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 23: [launch] knob 3 → [ch10] program 109 ==
+# == RULE 23: [launch] knob 3 → [launch] program 109 ==
 IF M0 == B1 2B
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6D
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 24: [launch] knob 4 → [ch10] program 108 ==
+# == RULE 24: [launch] knob 4 → [launch] program 108 ==
 IF M0 == B1 2C
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6C
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 25: [launch] knob 5 → [ch10] program 111 ==
+# == RULE 25: [launch] knob 5 → [launch] program 111 ==
 IF M0 == B1 2D
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6F
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 26: [launch] knob 6 → [ch10] program 110 ==
+# == RULE 26: [launch] knob 6 → [launch] program 110 ==
 IF M0 == B1 2E
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6E
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 27: [launch] knob 7 → [ch10] program 109 ==
+# == RULE 27: [launch] knob 7 → [launch] program 109 ==
 IF M0 == B1 2F
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6D
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 
-# == RULE 28: [launch] knob 8 → [ch10] program 108 ==
+# == RULE 28: [launch] knob 8 → [launch] program 108 ==
 IF M0 == B1 30
-  ASS M0 = C9
+  ASS M0 = C0
   ASS M1 = 6C
-  SND M0 M1 M2
+  SND M0 M1
   BLOCK
 END
 </string>

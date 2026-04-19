@@ -14,7 +14,6 @@ interface Rule {
         ccNumber: number;
         valueMode: 'constant' | 'trigger';
         constantValue: number;
-        bank: number;
         program: number;
         note: number;
         velocity: number;
@@ -73,7 +72,6 @@ export class StreambyterComponent implements OnInit {
                 ccNumber: 0,
                 valueMode: "constant",
                 constantValue: 0,
-                bank: 0,
                 program: 0,
                 note: 60,
                 velocity: 100,
@@ -104,7 +102,6 @@ export class StreambyterComponent implements OnInit {
                 ccNumber: 11,
                 valueMode: "trigger",
                 constantValue: 0,
-                bank: 0,
                 program: 0,
                 note: 60,
                 velocity: 64,
@@ -231,7 +228,6 @@ export class StreambyterComponent implements OnInit {
                 ccNumber: 0,
                 valueMode: "constant",
                 constantValue: 0,
-                bank: 0,
                 program: 0,
                 note: 60,
                 velocity: 64,
@@ -266,7 +262,6 @@ export class StreambyterComponent implements OnInit {
                 ccNumber: 0,
                 valueMode: "constant",
                 constantValue: 0,
-                bank: 0,
                 program: 0,
                 note: 60,
                 velocity: 64,
@@ -518,9 +513,9 @@ export class StreambyterComponent implements OnInit {
         this.rules = [];
         let overrideOriginalChannel: number | null = null;
         let overrideNewChannel: number | null = null;
-
+    
         const lines = script.split('\n');
-
+    
         // Parse override information from header FIRST
         for (const line of lines) {
             const overrideMatch = line.match(/# Override trigger channel: \[(\d+)->(\d+)\]/);
@@ -531,21 +526,21 @@ export class StreambyterComponent implements OnInit {
                 break;
             }
         }
-    
+        
         let i = 0;
         while (i < lines.length) {
             const line = lines[i].trim();
-        
+            
             // Check for CUSTOM_RULE marker
             if (line === '# == CUSTOM_RULE ==') {
                 const rule = this.createDefaultRule();
                 rule.type = 'custom';
                 rule.enabled = true;
-            
+                
                 // Collect all lines until next rule marker or end of file
                 let customCodeLines: string[] = [];
                 i++;
-            
+                
                 while (i < lines.length) {
                     const currentLine = lines[i];
                     // Stop if we encounter another rule marker
@@ -556,13 +551,13 @@ export class StreambyterComponent implements OnInit {
                     customCodeLines.push(currentLine);
                     i++;
                 }
-            
+                
                 rule.customCode = customCodeLines.join('\n').trim();
                 rule.name = "Custom Rule";
                 this.rules.push(rule);
                 continue;
             }
-        
+            
             // Check for range condition with nested IF (hex values)
             const rangeMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})/i);
             if (rangeMatch) {
@@ -570,30 +565,29 @@ export class StreambyterComponent implements OnInit {
                 rule.type = 'standard';
                 const parsedChannel = parseInt(rangeMatch[1], 16) + 1;
                 const triggerCC = parseInt(rangeMatch[2], 16);
-            
+                
                 rule.trigger.type = 'controlChange';
                 rule.trigger.ccNumber = triggerCC;
-                // Default to 'eat', will be updated if BLOCK is found
                 rule.trigger.consume = 'eat';
-            
+                
                 // If we have an override and the parsed channel matches the overridden channel
                 if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
                     rule.trigger.channel = overrideOriginalChannel;
                 } else {
                     rule.trigger.channel = parsedChannel;
                 }
-            
+                
                 let j = i + 1;
                 let foundEnd = false;
                 let rangeMin: number | null = null;
                 let rangeMax: number | null = null;
                 let nestedLevel = 1;
                 let hasBlock = false;
-            
+                
                 // Parse nested IF statements for range
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                
+                    
                     // Check for M2 >= value (supports both decimal and hex)
                     const minMatch = currentLine.match(/IF\s+M2\s*>=\s*(?:0x)?([0-9A-F]+)/i);
                     if (minMatch && rangeMin === null) {
@@ -602,7 +596,7 @@ export class StreambyterComponent implements OnInit {
                         j++;
                         continue;
                     }
-                
+                    
                     // Check for M2 <= value (supports both decimal and hex)
                     const maxMatch = currentLine.match(/IF\s+M2\s*<=\s*(?:0x)?([0-9A-F]+)/i);
                     if (maxMatch && rangeMax === null) {
@@ -611,30 +605,55 @@ export class StreambyterComponent implements OnInit {
                         j++;
                         continue;
                     }
-                
-                    // Parse output assignments
-                    const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0Match) {
-                        rule.output.channel = parseInt(assM0Match[1], 16) + 1;
+                    
+                    // Parse output assignments - CC
+                    const assM0CCMatch = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+                    if (assM0CCMatch) {
+                        rule.output.type = 'cc';
+                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
                     }
-                
+                    
+                    // Parse output assignments - Program Change
+                    const assM0PCMatch = currentLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+                    if (assM0PCMatch) {
+                        rule.output.type = 'program';
+                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+                    }
+                    
+                    // Parse output assignments - Note
+                    const assM0NoteMatch = currentLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+                    if (assM0NoteMatch) {
+                        rule.output.type = 'note';
+                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+                    }
+                    
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
-                        rule.output.ccNumber = parseInt(assM1Match[1], 16);
-                        rule.output.type = 'cc';
+                        if (rule.output.type === 'cc') {
+                            rule.output.ccNumber = parseInt(assM1Match[1], 16);
+                        } else if (rule.output.type === 'program') {
+                            rule.output.program = parseInt(assM1Match[1], 16);
+                        } else if (rule.output.type === 'note') {
+                            rule.output.note = parseInt(assM1Match[1], 16);
+                        }
                     }
-                
+                    
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
-                        rule.output.valueMode = 'constant';
-                        rule.output.constantValue = parseInt(assM2Match[1], 16);
+                        if (rule.output.type === 'cc') {
+                            rule.output.valueMode = 'constant';
+                            rule.output.constantValue = parseInt(assM2Match[1], 16);
+                        } else if (rule.output.type === 'note') {
+                            rule.output.velocityMode = 'constant';
+                            rule.output.velocity = parseInt(assM2Match[1], 16);
+                        }
                     }
-                
+                    
                     // Check for BLOCK command
                     if (currentLine.match(/BLOCK/i)) {
                         hasBlock = true;
                     }
-                
+                    
                     // Count END statements
                     if (currentLine.match(/^END$/i)) {
                         nestedLevel--;
@@ -643,13 +662,13 @@ export class StreambyterComponent implements OnInit {
                             break;
                         }
                     }
-                
+                    
                     j++;
                 }
-            
+                
                 // Set consume based on whether BLOCK was found
                 rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-            
+                
                 // Set range values if found
                 if (rangeMin !== null && rangeMax !== null) {
                     rule.trigger.valueMode = 'range';
@@ -658,13 +677,13 @@ export class StreambyterComponent implements OnInit {
                 } else {
                     rule.trigger.valueMode = 'any';
                 }
-            
+                
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
                 continue;
             }
-        
+            
             // Check for simple condition with specific value (hex)
             const ifMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
             if (ifMatch) {
@@ -673,67 +692,92 @@ export class StreambyterComponent implements OnInit {
                 const parsedChannel = parseInt(ifMatch[1], 16) + 1;
                 const triggerCC = parseInt(ifMatch[2], 16);
                 const specificValue = parseInt(ifMatch[3], 16);
-            
+                
                 rule.trigger.type = 'controlChange';
                 rule.trigger.ccNumber = triggerCC;
                 rule.trigger.valueMode = 'specific';
                 rule.trigger.specificValue = specificValue;
-                // Default to 'eat', will be updated if BLOCK is found
                 rule.trigger.consume = 'eat';
-            
+                
                 // If we have an override and the parsed channel matches the overridden channel
                 if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
                     rule.trigger.channel = overrideOriginalChannel;
                 } else {
                     rule.trigger.channel = parsedChannel;
                 }
-            
+                
                 let j = i + 1;
                 let foundEnd = false;
                 let hasBlock = false;
-            
+                
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                
-                    const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0Match) {
-                        rule.output.channel = parseInt(assM0Match[1], 16) + 1;
+                    
+                    // Parse output assignments - CC
+                    const assM0CCMatch = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+                    if (assM0CCMatch) {
+                        rule.output.type = 'cc';
+                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
                     }
-                
+                    
+                    // Parse output assignments - Program Change
+                    const assM0PCMatch = currentLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+                    if (assM0PCMatch) {
+                        rule.output.type = 'program';
+                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+                    }
+                    
+                    // Parse output assignments - Note
+                    const assM0NoteMatch = currentLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+                    if (assM0NoteMatch) {
+                        rule.output.type = 'note';
+                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+                    }
+                    
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
-                        rule.output.ccNumber = parseInt(assM1Match[1], 16);
-                        rule.output.type = 'cc';
+                        if (rule.output.type === 'cc') {
+                            rule.output.ccNumber = parseInt(assM1Match[1], 16);
+                        } else if (rule.output.type === 'program') {
+                            rule.output.program = parseInt(assM1Match[1], 16);
+                        } else if (rule.output.type === 'note') {
+                            rule.output.note = parseInt(assM1Match[1], 16);
+                        }
                     }
-                
+                    
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
-                        rule.output.valueMode = 'constant';
-                        rule.output.constantValue = parseInt(assM2Match[1], 16);
+                        if (rule.output.type === 'cc') {
+                            rule.output.valueMode = 'constant';
+                            rule.output.constantValue = parseInt(assM2Match[1], 16);
+                        } else if (rule.output.type === 'note') {
+                            rule.output.velocityMode = 'constant';
+                            rule.output.velocity = parseInt(assM2Match[1], 16);
+                        }
                     }
-                
+                    
                     // Check for BLOCK command
                     if (currentLine.match(/BLOCK/i)) {
                         hasBlock = true;
                     }
-                
+                    
                     if (currentLine.match(/^END$/i)) {
                         foundEnd = true;
                         break;
                     }
-                
+                    
                     j++;
                 }
-            
+                
                 // Set consume based on whether BLOCK was found
                 rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-            
+                
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
                 continue;
             }
-        
+            
             // Check for simple condition (any value)
             const anyMatch = line.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
             if (anyMatch && !line.includes('0x') && !line.match(/B[0-9A-F]\s+[0-9A-F]{2}\s+[0-9A-F]{2}/)) {
@@ -741,68 +785,93 @@ export class StreambyterComponent implements OnInit {
                 rule.type = 'standard';
                 const parsedChannel = parseInt(anyMatch[1], 16) + 1;
                 const triggerCC = parseInt(anyMatch[2], 16);
-            
+                
                 rule.trigger.type = 'controlChange';
                 rule.trigger.ccNumber = triggerCC;
                 rule.trigger.valueMode = 'any';
-                // Default to 'eat', will be updated if BLOCK is found
                 rule.trigger.consume = 'eat';
-            
+                
                 // If we have an override and the parsed channel matches the overridden channel
                 if (overrideOriginalChannel !== null && overrideNewChannel !== null && parsedChannel === overrideNewChannel) {
                     rule.trigger.channel = overrideOriginalChannel;
                 } else {
                     rule.trigger.channel = parsedChannel;
                 }
-            
+                
                 let j = i + 1;
                 let foundEnd = false;
                 let hasBlock = false;
-            
+                
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
-                
-                    const assM0Match = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0Match) {
-                        rule.output.channel = parseInt(assM0Match[1], 16) + 1;
+                    
+                    // Parse output assignments - CC
+                    const assM0CCMatch = currentLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+                    if (assM0CCMatch) {
+                        rule.output.type = 'cc';
+                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
                     }
-                
+                    
+                    // Parse output assignments - Program Change
+                    const assM0PCMatch = currentLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+                    if (assM0PCMatch) {
+                        rule.output.type = 'program';
+                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+                    }
+                    
+                    // Parse output assignments - Note
+                    const assM0NoteMatch = currentLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+                    if (assM0NoteMatch) {
+                        rule.output.type = 'note';
+                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+                    }
+                    
                     const assM1Match = currentLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
-                        rule.output.ccNumber = parseInt(assM1Match[1], 16);
-                        rule.output.type = 'cc';
+                        if (rule.output.type === 'cc') {
+                            rule.output.ccNumber = parseInt(assM1Match[1], 16);
+                        } else if (rule.output.type === 'program') {
+                            rule.output.program = parseInt(assM1Match[1], 16);
+                        } else if (rule.output.type === 'note') {
+                            rule.output.note = parseInt(assM1Match[1], 16);
+                        }
                     }
-                
+                    
                     const assM2Match = currentLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
-                        rule.output.valueMode = 'constant';
-                        rule.output.constantValue = parseInt(assM2Match[1], 16);
+                        if (rule.output.type === 'cc') {
+                            rule.output.valueMode = 'constant';
+                            rule.output.constantValue = parseInt(assM2Match[1], 16);
+                        } else if (rule.output.type === 'note') {
+                            rule.output.velocityMode = 'constant';
+                            rule.output.velocity = parseInt(assM2Match[1], 16);
+                        }
                     }
-                
+                    
                     // Check for BLOCK command
                     if (currentLine.match(/BLOCK/i)) {
                         hasBlock = true;
                     }
-                
+                    
                     if (currentLine.match(/^END$/i)) {
                         foundEnd = true;
                         break;
                     }
-                
+                    
                     j++;
                 }
-            
+                
                 // Set consume based on whether BLOCK was found
                 rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-            
+                
                 rule.name = this.generateActionBasedName(rule);
                 this.rules.push(rule);
                 i = j;
             }
-        
+            
             i++;
         }
-
+    
         if (this.rules.length === 0) {
             alert('No rules could be parsed from the script. The script may use unsupported syntax.');
         }
@@ -820,7 +889,6 @@ export class StreambyterComponent implements OnInit {
                 ccNumber: 0,
                 valueMode: "trigger",
                 constantValue: 0,
-                bank: 0,
                 program: 0,
                 note: 60,
                 velocity: 64,
@@ -847,20 +915,33 @@ export class StreambyterComponent implements OnInit {
         const dstDev = this.getDeviceName(rule.output.channel);
         
         let srcParam = `CC${rule.trigger.ccNumber}`;
-        let dstParam = `CC${rule.output.ccNumber}`;
+        let dstParam = '';
+        
+        if (rule.output.type === 'cc') {
+            dstParam = `CC${rule.output.ccNumber}`;
+            const mappedName = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
+            if (mappedName && !mappedName.startsWith('CC#')) {
+                dstParam = mappedName;
+            }
+        } else if (rule.output.type === 'program') {
+            dstParam = `program ${rule.output.program}`;
+        } else if (rule.output.type === 'note') {
+            dstParam = `note ${rule.output.note}`;
+            const mappedName = this.getParamName(rule.output.channel, 'note', rule.output.note);
+            if (mappedName && !mappedName.startsWith('Note#')) {
+                dstParam = mappedName;
+            }
+        }
         
         if (rule.trigger.type === 'controlChange') {
             const mappedName = this.getParamName(rule.trigger.channel, 'cc', rule.trigger.ccNumber);
             if (mappedName && !mappedName.startsWith('CC#')) {
                 srcParam = mappedName;
             }
-        }
-        
-        if (rule.output.type === 'cc') {
-            const mappedName = this.getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
-            if (mappedName && !mappedName.startsWith('CC#')) {
-                dstParam = mappedName;
-            }
+        } else if (rule.trigger.type === 'noteOn' && rule.trigger.noteMode === 'specific') {
+            srcParam = this.getParamName(rule.trigger.channel, 'note', rule.trigger.specificNote);
+        } else if (rule.trigger.type === 'noteOn' && rule.trigger.noteMode === 'any') {
+            srcParam = 'any note';
         }
         
         let result = `[${srcDev}] ${srcParam} → [${dstDev}] ${dstParam}`;
@@ -1014,13 +1095,13 @@ export class StreambyterComponent implements OnInit {
             }
         }
         
-        // Build the SND command for output
+        // Build the output commands
+        const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
+        
         if (rule.output.type === 'cc') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const ccHex = toHex(rule.output.ccNumber);
             
-            // Add indentation based on nesting level
-            const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
             lines.push(`${indent}  ASS M0 = B${outputChannelHex}`);
             lines.push(`${indent}  ASS M1 = ${ccHex}`);
             
@@ -1029,13 +1110,11 @@ export class StreambyterComponent implements OnInit {
                 const valueHex = toHex(rule.output.constantValue);
                 lines.push(`${indent}  ASS M2 = ${valueHex}`);
             }
-            
         } 
         else if (rule.output.type === 'note') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const noteHex = toHex(rule.output.note);
             
-            const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
             lines.push(`${indent}  ASS M0 = 9${outputChannelHex}`);
             lines.push(`${indent}  ASS M1 = ${noteHex}`);
             
@@ -1043,20 +1122,25 @@ export class StreambyterComponent implements OnInit {
                 const velocityHex = toHex(rule.output.velocity);
                 lines.push(`${indent}  ASS M2 = ${velocityHex}`);
             }
-            
         } 
         else if (rule.output.type === 'program') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const programHex = toHex(rule.output.program);
             
-            const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
             lines.push(`${indent}  ASS M0 = C${outputChannelHex}`);
             lines.push(`${indent}  ASS M1 = ${programHex}`);
         }
         
         const delayFlag = rule.output.delayMs > 0 ? ` +D${rule.output.delayMs}` : '';
-        const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
-        lines.push(`${indent}  SND M0 M1 M2${delayFlag}`);
+        
+        // Send appropriate number of bytes based on message type
+        if (rule.output.type === 'program') {
+            // Program Change only has 2 bytes
+            lines.push(`${indent}  SND M0 M1${delayFlag}`);
+        } else {
+            // CC and Note have 3 bytes
+            lines.push(`${indent}  SND M0 M1 M2${delayFlag}`);
+        }
         
         // Only block if consume is 'eat'
         if (rule.trigger.consume === 'eat') {
@@ -1178,7 +1262,6 @@ export class StreambyterComponent implements OnInit {
                 ccNumber: ext.output?.ccNumber || 0,
                 valueMode: ext.output?.valueMode || 'trigger',
                 constantValue: ext.output?.constantValue || 0,
-                bank: ext.output?.bank || 0,
                 program: ext.output?.program || 0,
                 note: ext.output?.note || 60,
                 velocity: ext.output?.velocity || 64,

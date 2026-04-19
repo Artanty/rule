@@ -195,8 +195,6 @@
                                                min="0" max="127" class="param-input-small" placeholder="Velocity">
                                     }
                                 } @else if (rule.output.type === 'program') {
-                                    <input type="number" [(ngModel)]="rule.output.bank" 
-                                           placeholder="Bank" min="0" max="127" class="param-input-small">
                                     <input type="number" [(ngModel)]="rule.output.program" 
                                            placeholder="Program" min="0" max="127" class="param-input-small">
                                 }

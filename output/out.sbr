@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>StreamByter-Rules</key>
+    <string># out
+# Generated: 18.04.2026, 20:37:27
+
+# == CUSTOM_RULE ==
+# BLOCK ALL THE PROGRAM CHANGE MESSAGES
+IF MT == C0
+  LOG Blocked_PC_Channel M0 +D
+  BLOCK
+END
+</string>
+</dict>
+</plist>
