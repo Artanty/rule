@@ -8,6 +8,7 @@ interface Rule {
     enabled: boolean;
     type: 'standard' | 'custom';
     customCode?: string;
+    overrideChannel?: boolean;  // New property for per-rule override
     output: {
         type: 'cc' | 'program' | 'note';
         channel: number;
@@ -66,6 +67,7 @@ export class StreambyterComponent implements OnInit {
             enabled: true,
             type: 'standard',
             customCode: '',
+            overrideChannel: false,
             output: {
                 type: "note",
                 channel: 1,
@@ -96,6 +98,7 @@ export class StreambyterComponent implements OnInit {
             enabled: true,
             type: 'standard',
             customCode: '',
+            overrideChannel: false,
             output: {
                 type: "cc",
                 channel: 2,
@@ -222,6 +225,7 @@ export class StreambyterComponent implements OnInit {
             enabled: true,
             type: 'standard',
             customCode: '',
+            overrideChannel: false,
             output: {
                 type: "cc",
                 channel: 1,
@@ -256,6 +260,7 @@ export class StreambyterComponent implements OnInit {
             enabled: true,
             type: 'custom',
             customCode: '# Write your custom StreamByter code here\n# Example:\n# IF M0 == B0 07\n#   SND M0 M1 7F\n# END',
+            overrideChannel: false,
             output: {
                 type: "cc",
                 channel: 1,
@@ -883,6 +888,7 @@ export class StreambyterComponent implements OnInit {
             enabled: true,
             type: 'standard',
             customCode: '',
+            overrideChannel: false,
             output: {
                 type: "cc",
                 channel: 1,
@@ -960,7 +966,7 @@ export class StreambyterComponent implements OnInit {
     
     generateStreamByterScript() {
         const lines: string[] = [];
-        
+    
         // Use filename as first line if provided, otherwise use default
         const scriptName = this.fileName.trim();
         if (scriptName) {
@@ -968,26 +974,31 @@ export class StreambyterComponent implements OnInit {
         } else {
             lines.push(`# StreamByter Script`);
         }
-        
+    
         lines.push(`# Generated: ${new Date().toLocaleString()}`);
-        
-        if (this.overrideTriggerChannel !== null && this.rules.length > 0) {
-            // Show original channel from first rule (assuming all rules have same original channel)
-            const originalChannel = this.rules[0].trigger.channel;
-            lines.push(`# Override trigger channel: [${originalChannel}->${this.overrideTriggerChannel}]`);
+    
+        // Check if any rule has override enabled
+        const hasAnyOverride = this.rules.some(r => r.type === 'standard' && r.overrideChannel && this.overrideTriggerChannel !== null);
+        if (hasAnyOverride && this.overrideTriggerChannel !== null) {
+            // Show original channel from first rule that has override enabled
+            const overriddenRule = this.rules.find(r => r.type === 'standard' && r.overrideChannel);
+            if (overriddenRule) {
+                const originalChannel = overriddenRule.trigger.channel;
+                lines.push(`# Override trigger channel: [${originalChannel}->${this.overrideTriggerChannel}]`);
+            }
         }
-        
+    
         lines.push('');
-        
+    
         const enabledRules = this.rules.filter(r => r.enabled);
-        
+    
         if (enabledRules.length === 0) {
             lines.push('# No enabled rules');
             this.generatedScript = lines.join('\n');
             this.showGenerated = true;
             return;
         }
-        
+    
         // RULES section
         let ruleCounter = 1;
         enabledRules.forEach((rule) => {
@@ -995,7 +1006,6 @@ export class StreambyterComponent implements OnInit {
                 // Handle custom rule
                 lines.push(`# == CUSTOM_RULE ==`);
                 if (rule.customCode) {
-                    // Split custom code by lines and add each line
                     const customLines = rule.customCode.split('\n');
                     for (const customLine of customLines) {
                         lines.push(customLine);
@@ -1008,37 +1018,43 @@ export class StreambyterComponent implements OnInit {
                 const dstParam = this.getOutputParamName(rule);
                 const srcDev = this.getDeviceName(rule.trigger.channel);
                 const dstDev = this.getDeviceName(rule.output.channel);
-                
+            
                 let rangeInfo = '';
                 if (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') {
                     rangeInfo = ` [${rule.trigger.rangeMin}-${rule.trigger.rangeMax}]`;
                 } else if (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'specific') {
                     rangeInfo = ` = ${rule.trigger.specificValue}`;
                 }
-            
+        
                 lines.push(`# == RULE ${ruleCounter}: [${srcDev}] ${srcParam}${rangeInfo} → [${dstDev}] ${dstParam} ==`);
-                
+            
                 // Apply override ONLY for the actual MIDI condition
                 const processedRule = this.applyOverrideToRule(rule);
                 const ruleLines = this.generateStreamByterIIRule(processedRule);
                 if (ruleLines) {
                     lines.push(...ruleLines);
                 }
-                
+            
                 lines.push('');
                 ruleCounter++;
             }
         });
-        
+    
         this.generatedScript = lines.join('\n');
         this.showGenerated = true;
     }
     
     private applyOverrideToRule(rule: Rule): Rule {
-        if (this.overrideTriggerChannel === null) {
+        // Only apply override if:
+        // 1. Global override is set (overrideTriggerChannel not null)
+        // 2. Rule has overrideChannel flag set to true
+        // 3. Rule is standard type (not custom)
+        if (this.overrideTriggerChannel === null || 
+            rule.type !== 'standard' || 
+            !rule.overrideChannel) {
             return rule;
         }
-        
+    
         // Create a deep copy of the rule with overridden trigger channel
         const overriddenRule: Rule = JSON.parse(JSON.stringify(rule));
         overriddenRule.trigger.channel = this.overrideTriggerChannel;
@@ -1256,6 +1272,7 @@ export class StreambyterComponent implements OnInit {
             enabled: ext.enabled !== false,
             type: ext.type || 'standard',
             customCode: ext.customCode || '',
+            overrideChannel: ext.overrideChannel || false,
             output: {
                 type: ext.output?.type || 'cc',
                 channel: ext.output?.channel || 1,
@@ -1281,5 +1298,21 @@ export class StreambyterComponent implements OnInit {
                 consume: ext.trigger?.consume || 'eat'
             }
         }));
+    }
+
+    /**
+     * Set override flag for all standard rules
+     * @param value - true to enable override, false to disable
+     */
+    setAllOverrideFlags(value: boolean) {
+        this.rules.forEach(rule => {
+            // Only set for standard rules (not custom)
+            if (rule.type === 'standard') {
+                rule.overrideChannel = value;
+            }
+        });
+        // Show feedback
+        const action = value ? 'enabled' : 'disabled';
+        // alert(`Override ${action} for all standard rules`);
     }
 }

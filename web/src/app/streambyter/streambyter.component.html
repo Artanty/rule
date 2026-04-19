@@ -136,6 +136,11 @@
                                     }
                                 }
                                 
+                                <label class="override-label">
+                                    <input type="checkbox" [(ngModel)]="rule.overrideChannel" class="override-checkbox">
+                                    Override channel
+                                </label>
+                                
                                 <select [(ngModel)]="rule.trigger.consume" class="param-select-small">
                                     <option value="eat">Eat (Consume)</option>
                                     <option value="pass">Pass Through</option>
@@ -224,6 +229,15 @@
                 <option [ngValue]="null">None (use rule's channel)</option>
                 <option *ngFor="let ch of channels" [ngValue]="ch">Channel {{ ch }} ({{ getDeviceName(ch) }})</option>
             </select>
+            
+            <div class="override-buttons">
+                <button class="btn-small" (click)="setAllOverrideFlags(true)" title="Enable override for all standard rules">
+                    ✓ Set All
+                </button>
+                <button class="btn-small" (click)="setAllOverrideFlags(false)" title="Disable override for all standard rules">
+                    ✗ Set None
+                </button>
+            </div>
         </div>
 
         <button class="btn generate-btn" (click)="generateStreamByterScript()">
