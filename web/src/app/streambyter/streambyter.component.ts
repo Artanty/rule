@@ -8,7 +8,8 @@ interface Rule {
     enabled: boolean;
     type: 'standard' | 'custom';
     customCode?: string;
-    overrideChannel?: boolean;  // New property for per-rule override
+    overrideChannel?: boolean;
+    collapsed?: boolean;  // Add this for custom rule collapse state
     output: {
         type: 'cc' | 'program' | 'note';
         channel: number;
@@ -261,6 +262,7 @@ export class StreambyterComponent implements OnInit {
             type: 'custom',
             customCode: '# Write your custom StreamByter code here\n# Example:\n# IF M0 == B0 07\n#   SND M0 M1 7F\n# END',
             overrideChannel: false,
+            collapsed: true,  // Start collapsed
             output: {
                 type: "cc",
                 channel: 1,
@@ -881,7 +883,6 @@ export class StreambyterComponent implements OnInit {
             alert('No rules could be parsed from the script. The script may use unsupported syntax.');
         }
     }
-    
     private createDefaultRule(): Rule {
         return {
             name: "Imported Rule",
@@ -889,6 +890,7 @@ export class StreambyterComponent implements OnInit {
             type: 'standard',
             customCode: '',
             overrideChannel: false,
+            collapsed: true,  // Default collapsed for custom rules
             output: {
                 type: "cc",
                 channel: 1,
@@ -915,7 +917,7 @@ export class StreambyterComponent implements OnInit {
             }
         };
     }
-    
+   
     private generateActionBasedName(rule: Rule): string {
         const srcDev = this.getDeviceName(rule.trigger.channel);
         const dstDev = this.getDeviceName(rule.output.channel);
@@ -1273,6 +1275,7 @@ export class StreambyterComponent implements OnInit {
             type: ext.type || 'standard',
             customCode: ext.customCode || '',
             overrideChannel: ext.overrideChannel || false,
+            collapsed: ext.collapsed !== undefined ? ext.collapsed : true,
             output: {
                 type: ext.output?.type || 'cc',
                 channel: ext.output?.channel || 1,
@@ -1299,7 +1302,6 @@ export class StreambyterComponent implements OnInit {
             }
         }));
     }
-
     /**
      * Set override flag for all standard rules
      * @param value - true to enable override, false to disable
