@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Bindings</key>
+	<array>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Action</key>
+						<integer>0</integer>
+						<key>Direct Control Value Assignment</key>
+						<true/>
+						<key>Perform Actions On Change</key>
+						<true/>
+						<key>Pick Up</key>
+						<false/>
+						<key>Widget Action</key>
+						<string>Select Continuous</string>
+					</dict>
+					<key>Subject</key>
+					<string>#279</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+					<key>Value Range</key>
+					<array>
+						<real>0.0</real>
+						<real>1</real>
+					</array>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>b917</string>
+		</dict>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#0</string>
+					</dict>
+					<key>Subject</key>
+					<string>#282</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c16f</string>
+		</dict>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#1</string>
+					</dict>
+					<key>Subject</key>
+					<string>#282</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c06e</string>
+		</dict>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#2</string>
+					</dict>
+					<key>Subject</key>
+					<string>#282</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c16d</string>
+		</dict>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#3</string>
+					</dict>
+					<key>Subject</key>
+					<string>#282</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c16c</string>
+		</dict>
+	</array>
+	<key>Device</key>
+	<string>AU#154</string>
+	<key>Device Name</key>
+	<string>c4_3</string>
+	<key>Type</key>
+	<string>MIDI</string>
+</dict>
+</plist>

@@ -3,11 +3,10 @@
 <plist version="1.0">
 <dict>
     <key>StreamByter-Rules</key>
-    <string># launch-c4-page3-14
-# Generated: 18.04.2026, 19:31:38
-# Override trigger channel: [1-&gt;2]
+    <string># launch-c4-page3-22
+# Generated: 20.04.2026, 20:22:16
 
-# == RULE 1: [launch] knob 1 [0-17] → [c4] voice 1 octave ==
+# == RULE 1: [launch for c4 - knobs] knob 1 [0-17] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x0
     IF M2 &lt;= 0x11
@@ -19,7 +18,7 @@ IF M0 == B1 29
   END
 END
 
-# == RULE 2: [launch] knob 1 [18-35] → [c4] voice 1 octave ==
+# == RULE 2: [launch for c4 - knobs] knob 1 [18-35] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x12
     IF M2 &lt;= 0x23
@@ -31,7 +30,7 @@ IF M0 == B1 29
   END
 END
 
-# == RULE 3: [launch] knob 1 [36-53] → [c4] voice 1 octave ==
+# == RULE 3: [launch for c4 - knobs] knob 1 [36-53] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x24
     IF M2 &lt;= 0x35
@@ -43,7 +42,7 @@ IF M0 == B1 29
   END
 END
 
-# == RULE 4: [launch] knob 1 [54-71] → [c4] voice 1 octave ==
+# == RULE 4: [launch for c4 - knobs] knob 1 [54-71] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x36
     IF M2 &lt;= 0x47
@@ -55,7 +54,7 @@ IF M0 == B1 29
   END
 END
 
-# == RULE 5: [launch] knob 1 [72-89] → [c4] voice 1 octave ==
+# == RULE 5: [launch for c4 - knobs] knob 1 [72-89] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x48
     IF M2 &lt;= 0x59
@@ -67,7 +66,7 @@ IF M0 == B1 29
   END
 END
 
-# == RULE 6: [launch] knob 1 [90-107] → [c4] voice 1 octave ==
+# == RULE 6: [launch for c4 - knobs] knob 1 [90-107] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x5A
     IF M2 &lt;= 0x6B
@@ -79,7 +78,7 @@ IF M0 == B1 29
   END
 END
 
-# == RULE 7: [launch] knob 1 [108-127] → [c4] voice 1 octave ==
+# == RULE 7: [launch for c4 - knobs] knob 1 [108-127] → [c4] voice 1 octave ==
 IF M0 == B1 29
   IF M2 &gt;= 0x6C
     IF M2 &lt;= 0x7F
@@ -100,7 +99,7 @@ IF M0 == B1 17
   END
 END
 
-# == RULE 8: [launch] knob 2 [0-17] → [c4] voice 2 octave ==
+# == RULE 8: [launch for c4 - knobs] knob 2 [0-17] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x0
     IF M2 &lt;= 0x11
@@ -112,7 +111,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 9: [launch] knob 2 [18-35] → [c4] voice 2 octave ==
+# == RULE 9: [launch for c4 - knobs] knob 2 [18-35] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x12
     IF M2 &lt;= 0x23
@@ -124,7 +123,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 10: [launch] knob 2 [36-53] → [c4] voice 2 octave ==
+# == RULE 10: [launch for c4 - knobs] knob 2 [36-53] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x24
     IF M2 &lt;= 0x35
@@ -136,7 +135,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 11: [launch] knob 2 [54-71] → [c4] voice 2 octave ==
+# == RULE 11: [launch for c4 - knobs] knob 2 [54-71] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x36
     IF M2 &lt;= 0x47
@@ -148,7 +147,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 12: [launch] knob 2 [72-89] → [c4] voice 2 octave ==
+# == RULE 12: [launch for c4 - knobs] knob 2 [72-89] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x48
     IF M2 &lt;= 0x59
@@ -160,7 +159,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 13: [launch] knob 2 [90-107] → [c4] voice 2 octave ==
+# == RULE 13: [launch for c4 - knobs] knob 2 [90-107] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x5A
     IF M2 &lt;= 0x6B
@@ -172,7 +171,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 14: [launch] knob 2 [108-127] → [c4] voice 2 octave ==
+# == RULE 14: [launch for c4 - knobs] knob 2 [108-127] → [c4] voice 2 octave ==
 IF M0 == B1 2A
   IF M2 &gt;= 0x6C
     IF M2 &lt;= 0x7F
@@ -184,7 +183,7 @@ IF M0 == B1 2A
   END
 END
 
-# == RULE 15: [launch] knob 3 → [c4] voice 3 octave ==
+# == RULE 15: [launch for c4 - knobs] knob 3 → [c4] voice 3 octave ==
 IF M0 == B1 2B
   ASS M0 = B1
   ASS M1 = 19
@@ -192,7 +191,7 @@ IF M0 == B1 2B
   BLOCK
 END
 
-# == RULE 16: [launch] knob 4 → [c4] voice 4 octave ==
+# == RULE 16: [launch for c4 - knobs] knob 4 → [c4] voice 4 octave ==
 IF M0 == B1 2C
   ASS M0 = B1
   ASS M1 = 1A
@@ -200,7 +199,7 @@ IF M0 == B1 2C
   BLOCK
 END
 
-# == RULE 17: [launch] knob 5 → [c4] voice 1 semitone ==
+# == RULE 17: [launch for c4 - knobs] knob 5 → [c4] voice 1 semitone ==
 IF M0 == B1 2D
   ASS M0 = B1
   ASS M1 = 13
@@ -208,7 +207,7 @@ IF M0 == B1 2D
   BLOCK
 END
 
-# == RULE 18: [launch] knob 6 → [c4] voice 2 semitone ==
+# == RULE 18: [launch for c4 - knobs] knob 6 → [c4] voice 2 semitone ==
 IF M0 == B1 2E
   ASS M0 = B1
   ASS M1 = 14
@@ -216,7 +215,7 @@ IF M0 == B1 2E
   BLOCK
 END
 
-# == RULE 19: [launch] knob 7 → [c4] voice 3 semitone ==
+# == RULE 19: [launch for c4 - knobs] knob 7 → [c4] voice 3 semitone ==
 IF M0 == B1 2F
   ASS M0 = B1
   ASS M1 = 15
@@ -224,12 +223,11 @@ IF M0 == B1 2F
   BLOCK
 END
 
-# == RULE 20: [launch] knob 8 → [c4] voice 4 semitone ==
+# == RULE 20: [launch for c4 - knobs] knob 8 → [c4] voice 4 semitone ==
 IF M0 == B1 30
   ASS M0 = B1
   ASS M1 = 16
   SND M0 M1 M2
-  BLOCK
 END
 
 # == CUSTOM_RULE ==
@@ -241,7 +239,7 @@ IF M0 == B1 18
   END
 END
 
-# == RULE 21: [launch] knob 1 → [c4] program 111 ==
+# == RULE 21: [launch for c4 - knobs] knob 1 → [c4] program 111 ==
 IF M0 == B1 29
   ASS M0 = C1
   ASS M1 = 6F
@@ -249,7 +247,7 @@ IF M0 == B1 29
   BLOCK
 END
 
-# == RULE 22: [launch] knob 2 → [c4] program 110 ==
+# == RULE 22: [launch for c4 - knobs] knob 2 → [c4] program 110 ==
 IF M0 == B1 2A
   ASS M0 = C1
   ASS M1 = 6E
@@ -257,7 +255,7 @@ IF M0 == B1 2A
   BLOCK
 END
 
-# == RULE 23: [launch] knob 3 → [c4] program 109 ==
+# == RULE 23: [launch for c4 - knobs] knob 3 → [c4] program 109 ==
 IF M0 == B1 2B
   ASS M0 = C1
   ASS M1 = 6D
@@ -265,7 +263,7 @@ IF M0 == B1 2B
   BLOCK
 END
 
-# == RULE 24: [launch] knob 4 → [c4] program 108 ==
+# == RULE 24: [launch for c4 - knobs] knob 4 → [c4] program 108 ==
 IF M0 == B1 2C
   ASS M0 = C1
   ASS M1 = 6C
@@ -273,7 +271,7 @@ IF M0 == B1 2C
   BLOCK
 END
 
-# == RULE 25: [launch] knob 5 → [c4] program 111 ==
+# == RULE 25: [launch for c4 - knobs] knob 5 → [c4] program 111 ==
 IF M0 == B1 2D
   ASS M0 = C1
   ASS M1 = 6F
@@ -281,7 +279,7 @@ IF M0 == B1 2D
   BLOCK
 END
 
-# == RULE 26: [launch] knob 6 → [c4] program 110 ==
+# == RULE 26: [launch for c4 - knobs] knob 6 → [c4] program 110 ==
 IF M0 == B1 2E
   ASS M0 = C1
   ASS M1 = 6E
@@ -289,16 +287,15 @@ IF M0 == B1 2E
   BLOCK
 END
 
-# == RULE 27: [launch] knob 7 → [c4] program 109 ==
+# == RULE 27: [launch for c4 - knobs] knob 7 → [c4] program 109 ==
 IF M0 == B1 2F
   ASS M0 = C1
   ASS M1 = 6D
   SND M0 M1
-  BLOCK
 END
 
-# == RULE 28: [launch] knob 8 → [c4] program 108 ==
-IF M0 == B1 30
+# == RULE 28: [launch for c4 - knobs] knob 1 → [c4] program 108 ==
+IF M0 == B1 29
   ASS M0 = C1
   ASS M1 = 6C
   SND M0 M1

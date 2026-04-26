@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Bindings</key>
+	<array>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#0</string>
+					</dict>
+					<key>Subject</key>
+					<string>#160</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+				<dict>
+					<key>Identifier</key>
+					<string>Scene Activate</string>
+					<key>Parameters</key>
+					<dict/>
+					<key>Subject</key>
+					<string>#84</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c17f</string>
+		</dict>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#1</string>
+					</dict>
+					<key>Subject</key>
+					<string>#160</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+				<dict>
+					<key>Identifier</key>
+					<string>Scene Activate</string>
+					<key>Parameters</key>
+					<dict/>
+					<key>Subject</key>
+					<string>#87</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c17e</string>
+		</dict>
+		<dict>
+			<key>Actions</key>
+			<array>
+				<dict>
+					<key>Identifier</key>
+					<string>Trigger Widget</string>
+					<key>Parameters</key>
+					<dict>
+						<key>Widget Action</key>
+						<string>Select#2</string>
+					</dict>
+					<key>Subject</key>
+					<string>#160</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+				<dict>
+					<key>Identifier</key>
+					<string>Scene Activate</string>
+					<key>Parameters</key>
+					<dict/>
+					<key>Subject</key>
+					<string>#90</string>
+					<key>Timing</key>
+					<string>Sequential</string>
+				</dict>
+			</array>
+			<key>Trigger</key>
+			<string>c17d</string>
+		</dict>
+	</array>
+	<key>Device</key>
+	<string>AU#71</string>
+	<key>Device Name</key>
+	<string>in</string>
+	<key>Type</key>
+	<string>MIDI</string>
+</dict>
+</plist>

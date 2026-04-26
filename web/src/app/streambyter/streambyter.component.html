@@ -34,6 +34,48 @@
         </div>
     </div>
     
+    <!-- Toggle Row -->
+    <div class="toggle-row">
+        <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="showDelayInput">
+            <span>Show Delay Input</span>
+        </label>
+        <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="wideRuleNames">
+            <span>Wide Rule Names (600px)</span>
+        </label>
+    </div>
+    
+    <!-- Bulk Actions -->
+    @if (rules.length > 0) {
+        <div class="bulk-actions">
+            <button class="btn-small" (click)="selectAllRules()">✓ Select All</button>
+            <button class="btn-small" (click)="selectRegularRules()">📌 Select Regular</button>
+            <button class="btn-small" (click)="selectNoneRules()">✗ Select None</button>
+            <button class="btn-small primary" (click)="generateNamesForSelectedRules()" [disabled]="getSelectedRulesCount() === 0">
+                🎨 Name Selected
+            </button>
+            
+            @if (getSelectedRulesCount() > 0) {
+                <div class="bulk-mapping">
+                    <span class="selected-count">{{ getSelectedRulesCount() }} rule(s) selected</span>
+                    <select [(ngModel)]="bulkMappingName">
+                        <option [value]="null">-- Select trigger mapping --</option>
+                        @for (mapping of triggerMappings; track mapping.name) {
+                            <option [value]="mapping.name">{{ mapping.name }} (Ch{{ mapping.triggerMidiChannel }})</option>
+                        }
+                    </select>
+                    <button class="btn-small primary" (click)="applyBulkMapping()">Apply to Selected</button>
+                </div>
+            }
+        </div>
+    }
+    
+    <!-- Trigger Mappings Component -->
+    @if (openMappingsEditor) {
+        <app-trigger-mappings></app-trigger-mappings>
+    }
+    
     <div class="rules-panel">
         @if (rules.length === 0) {
             <div class="empty-state">
@@ -44,31 +86,35 @@
         @for (rule of rules; track $index; let i = $index) {
             <div class="rule-row" [attr.data-rule-index]="i">
                 @if (rule.type === 'custom') {
-                    <details class="custom-rule-details" [open]="!rule.collapsed" (toggle)="rule.collapsed = !rule.collapsed">
-                        <summary class="custom-rule-summary">
-                            <div class="custom-rule-header">
-                                <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled" title="Enable/Disable" (click)="$event.stopPropagation()">
-                                <input type="text" [(ngModel)]="rule.name" class="rule-name-input" placeholder="Rule name" maxlength="100" (click)="$event.stopPropagation()">
-                                <span class="rule-badge">CUSTOM</span>
-                                <div class="action-icons">
-                                    <button class="icon-btn" (click)="duplicateRule(i); $event.stopPropagation()" title="Duplicate">📋</button>
-                                    <button class="icon-btn" (click)="deleteRule(i); $event.stopPropagation()" title="Delete">🗑</button>
-                                </div>
+                    <div class="custom-rule-row">
+                        <div class="custom-rule-header">
+                            <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled" title="Enable/Disable">
+                            <input type="text" [(ngModel)]="rule.name" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
+                            <span class="rule-badge">CUSTOM</span>
+                            <button class="icon-btn-small" (click)="toggleCustomRuleCollapse(i)" title="Toggle code">📄</button>
+                            <div class="action-icons">
+                                <button class="icon-btn" (click)="duplicateRule(i)" title="Duplicate">📋</button>
+                                <button class="icon-btn" (click)="deleteRule(i)" title="Delete">🗑</button>
                             </div>
-                        </summary>
-                        <div class="custom-code-preview">
-                            <textarea [(ngModel)]="rule.customCode" 
-                                      class="custom-code-full" 
-                                      rows="4" 
-                                      placeholder="# Write your custom StreamByter code here&#10;# Example:&#10;# IF M0 == B0 07&#10;#   SND M0 M1 7F&#10;# END"></textarea>
                         </div>
-                    </details>
+                        @if (!rule.collapsed) {
+                            <div class="custom-code-preview">
+                                <textarea [(ngModel)]="rule.customCode" 
+                                          class="custom-code-full" 
+                                          rows="4" 
+                                          placeholder="# Write your custom StreamByter code here&#10;# Example:&#10;# IF M0 == B0 07&#10;#   SND M0 M1 7F&#10;# END"></textarea>
+                            </div>
+                        }
+                    </div>
                 } @else {
                     <!-- Single line rule -->
                     <div class="rule-row-content">
+                        <!-- Selection Checkbox -->
+                        <input type="checkbox" [(ngModel)]="rule.selected" class="rule-select">
+                        
                         <!-- Column 1: Name -->
-                        <div class="rule-name-cell">
-                            <input type="text" [(ngModel)]="rule.name" class="rule-name-input" placeholder="Rule name" maxlength="100">
+                        <div class="rule-name-cell" [class.wide]="wideRuleNames">
+                            <input type="text" [(ngModel)]="rule.name" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
                         </div>
                         
                         <!-- Trigger Section -->
@@ -78,9 +124,10 @@
                                 <option value="controlChange">CC</option>
                             </select>
                             
-                            <select [(ngModel)]="rule.trigger.channel" class="mini-select-tiny" title="Channel">
-                                @for (ch of channels; track ch) {
-                                    <option [value]="ch">{{ ch }}</option>
+                            <!-- Trigger Source Select -->
+                            <select [ngModel]="getCurrentTriggerSourceValue(rule)" class="mini-select" title="Trigger Source" (ngModelChange)="onTriggerSourceChange(rule, $event)">
+                                @for (opt of getTriggerSourceOptions(); track opt.value) {
+                                    <option [value]="opt.value">{{ opt.label }}</option>
                                 }
                             </select>
                             
@@ -91,14 +138,14 @@
                                 </select>
                                 @if (rule.trigger.noteMode === 'specific') {
                                     <select [(ngModel)]="rule.trigger.specificNote" class="mini-select-small" title="Note">
-                                        @for (opt of getNoteOptions(rule.trigger.channel, rule.trigger.specificNote); track opt.value) {
+                                        @for (opt of getNoteOptions(rule.trigger.channel, rule.trigger.specificNote, rule); track opt.value) {
                                             <option [value]="opt.value">{{ opt.label }}</option>
                                         }
                                     </select>
                                 }
                             } @else {
                                 <select [(ngModel)]="rule.trigger.ccNumber" class="mini-select-small" title="CC">
-                                    @for (opt of getCcOptions(rule.trigger.channel, rule.trigger.ccNumber); track opt.value) {
+                                    @for (opt of getCcOptions(rule.trigger.channel, rule.trigger.ccNumber, rule); track opt.value) {
                                         <option [value]="opt.value">{{ opt.label }}</option>
                                     }
                                 </select>
@@ -142,9 +189,9 @@
                                 <option value="program">PC</option>
                             </select>
                             
-                            <select [(ngModel)]="rule.output.channel" class="mini-select-tiny" title="Channel">
+                            <select [(ngModel)]="rule.output.channel" class="mini-select" title="Channel">
                                 @for (ch of channels; track ch) {
-                                    <option [value]="ch">{{ ch }}</option>
+                                    <option [value]="ch">Ch{{ ch }} ({{ getDeviceName(ch) }})</option>
                                 }
                             </select>
                             
@@ -182,11 +229,13 @@
                                 }
                             } @else if (rule.output.type === 'program') {
                                 <input type="number" [(ngModel)]="rule.output.program" 
-                                       placeholder="PGM" min="0" max="127" class="mini-input" title="Program">
+                                       placeholder="PGM" min="0" max="127" class="mini-input-medium" title="Program">
                             }
                             
-                            <input type="number" [(ngModel)]="rule.output.delayMs" 
-                                   placeholder="ms" min="0" class="mini-input-tiny" title="Delay">
+                            @if (showDelayInput) {
+                                <input type="number" [(ngModel)]="rule.output.delayMs" 
+                                       placeholder="ms" min="0" class="mini-input-tiny" title="Delay">
+                            }
                         </div>
                         
                         <!-- Action Icons -->

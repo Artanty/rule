@@ -9,6 +9,7 @@ import { ValidationComponent } from './validation/validation.component';
 import { RulesComponent } from './rules/rules.component';
 import { StreambyterComponent } from './streambyter/streambyter.component';
 import { MappingEditorComponent } from './mapping-editor/mapping-editor.component';
+import { TriggerMappingsComponent } from './trigger-mappings/trigger-mappings.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { MappingEditorComponent } from './mapping-editor/mapping-editor.componen
     ValidationComponent,
     RulesComponent,
     StreambyterComponent,
-    MappingEditorComponent
+    MappingEditorComponent,
+    TriggerMappingsComponent,
   ],
   imports: [
     BrowserModule,

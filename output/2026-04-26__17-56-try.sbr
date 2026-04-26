@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>StreamByter-Rules</key>
+    <string># StreamByter Script
+# Generated: 26.04.2026, 17:56:18
+
+# == RULE 1: [launch] CC#7 → [launch] Note#60 ==
+# trigger-source: [device] "1"
+IF M0 == B0 07
+  ASS M0 = 90
+  ASS M1 = 3C
+  ASS M2 = 64
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 2: [Channel 2] any note → [c4] voice 3 mode ==
+# trigger-source: [channel] "2"
+IF M0 &gt;= 0x90 &amp;&amp; M0 &lt;= 0x9F
+  ASS M0 = B1
+  ASS M1 = 0B
+  SND M0 M1 M2
+END
+
+# == RULE 3: [launch for c4 - knobs] voice 1 source → [c4] voice 4 source ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+IF M0 == B1 2A
+  ASS M0 = B1
+  ASS M1 = 2D
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+</string>
+</dict>
+</plist>
