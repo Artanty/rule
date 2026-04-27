@@ -21,15 +21,11 @@ export interface TriggerMapping {
   triggerDeviceName: string;
   rules: TriggerRule[];
 }
-
-// export interface TriggerRule {
-//   name: string;
-//   value: number;
-//   type: 'cc' | 'note';
-// }
 export interface TriggerRule {
+  id?: string; 
   name: string;
   value: number;
+  dataValue?: number;
   type: 'cc' | 'note' | 'program';
 }
 

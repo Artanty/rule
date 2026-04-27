@@ -186,8 +186,7 @@
                         
                         <!-- Arrow -->
                         <span class="arrow">→</span>
-                        
-                        <!-- Output Section -->
+                                            
                         <div class="output-cell">
                             <!-- Consumer Source Select -->
                             <select [ngModel]="getCurrentConsumerSourceValue(rule)" class="mini-select" title="Consumer Source" (ngModelChange)="onConsumerSourceChange(rule, $event)">
@@ -196,50 +195,61 @@
                                 }
                             </select>
                             
-                            <select [(ngModel)]="rule.output.type" class="mini-select" title="Output Type">
-                                <option value="cc">CC</option>
-                                <option value="note">Note</option>
-                                <option value="program">PC</option>
-                            </select>
-                            
-                            @if (rule.output.type === 'cc') {
-                                <select [(ngModel)]="rule.output.ccNumber" class="mini-select-small" title="CC">
-                                    @for (opt of getOutputCcOptions(rule.output.channel, rule.output.ccNumber, rule); track opt.value) {
+                            @if (rule.showMappingSelector && rule.consumerSource.type === 'mapping') {
+                                
+                                <select [ngModel]="rule.selectedMappingRuleKey" class="mini-select" title="Mapping Rule" (ngModelChange)="onMappingRuleSelected(rule, $event)">
+                                    <option [value]="null">-- Select rule --</option>
+                                    @for (opt of getMappingRuleOptions(rule); track opt.value) {
                                         <option [value]="opt.value">{{ opt.label }}</option>
                                     }
                                 </select>
-                                
-                                <select [(ngModel)]="rule.output.valueMode" class="mini-select-tiny" title="Value Mode">
-                                    <option value="constant">C</option>
-                                    <option value="trigger">T</option>
+                            } @else {
+                                <!-- Individual Output Controls -->
+                                <select [(ngModel)]="rule.output.type" class="mini-select" title="Output Type">
+                                    <option value="cc">CC</option>
+                                    <option value="note">Note</option>
+                                    <option value="program">PC</option>
                                 </select>
                                 
-                                @if (rule.output.valueMode === 'constant') {
-                                    <input type="number" [(ngModel)]="rule.output.constantValue" 
-                                           min="0" max="127" class="mini-input" placeholder="Val" title="Value">
+                                @if (rule.output.type === 'cc') {
+                                    <select [(ngModel)]="rule.output.ccNumber" class="mini-select-small" title="CC">
+                                        @for (opt of getOutputCcOptions(rule.output.channel, rule.output.ccNumber, rule); track opt.value) {
+                                            <option [value]="opt.value">{{ opt.label }}</option>
+                                        }
+                                    </select>
+                                    
+                                    <select [(ngModel)]="rule.output.valueMode" class="mini-select-tiny" title="Value Mode">
+                                        <option value="constant">C</option>
+                                        <option value="trigger">T</option>
+                                    </select>
+                                    
+                                    @if (rule.output.valueMode === 'constant') {
+                                        <input type="number" [(ngModel)]="rule.output.constantValue" 
+                                               min="0" max="127" class="mini-input" placeholder="Val" title="Value">
+                                    }
+                                } @else if (rule.output.type === 'note') {
+                                    <select [(ngModel)]="rule.output.note" class="mini-select-small" title="Note">
+                                        @for (opt of getOutputNoteOptions(rule.output.channel, rule.output.note, rule); track opt.value) {
+                                            <option [value]="opt.value">{{ opt.label }}</option>
+                                        }
+                                    </select>
+                                    
+                                    <select [(ngModel)]="rule.output.velocityMode" class="mini-select-tiny" title="Velocity Mode">
+                                        <option value="constant">C</option>
+                                        <option value="trigger">T</option>
+                                    </select>
+                                    
+                                    @if (rule.output.velocityMode === 'constant') {
+                                        <input type="number" [(ngModel)]="rule.output.velocity" 
+                                               min="0" max="127" class="mini-input" placeholder="Vel" title="Velocity">
+                                    }
+                                } @else if (rule.output.type === 'program') {
+                                    <select [(ngModel)]="rule.output.program" class="mini-select-small" title="Program">
+                                        @for (opt of getOutputProgramOptions(rule); track opt.value) {
+                                            <option [value]="opt.value">{{ opt.label }}</option>
+                                        }
+                                    </select>
                                 }
-                            } @else if (rule.output.type === 'note') {
-                                <select [(ngModel)]="rule.output.note" class="mini-select-small" title="Note">
-                                    @for (opt of getOutputNoteOptions(rule.output.channel, rule.output.note, rule); track opt.value) {
-                                        <option [value]="opt.value">{{ opt.label }}</option>
-                                    }
-                                </select>
-                                
-                                <select [(ngModel)]="rule.output.velocityMode" class="mini-select-tiny" title="Velocity Mode">
-                                    <option value="constant">C</option>
-                                    <option value="trigger">T</option>
-                                </select>
-                                
-                                @if (rule.output.velocityMode === 'constant') {
-                                    <input type="number" [(ngModel)]="rule.output.velocity" 
-                                           min="0" max="127" class="mini-input" placeholder="Vel" title="Velocity">
-                                }
-                            } @else if (rule.output.type === 'program') {
-                                <select [(ngModel)]="rule.output.program" class="mini-select-small" title="Program">
-                                    @for (opt of getOutputProgramOptions(rule); track opt.value) {
-                                        <option [value]="opt.value">{{ opt.label }}</option>
-                                    }
-                                </select>
                             }
                             
                             @if (showDelayInput) {

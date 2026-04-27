@@ -325,3 +325,19 @@
     color: #7a7ab0;
     font-size: 0.8rem;
 }
+
+.rule-data-value {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    width: 60px;
+    text-align: center;
+
+    &:focus {
+        outline: none;
+        border-color: #9f7afe;
+    }
+}

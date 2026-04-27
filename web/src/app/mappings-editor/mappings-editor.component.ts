@@ -19,7 +19,6 @@ export class MappingsEditorComponent implements OnInit {
     editForm: TriggerMapping = this.createEmptyMapping();
     
     channels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-    ruleTypes = ['cc', 'note', 'program'];
     
     constructor(private storageService: StorageService) {}
     
@@ -104,6 +103,7 @@ export class MappingsEditorComponent implements OnInit {
         const newRule: TriggerRule = {
             name: '',
             value: 0,
+            dataValue: this.type === 'consumer' ? 0 : undefined,
             type: 'cc'
         };
         this.editForm.rules.push(newRule);
@@ -187,10 +187,13 @@ export class MappingsEditorComponent implements OnInit {
                                     if (rule.type !== 'cc' && rule.type !== 'note' && rule.type !== 'program') {
                                         rule.type = 'cc';
                                     }
+                                    // Ensure dataValue exists for consumer mappings
+                                    if (this.type === 'consumer' && rule.dataValue === undefined) {
+                                        rule.dataValue = 0;
+                                    }
                                 }
                             }
                             if (this.type === 'producer') {
-                                // Producer mappings only allow cc and note
                                 if (mapping.rules) {
                                     mapping.rules = mapping.rules.filter((r: TriggerRule) => r.type !== 'program');
                                 }

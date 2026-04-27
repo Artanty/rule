@@ -54,9 +54,15 @@
                                 }
                             </select>
                             <input type="number" [(ngModel)]="rule.value" 
-                                   [min]="0" [max]="rule.type === 'program' ? 127 : 127" 
+                                   [min]="0" [max]="127" 
                                    class="rule-value" 
-                                   [placeholder]="rule.type === 'program' ? 'PGM' : 'Value'">
+                                   [placeholder]="rule.type === 'program' ? 'PGM' : 'CC/Note'">
+                            @if (type === 'consumer' && rule.type !== 'program') {
+                                <input type="number" [(ngModel)]="rule.dataValue" 
+                                       min="0" max="127" 
+                                       class="rule-data-value" 
+                                       placeholder="Value">
+                            }
                         </div>
                         <div class="rule-actions">
                             <button class="icon-btn" (click)="duplicateRule(idx, false)" title="Copy">📋</button>

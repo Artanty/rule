@@ -10,6 +10,8 @@ interface Rule {
     customCode?: string;
     collapsed?: boolean;
     selected?: boolean;
+    showMappingSelector?: boolean;
+    selectedMappingRuleKey?: any;
     triggerSource: {
         type: 'mapping' | 'device' | 'channel';
         value: string | number;
@@ -295,10 +297,6 @@ export class StreambyterComponent implements OnInit {
     }
     
     onConsumerSourceChange(rule: Rule, selectedValue: string) {
-        const currentCCValue = rule.output.ccNumber;
-        const currentNoteValue = rule.output.note;
-        const currentProgramValue = rule.output.program;
-        
         if (selectedValue.startsWith('mapping:')) {
             const mappingName = selectedValue.substring('mapping:'.length);
             const consumerMappings = this.storageService.getConsumerMappings();
@@ -310,51 +308,179 @@ export class StreambyterComponent implements OnInit {
                     mappingName: mappingName
                 };
                 rule.output.channel = mapping.triggerMidiChannel;
-                
-                if (rule.output.type === 'cc') {
-                    const ccRules = mapping.rules.filter(r => r.type === 'cc');
-                    const valueExists = ccRules.some(r => r.value === currentCCValue);
-                    if (valueExists) {
-                        rule.output.ccNumber = currentCCValue;
-                    } else if (ccRules.length > 0) {
-                        rule.output.ccNumber = ccRules[0].value;
+                rule.showMappingSelector = true;
+            
+                // Try to find a matching rule based on current output values
+                let matchedRule = null;
+                const currentOutputType = rule.output.type;
+                const currentCcNumber = rule.output.ccNumber;
+                const currentNoteNumber = rule.output.note;
+                const currentProgramNumber = rule.output.program;
+                const currentConstantValue = rule.output.constantValue;
+                const currentValueMode = rule.output.valueMode;
+            
+                if (currentOutputType === 'cc') {
+                    // First try to match by CC number AND constant value
+                    matchedRule = mapping.rules.find(r => 
+                        r.type === 'cc' && 
+                        r.value === currentCcNumber &&
+                        (currentValueMode === 'constant' ? r.dataValue === currentConstantValue : true)
+                    );
+                    // If not found, try by CC number only
+                    if (!matchedRule) {
+                        matchedRule = mapping.rules.find(r => r.type === 'cc' && r.value === currentCcNumber);
                     }
-                } else if (rule.output.type === 'note') {
-                    const noteRules = mapping.rules.filter(r => r.type === 'note');
-                    const valueExists = noteRules.some(r => r.value === currentNoteValue);
-                    if (valueExists) {
-                        rule.output.note = currentNoteValue;
-                    } else if (noteRules.length > 0) {
-                        rule.output.note = noteRules[0].value;
+                } else if (currentOutputType === 'note') {
+                    matchedRule = mapping.rules.find(r => 
+                        r.type === 'note' && 
+                        r.value === currentNoteNumber &&
+                        (rule.output.velocityMode === 'constant' ? r.dataValue === rule.output.velocity : true)
+                    );
+                    if (!matchedRule) {
+                        matchedRule = mapping.rules.find(r => r.type === 'note' && r.value === currentNoteNumber);
                     }
-                } else if (rule.output.type === 'program') {
-                    const programRules = mapping.rules.filter(r => r.type === 'program');
-                    const valueExists = programRules.some(r => r.value === currentProgramValue);
-                    if (valueExists) {
-                        rule.output.program = currentProgramValue;
-                    } else if (programRules.length > 0) {
-                        rule.output.program = programRules[0].value;
+                } else if (currentOutputType === 'program') {
+                    matchedRule = mapping.rules.find(r => r.type === 'program' && r.value === currentProgramNumber);
+                }
+            
+                if (matchedRule) {
+                    // Apply the matched rule's values
+                    if (matchedRule.type === 'cc') {
+                        rule.output.type = 'cc';
+                        rule.output.ccNumber = matchedRule.value;
+                        if (matchedRule.dataValue !== undefined) {
+                            rule.output.valueMode = 'constant';
+                            rule.output.constantValue = matchedRule.dataValue;
+                        } else {
+                            rule.output.valueMode = currentValueMode;
+                            rule.output.constantValue = currentConstantValue;
+                        }
+                    } else if (matchedRule.type === 'note') {
+                        rule.output.type = 'note';
+                        rule.output.note = matchedRule.value;
+                        if (matchedRule.dataValue !== undefined) {
+                            rule.output.velocityMode = 'constant';
+                            rule.output.velocity = matchedRule.dataValue;
+                        } else {
+                            rule.output.velocityMode = rule.output.velocityMode;
+                            rule.output.velocity = rule.output.velocity;
+                        }
+                    } else if (matchedRule.type === 'program') {
+                        rule.output.type = 'program';
+                        rule.output.program = matchedRule.value;
                     }
+                    // Set the selected key using composite key format
+                    (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
+                } else {
+                    (rule as any).selectedMappingRuleKey = undefined;
                 }
             }
-        } else if (selectedValue.startsWith('device:')) {
-            const channel = parseInt(selectedValue.substring('device:'.length), 10);
-            rule.consumerSource = {
-                type: 'device',
-                value: channel
-            };
-            rule.output.channel = channel;
-        } else if (selectedValue.startsWith('channel:')) {
-            const channel = parseInt(selectedValue.substring('channel:'.length), 10);
-            rule.consumerSource = {
-                type: 'channel',
-                value: channel
-            };
-            rule.output.channel = channel;
+        } else {
+            rule.showMappingSelector = false;
+            (rule as any).selectedMappingRuleKey = undefined;
+        
+            if (selectedValue.startsWith('device:')) {
+                const channel = parseInt(selectedValue.substring('device:'.length), 10);
+                rule.consumerSource = {
+                    type: 'device',
+                    value: channel
+                };
+                rule.output.channel = channel;
+            } else if (selectedValue.startsWith('channel:')) {
+                const channel = parseInt(selectedValue.substring('channel:'.length), 10);
+                rule.consumerSource = {
+                    type: 'channel',
+                    value: channel
+                };
+                rule.output.channel = channel;
+            }
         }
         this.cdr.detectChanges();
     }
-    
+  
+    getMappingRuleOptions(rule: Rule): { value: string; label: string; ruleData: any }[] {
+        if (rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
+            const consumerMappings = this.storageService.getConsumerMappings();
+            const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
+            if (mapping && mapping.rules) {
+                return mapping.rules.map(r => {
+                    let label = `${r.name}`;
+                    if (r.type === 'cc') {
+                        label += ` (CC ${r.value})`;
+                        if (r.dataValue !== undefined) {
+                            label += ` → send ${r.dataValue}`;
+                        }
+                    } else if (r.type === 'note') {
+                        label += ` (Note ${r.value})`;
+                        if (r.dataValue !== undefined) {
+                            label += ` → velocity ${r.dataValue}`;
+                        }
+                    } else if (r.type === 'program') {
+                        label += ` (Program ${r.value})`;
+                    }
+                    // Create composite key: type_value_dataValue
+                    const key = `${r.type}_${r.value}_${r.dataValue !== undefined ? r.dataValue : 'null'}`;
+                    return {
+                        value: key,
+                        label: label,
+                        ruleData: r
+                    };
+                });
+            }
+        }
+        return [];
+    }
+
+    onMappingRuleSelected(rule: Rule, selectedValue: string) {
+        if (rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
+            const consumerMappings = this.storageService.getConsumerMappings();
+            const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
+            if (mapping) {
+                // Parse the composite key to find the rule
+                const [type, valueStr, dataValueStr] = selectedValue.split('_');
+                const value = parseInt(valueStr, 10);
+                const dataValue = dataValueStr !== 'null' ? parseInt(dataValueStr, 10) : undefined;
+            
+                const selectedRule = mapping.rules.find(r => 
+                    r.type === type && 
+                    r.value === value && 
+                    (dataValue !== undefined ? r.dataValue === dataValue : true)
+                );
+            
+                if (selectedRule) {
+                    if (selectedRule.type === 'cc') {
+                        rule.output.type = 'cc';
+                        rule.output.ccNumber = selectedRule.value;
+                        if (selectedRule.dataValue !== undefined) {
+                            rule.output.valueMode = 'constant';
+                            rule.output.constantValue = selectedRule.dataValue;
+                        } else {
+                            rule.output.valueMode = 'trigger';
+                            rule.output.constantValue = 0;
+                        }
+                    } else if (selectedRule.type === 'note') {
+                        rule.output.type = 'note';
+                        rule.output.note = selectedRule.value;
+                        if (selectedRule.dataValue !== undefined) {
+                            rule.output.velocityMode = 'constant';
+                            rule.output.velocity = selectedRule.dataValue;
+                        } else {
+                            rule.output.velocityMode = 'trigger';
+                            rule.output.velocity = 64;
+                        }
+                    } else if (selectedRule.type === 'program') {
+                        rule.output.type = 'program';
+                        rule.output.program = selectedRule.value;
+                    }
+                    (rule as any).selectedMappingRuleKey = selectedValue;
+                }
+            }
+        }
+        this.cdr.detectChanges();
+    }
+
+
+
     getCurrentTriggerSourceValue(rule: Rule): string {
         if (rule.triggerSource.type === 'mapping' && rule.triggerSource.mappingName) {
             return `mapping:${rule.triggerSource.mappingName}`;
@@ -423,16 +549,18 @@ export class StreambyterComponent implements OnInit {
         }));
     }
     
-    getConsumerCcOptionsFromMapping(mapping: TriggerMapping, currentValue?: number): { value: number; label: string }[] {
+    getConsumerCcOptionsFromMapping(mapping: TriggerMapping, currentValue?: number): { value: number; label: string; dataValue?: number }[] {
         const ccRules = mapping.rules.filter(r => r.type === 'cc');
         if (ccRules.length === 0) {
-            return [{ value: 0, label: 'No CC rules in mapping' }];
+            return [{ value: 0, label: 'No CC rules in mapping', dataValue: 0 }];
         }
         return ccRules.map(rule => ({
             value: rule.value,
-            label: `${rule.name} (${rule.value})`
+            label: `${rule.name} (${rule.value})`,
+            dataValue: rule.dataValue
         }));
     }
+
     
     getConsumerNoteOptionsFromMapping(mapping: TriggerMapping, currentValue?: number): { value: number; label: string }[] {
         const noteRules = mapping.rules.filter(r => r.type === 'note');
@@ -445,14 +573,15 @@ export class StreambyterComponent implements OnInit {
         }));
     }
     
-    getConsumerProgramOptionsFromMapping(mapping: TriggerMapping, currentValue?: number): { value: number; label: string }[] {
+    getConsumerProgramOptionsFromMapping(mapping: TriggerMapping): { value: number; label: string; dataValue?: number }[] {
         const programRules = mapping.rules.filter(r => r.type === 'program');
         if (programRules.length === 0) {
-            return [{ value: 0, label: 'No program rules in mapping' }];
+            return [{ value: 0, label: 'No program rules in mapping', dataValue: 0 }];
         }
         return programRules.map(rule => ({
             value: rule.value,
-            label: `${rule.name} (${rule.value})`
+            label: `${rule.name} (${rule.value})`,
+            dataValue: rule.dataValue
         }));
     }
     
@@ -607,9 +736,23 @@ export class StreambyterComponent implements OnInit {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
             if (mapping) {
-                return this.getConsumerCcOptionsFromMapping(mapping, currentValue);
+                const ccRules = mapping.rules.filter(r => r.type === 'cc');
+                if (ccRules.length === 0) {
+                    return [{ value: 0, label: 'No CC rules in this mapping' }];
+                }
+                return ccRules.map(rule => {
+                    let label = `${rule.name} (${rule.value})`;
+                    if (rule.dataValue !== undefined) {
+                        label += ` → value: ${rule.dataValue}`;
+                    }
+                    return {
+                        value: rule.value,
+                        label: label
+                    };
+                });
             }
         }
+        // Fallback
         const chStr = String(channel);
         let entries: CcLibraryEntry[] = [];
         if (this.ccLibrary[chStr]) {
@@ -625,13 +768,26 @@ export class StreambyterComponent implements OnInit {
             label: `${e.name} (${e.value})`
         }));
     }
-    
+
     getOutputNoteOptions(channel: number, currentValue?: number, rule?: Rule): { value: number; label: string }[] {
         if (rule && rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
             if (mapping) {
-                return this.getConsumerNoteOptionsFromMapping(mapping, currentValue);
+                const noteRules = mapping.rules.filter(r => r.type === 'note');
+                if (noteRules.length === 0) {
+                    return [{ value: 60, label: 'No note rules in this mapping' }];
+                }
+                return noteRules.map(rule => {
+                    let label = `${rule.name} (${rule.value})`;
+                    if (rule.dataValue !== undefined) {
+                        label += ` → vel: ${rule.dataValue}`;
+                    }
+                    return {
+                        value: rule.value,
+                        label: label
+                    };
+                });
             }
         }
         const chStr = String(channel);
@@ -655,7 +811,14 @@ export class StreambyterComponent implements OnInit {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
             if (mapping) {
-                return this.getConsumerProgramOptionsFromMapping(mapping);
+                const options = this.getConsumerProgramOptionsFromMapping(mapping);
+                // Also set the constant value if dataValue exists
+                const selected = options.find(o => o.value === rule.output.program);
+                if (selected && selected.dataValue !== undefined) {
+                    // For program changes, dataValue could be used differently
+                    // For now, we don't set a value for program changes
+                }
+                return options.map(o => ({ value: o.value, label: o.label }));
             }
         }
         const options: { value: number; label: string }[] = [];
@@ -1923,5 +2086,40 @@ export class StreambyterComponent implements OnInit {
                 consume: ext.trigger?.consume || 'eat'
             }
         }));
+    }
+
+    updateSelectedCcName(rule: Rule, ccNumber: number, ccDataValue?: number) {
+        if (rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
+            const consumerMappings = this.storageService.getConsumerMappings();
+            const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
+            if (mapping) {
+                debugger;
+                let matchedRule;
+                if (ccDataValue !== undefined) {
+                    matchedRule = mapping.rules.find(r => r.type === 'cc' && r.value === ccNumber && r.dataValue === ccDataValue);
+                } else {
+                    matchedRule = mapping.rules.find(r => r.type === 'cc' && r.value === ccNumber);
+                }
+                
+                if (matchedRule) {
+                    (rule as any).selectedCcName = matchedRule.name;
+                }
+            }
+        }
+        this.cdr.detectChanges();
+    }
+
+    updateSelectedNoteName(rule: Rule, noteNumber: number) {
+        if (rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
+            const consumerMappings = this.storageService.getConsumerMappings();
+            const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
+            if (mapping) {
+                const matchedRule = mapping.rules.find(r => r.type === 'note' && r.value === noteNumber);
+                if (matchedRule) {
+                    (rule as any).selectedNoteName = matchedRule.name;
+                }
+            }
+        }
+        this.cdr.detectChanges();
     }
 }
