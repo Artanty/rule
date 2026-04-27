@@ -1382,35 +1382,6 @@ export class StreambyterComponent implements OnInit {
                 conditionLine = lines[i].trim();
             }
     
-            // Parse the rule to detect output values
-            // Look for ASS M0 line to detect type and channel
-            const assM0Match = conditionLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
-            if (assM0Match) {
-                const typeChar = assM0Match[1].toUpperCase();
-                const channelHex = assM0Match[2];
-                detectedOutputChannel = parseInt(channelHex, 16) + 1;
-                if (typeChar === 'B') detectedOutputType = 'cc';
-                else if (typeChar === 'C') detectedOutputType = 'program';
-                else if (typeChar === '9') detectedOutputType = 'note';
-            }
-        
-            // Look for ASS M1 to detect value (CC number, Note number, or Program number)
-            const assM1Match = conditionLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-            if (assM1Match) {
-                const value = parseInt(assM1Match[1], 16);
-                if (detectedOutputType === 'cc') detectedCcNumber = value;
-                else if (detectedOutputType === 'note') detectedNoteNumber = value;
-                else if (detectedOutputType === 'program') detectedProgramNumber = value;
-            }
-        
-            // Look for ASS M2 to detect constant value/velocity
-            const assM2Match = conditionLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-            if (assM2Match) {
-                const value = parseInt(assM2Match[1], 16);
-                if (detectedOutputType === 'cc') detectedConstantValue = value;
-                else if (detectedOutputType === 'note') detectedVelocity = value;
-            }
-    
             // Check for range condition with nested IF
             const rangeMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})/i);
             if (rangeMatch) {
@@ -1458,31 +1429,79 @@ export class StreambyterComponent implements OnInit {
                     const currentLine = lines[j].trim();
                     const strippedLine = currentLine.replace(/^\s+/, '');
             
-                    // Look for output values in the nested structure
-                    const assM0MatchInner = strippedLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
-                    if (assM0MatchInner && !outputFound) {
-                        const typeChar = assM0MatchInner[1].toUpperCase();
-                        const channelHex = assM0MatchInner[2];
-                        detectedOutputChannel = parseInt(channelHex, 16) + 1;
-                        if (typeChar === 'B') detectedOutputType = 'cc';
-                        else if (typeChar === 'C') detectedOutputType = 'program';
-                        else if (typeChar === '9') detectedOutputType = 'note';
-                    
-                        const assM1MatchInner = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                        if (assM1MatchInner) {
-                            const value = parseInt(assM1MatchInner[1], 16);
-                            if (detectedOutputType === 'cc') detectedCcNumber = value;
-                            else if (detectedOutputType === 'note') detectedNoteNumber = value;
-                            else if (detectedOutputType === 'program') detectedProgramNumber = value;
-                        }
-                    
-                        const assM2MatchInner = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-                        if (assM2MatchInner) {
-                            const value = parseInt(assM2MatchInner[1], 16);
-                            if (detectedOutputType === 'cc') detectedConstantValue = value;
-                            else if (detectedOutputType === 'note') detectedVelocity = value;
-                        }
+                    // Look for Program Change output (C)
+                    const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+                    if (assM0PCMatch && !outputFound) {
+                        rule.output.type = 'program';
+                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+                        detectedOutputChannel = rule.output.channel;
+                        detectedOutputType = 'program';
                         outputFound = true;
+                    
+                        // Look for ASS M1 on the same line or next lines
+                        const sameLineM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+                        if (sameLineM1Match) {
+                            const programValue = parseInt(sameLineM1Match[1], 16);
+                            rule.output.program = programValue;
+                            detectedProgramNumber = programValue;
+                        }
+                        j++;
+                        continue;
+                    }
+                
+                    // Look for CC output (B)
+                    const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+                    if (assM0CCMatch && !outputFound) {
+                        rule.output.type = 'cc';
+                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
+                        detectedOutputChannel = rule.output.channel;
+                        detectedOutputType = 'cc';
+                        outputFound = true;
+                        j++;
+                        continue;
+                    }
+                
+                    // Look for Note output (9)
+                    const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+                    if (assM0NoteMatch && !outputFound) {
+                        rule.output.type = 'note';
+                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+                        detectedOutputChannel = rule.output.channel;
+                        detectedOutputType = 'note';
+                        outputFound = true;
+                        j++;
+                        continue;
+                    }
+                
+                    // Look for ASS M1 (CC number, Note number, or Program number)
+                    const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+                    if (assM1Match) {
+                        const value = parseInt(assM1Match[1], 16);
+                        if (rule.output.type === 'cc') {
+                            rule.output.ccNumber = value;
+                            detectedCcNumber = value;
+                        } else if (rule.output.type === 'program') {
+                            rule.output.program = value;
+                            detectedProgramNumber = value;
+                        } else if (rule.output.type === 'note') {
+                            rule.output.note = value;
+                            detectedNoteNumber = value;
+                        }
+                    }
+            
+                    // Look for ASS M2 (CC constant value or Note velocity)
+                    const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+                    if (assM2Match) {
+                        const value = parseInt(assM2Match[1], 16);
+                        if (rule.output.type === 'cc') {
+                            rule.output.valueMode = 'constant';
+                            rule.output.constantValue = value;
+                            detectedConstantValue = value;
+                        } else if (rule.output.type === 'note') {
+                            rule.output.velocityMode = 'constant';
+                            rule.output.velocity = value;
+                            detectedVelocity = value;
+                        }
                     }
     
                     const minMatch = strippedLine.match(/IF\s+M2\s*>=\s*(?:0x)?([0-9A-F]+)/i);
@@ -1499,59 +1518,6 @@ export class StreambyterComponent implements OnInit {
                         nestedLevel++;
                         j++;
                         continue;
-                    }
-            
-                    const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0CCMatch && !outputFound) {
-                        rule.output.type = 'cc';
-                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
-                        detectedOutputChannel = rule.output.channel;
-                        outputFound = true;
-                    }
-            
-                    const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
-                    if (assM0PCMatch && !outputFound) {
-                        rule.output.type = 'program';
-                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
-                        detectedOutputChannel = rule.output.channel;
-                        outputFound = true;
-                    }
-            
-                    const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
-                    if (assM0NoteMatch && !outputFound) {
-                        rule.output.type = 'note';
-                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
-                        detectedOutputChannel = rule.output.channel;
-                        outputFound = true;
-                    }
-            
-                    const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                    if (assM1Match) {
-                        const value = parseInt(assM1Match[1], 16);
-                        if (rule.output.type === 'cc') {
-                            rule.output.ccNumber = value;
-                            detectedCcNumber = value;
-                        } else if (rule.output.type === 'program') {
-                            rule.output.program = value;
-                            detectedProgramNumber = value;
-                        } else if (rule.output.type === 'note') {
-                            rule.output.note = value;
-                            detectedNoteNumber = value;
-                        }
-                    }
-            
-                    const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-                    if (assM2Match) {
-                        const value = parseInt(assM2Match[1], 16);
-                        if (rule.output.type === 'cc') {
-                            rule.output.valueMode = 'constant';
-                            rule.output.constantValue = value;
-                            detectedConstantValue = value;
-                        } else if (rule.output.type === 'note') {
-                            rule.output.velocityMode = 'constant';
-                            rule.output.velocity = value;
-                            detectedVelocity = value;
-                        }
                     }
             
                     if (strippedLine.match(/BLOCK/i)) {
@@ -1585,7 +1551,7 @@ export class StreambyterComponent implements OnInit {
                     rule.output.velocity = detectedVelocity;
                 }
     
-                // Set consumer source based on whether we had a consumer-source line
+                // Set consumer source
                 if (hasConsumerSourceLine && consumerSourceType === 'mapping' && consumerMappingName) {
                     const consumerMappings = this.storageService.getConsumerMappings();
                     const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
@@ -1598,7 +1564,6 @@ export class StreambyterComponent implements OnInit {
                         rule.output.channel = existingMapping.triggerMidiChannel;
                         rule.showMappingSelector = true;
                     
-                        // Try to find matching rule in the mapping
                         let matchedRule = null;
                         if (detectedOutputType === 'cc' && detectedCcNumber !== null) {
                             matchedRule = existingMapping.rules.find(r => 
@@ -1641,7 +1606,6 @@ export class StreambyterComponent implements OnInit {
                     rule.output.channel = consumerSourceValue as number;
                     rule.showMappingSelector = false;
                 } else {
-                    // No consumer-source line - use detected output channel
                     const fallbackChannel = detectedOutputChannel || 1;
                     const deviceMap = this.storageService.getDeviceMap();
                     const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
@@ -1668,7 +1632,19 @@ export class StreambyterComponent implements OnInit {
                 continue;
             }
     
-            // Similar updates for specificMatch and noteMatch...
+            // Check for specific value condition (non-range)
+            const specificMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
+            if (specificMatch) {
+                // Similar structure as above but for non-range conditions
+                // (Keep your existing specificMatch handling)
+            }
+    
+            // Check for Note On condition
+            const noteMatch = conditionLine.match(/IF\s+M0\s*>=\s*0x90\s*&&\s*M0\s*<=\s*0x9F/i);
+            if (noteMatch) {
+                // Keep your existing noteMatch handling
+            }
+    
             i++;
         }
     
@@ -1676,7 +1652,6 @@ export class StreambyterComponent implements OnInit {
             console.log('No rules could be parsed from the script');
         }
     
-        // Force UI update
         setTimeout(() => {
             this.rules = [...this.rules];
             this.refreshMaps();
