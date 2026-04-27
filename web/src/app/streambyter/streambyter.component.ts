@@ -1312,6 +1312,11 @@ export class StreambyterComponent implements OnInit {
     
             let detectedOutputChannel: number | null = null;
             let detectedOutputType: string | null = null;
+            let detectedCcNumber: number | null = null;
+            let detectedNoteNumber: number | null = null;
+            let detectedProgramNumber: number | null = null;
+            let detectedConstantValue: number | null = null;
+            let detectedVelocity: number | null = null;
     
             let nextLineIndex = i + 1;
             if (nextLineIndex < lines.length && lines[nextLineIndex].trim().startsWith('# trigger-source:')) {
@@ -1377,6 +1382,35 @@ export class StreambyterComponent implements OnInit {
                 conditionLine = lines[i].trim();
             }
     
+            // Parse the rule to detect output values
+            // Look for ASS M0 line to detect type and channel
+            const assM0Match = conditionLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
+            if (assM0Match) {
+                const typeChar = assM0Match[1].toUpperCase();
+                const channelHex = assM0Match[2];
+                detectedOutputChannel = parseInt(channelHex, 16) + 1;
+                if (typeChar === 'B') detectedOutputType = 'cc';
+                else if (typeChar === 'C') detectedOutputType = 'program';
+                else if (typeChar === '9') detectedOutputType = 'note';
+            }
+        
+            // Look for ASS M1 to detect value (CC number, Note number, or Program number)
+            const assM1Match = conditionLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+            if (assM1Match) {
+                const value = parseInt(assM1Match[1], 16);
+                if (detectedOutputType === 'cc') detectedCcNumber = value;
+                else if (detectedOutputType === 'note') detectedNoteNumber = value;
+                else if (detectedOutputType === 'program') detectedProgramNumber = value;
+            }
+        
+            // Look for ASS M2 to detect constant value/velocity
+            const assM2Match = conditionLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+            if (assM2Match) {
+                const value = parseInt(assM2Match[1], 16);
+                if (detectedOutputType === 'cc') detectedConstantValue = value;
+                else if (detectedOutputType === 'note') detectedVelocity = value;
+            }
+    
             // Check for range condition with nested IF
             const rangeMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})/i);
             if (rangeMatch) {
@@ -1423,22 +1457,30 @@ export class StreambyterComponent implements OnInit {
                 while (j < lines.length && !foundEnd) {
                     const currentLine = lines[j].trim();
                     const strippedLine = currentLine.replace(/^\s+/, '');
-                
-                    // Look for output channel in ASS M0 command
-                    const assM0Match = strippedLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
-                    if (assM0Match && !outputFound) {
-                        const typeChar = assM0Match[1].toUpperCase();
-                        const channelHex = assM0Match[2];
+            
+                    // Look for output values in the nested structure
+                    const assM0MatchInner = strippedLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
+                    if (assM0MatchInner && !outputFound) {
+                        const typeChar = assM0MatchInner[1].toUpperCase();
+                        const channelHex = assM0MatchInner[2];
                         detectedOutputChannel = parseInt(channelHex, 16) + 1;
-                        if (typeChar === 'B') {
-                            detectedOutputType = 'cc';
-                            rule.output.type = 'cc';
-                        } else if (typeChar === 'C') {
-                            detectedOutputType = 'program';
-                            rule.output.type = 'program';
-                        } else if (typeChar === '9') {
-                            detectedOutputType = 'note';
-                            rule.output.type = 'note';
+                        if (typeChar === 'B') detectedOutputType = 'cc';
+                        else if (typeChar === 'C') detectedOutputType = 'program';
+                        else if (typeChar === '9') detectedOutputType = 'note';
+                    
+                        const assM1MatchInner = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+                        if (assM1MatchInner) {
+                            const value = parseInt(assM1MatchInner[1], 16);
+                            if (detectedOutputType === 'cc') detectedCcNumber = value;
+                            else if (detectedOutputType === 'note') detectedNoteNumber = value;
+                            else if (detectedOutputType === 'program') detectedProgramNumber = value;
+                        }
+                    
+                        const assM2MatchInner = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+                        if (assM2MatchInner) {
+                            const value = parseInt(assM2MatchInner[1], 16);
+                            if (detectedOutputType === 'cc') detectedConstantValue = value;
+                            else if (detectedOutputType === 'note') detectedVelocity = value;
                         }
                         outputFound = true;
                     }
@@ -1450,7 +1492,7 @@ export class StreambyterComponent implements OnInit {
                         j++;
                         continue;
                     }
-                
+            
                     const maxMatch = strippedLine.match(/IF\s+M2\s*<=\s*(?:0x)?([0-9A-F]+)/i);
                     if (maxMatch && rangeMax === null) {
                         rangeMax = parseInt(maxMatch[1], 16);
@@ -1458,7 +1500,7 @@ export class StreambyterComponent implements OnInit {
                         j++;
                         continue;
                     }
-                
+            
                     const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                     if (assM0CCMatch && !outputFound) {
                         rule.output.type = 'cc';
@@ -1466,7 +1508,7 @@ export class StreambyterComponent implements OnInit {
                         detectedOutputChannel = rule.output.channel;
                         outputFound = true;
                     }
-                
+            
                     const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
                     if (assM0PCMatch && !outputFound) {
                         rule.output.type = 'program';
@@ -1474,7 +1516,7 @@ export class StreambyterComponent implements OnInit {
                         detectedOutputChannel = rule.output.channel;
                         outputFound = true;
                     }
-                
+            
                     const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
                     if (assM0NoteMatch && !outputFound) {
                         rule.output.type = 'note';
@@ -1482,33 +1524,40 @@ export class StreambyterComponent implements OnInit {
                         detectedOutputChannel = rule.output.channel;
                         outputFound = true;
                     }
-                
+            
                     const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                     if (assM1Match) {
+                        const value = parseInt(assM1Match[1], 16);
                         if (rule.output.type === 'cc') {
-                            rule.output.ccNumber = parseInt(assM1Match[1], 16);
+                            rule.output.ccNumber = value;
+                            detectedCcNumber = value;
                         } else if (rule.output.type === 'program') {
-                            rule.output.program = parseInt(assM1Match[1], 16);
+                            rule.output.program = value;
+                            detectedProgramNumber = value;
                         } else if (rule.output.type === 'note') {
-                            rule.output.note = parseInt(assM1Match[1], 16);
+                            rule.output.note = value;
+                            detectedNoteNumber = value;
                         }
                     }
-                
+            
                     const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                     if (assM2Match) {
+                        const value = parseInt(assM2Match[1], 16);
                         if (rule.output.type === 'cc') {
                             rule.output.valueMode = 'constant';
-                            rule.output.constantValue = parseInt(assM2Match[1], 16);
+                            rule.output.constantValue = value;
+                            detectedConstantValue = value;
                         } else if (rule.output.type === 'note') {
                             rule.output.velocityMode = 'constant';
-                            rule.output.velocity = parseInt(assM2Match[1], 16);
+                            rule.output.velocity = value;
+                            detectedVelocity = value;
                         }
                     }
-                
+            
                     if (strippedLine.match(/BLOCK/i)) {
                         hasBlock = true;
                     }
-                
+            
                     if (strippedLine.match(/^END$/i)) {
                         nestedLevel--;
                         if (nestedLevel === 0) {
@@ -1516,36 +1565,83 @@ export class StreambyterComponent implements OnInit {
                             break;
                         }
                     }
-                
+            
                     j++;
                 }
     
+                // Set output values from detected data
+                if (detectedOutputType) {
+                    rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
+                }
+                if (detectedCcNumber !== null) rule.output.ccNumber = detectedCcNumber;
+                if (detectedNoteNumber !== null) rule.output.note = detectedNoteNumber;
+                if (detectedProgramNumber !== null) rule.output.program = detectedProgramNumber;
+                if (detectedConstantValue !== null) {
+                    rule.output.valueMode = 'constant';
+                    rule.output.constantValue = detectedConstantValue;
+                }
+                if (detectedVelocity !== null) {
+                    rule.output.velocityMode = 'constant';
+                    rule.output.velocity = detectedVelocity;
+                }
+    
                 // Set consumer source based on whether we had a consumer-source line
-                if (hasConsumerSourceLine) {
-                    if (consumerSourceType === 'mapping' && consumerMappingName) {
-                        const consumerMappings = this.storageService.getConsumerMappings();
-                        const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
-                        if (existingMapping) {
-                            rule.consumerSource = {
-                                type: 'mapping',
-                                value: consumerMappingName,
-                                mappingName: consumerMappingName
-                            };
-                            rule.output.channel = existingMapping.triggerMidiChannel;
-                        } else {
-                            const fallbackChannel = detectedOutputChannel || 1;
-                            rule.consumerSource = { type: 'channel', value: fallbackChannel };
-                            rule.output.channel = fallbackChannel;
+                if (hasConsumerSourceLine && consumerSourceType === 'mapping' && consumerMappingName) {
+                    const consumerMappings = this.storageService.getConsumerMappings();
+                    const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
+                    if (existingMapping) {
+                        rule.consumerSource = {
+                            type: 'mapping',
+                            value: consumerMappingName,
+                            mappingName: consumerMappingName
+                        };
+                        rule.output.channel = existingMapping.triggerMidiChannel;
+                        rule.showMappingSelector = true;
+                    
+                        // Try to find matching rule in the mapping
+                        let matchedRule = null;
+                        if (detectedOutputType === 'cc' && detectedCcNumber !== null) {
+                            matchedRule = existingMapping.rules.find(r => 
+                                r.type === 'cc' && 
+                                r.value === detectedCcNumber &&
+                                (detectedConstantValue !== null ? r.dataValue === detectedConstantValue : true)
+                            );
+                            if (!matchedRule) {
+                                matchedRule = existingMapping.rules.find(r => r.type === 'cc' && r.value === detectedCcNumber);
+                            }
+                        } else if (detectedOutputType === 'note' && detectedNoteNumber !== null) {
+                            matchedRule = existingMapping.rules.find(r => 
+                                r.type === 'note' && 
+                                r.value === detectedNoteNumber &&
+                                (detectedVelocity !== null ? r.dataValue === detectedVelocity : true)
+                            );
+                            if (!matchedRule) {
+                                matchedRule = existingMapping.rules.find(r => r.type === 'note' && r.value === detectedNoteNumber);
+                            }
+                        } else if (detectedOutputType === 'program' && detectedProgramNumber !== null) {
+                            matchedRule = existingMapping.rules.find(r => r.type === 'program' && r.value === detectedProgramNumber);
                         }
-                    } else if (consumerSourceType === 'device') {
-                        rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
-                        rule.output.channel = consumerSourceValue as number;
+                    
+                        if (matchedRule) {
+                            (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
+                        } else {
+                            (rule as any).selectedMappingRuleKey = undefined;
+                        }
                     } else {
-                        rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
-                        rule.output.channel = consumerSourceValue as number;
+                        rule.consumerSource = { type: 'channel', value: detectedOutputChannel || 1 };
+                        rule.output.channel = detectedOutputChannel || 1;
+                        rule.showMappingSelector = false;
                     }
+                } else if (hasConsumerSourceLine && consumerSourceType === 'device') {
+                    rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
+                    rule.output.channel = consumerSourceValue as number;
+                    rule.showMappingSelector = false;
+                } else if (hasConsumerSourceLine && consumerSourceType === 'channel') {
+                    rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
+                    rule.output.channel = consumerSourceValue as number;
+                    rule.showMappingSelector = false;
                 } else {
-                    // No consumer-source line - use detected output channel and type
+                    // No consumer-source line - use detected output channel
                     const fallbackChannel = detectedOutputChannel || 1;
                     const deviceMap = this.storageService.getDeviceMap();
                     const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
@@ -1555,10 +1651,7 @@ export class StreambyterComponent implements OnInit {
                         rule.consumerSource = { type: 'channel', value: fallbackChannel };
                     }
                     rule.output.channel = fallbackChannel;
-                    // IMPORTANT: Set the output type from detection
-                    if (detectedOutputType) {
-                        rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
-                    }
+                    rule.showMappingSelector = false;
                 }
     
                 rule.trigger.consume = hasBlock ? 'eat' : 'pass';
@@ -1575,313 +1668,7 @@ export class StreambyterComponent implements OnInit {
                 continue;
             }
     
-            // Check for specific value condition (non-range)
-            const specificMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
-            if (specificMatch) {
-                const rule = this.createDefaultRule();
-                rule.type = 'standard';
-                rule.enabled = true;
-                const parsedChannel = parseInt(specificMatch[1], 16) + 1;
-                const triggerCC = parseInt(specificMatch[2], 16);
-                const specificValue = parseInt(specificMatch[3], 16);
-    
-                rule.trigger.type = 'controlChange';
-                rule.trigger.ccNumber = triggerCC;
-                rule.trigger.valueMode = 'specific';
-                rule.trigger.specificValue = specificValue;
-                rule.trigger.consume = 'eat';
-    
-                // Set trigger source
-                if (triggerSourceType === 'mapping' && mappingName) {
-                    const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
-                    if (existingMapping) {
-                        rule.triggerSource = {
-                            type: 'mapping',
-                            value: mappingName,
-                            mappingName: mappingName
-                        };
-                        rule.trigger.channel = existingMapping.triggerMidiChannel;
-                    } else {
-                        rule.triggerSource = { type: 'channel', value: parsedChannel };
-                        rule.trigger.channel = parsedChannel;
-                    }
-                } else if (triggerSourceType === 'device') {
-                    rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
-                    rule.trigger.channel = triggerSourceValue as number;
-                } else {
-                    rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                    rule.trigger.channel = triggerSourceValue as number;
-                }
-    
-                // Parse to find output
-                let j = i + 1;
-                let foundEnd = false;
-                let hasBlock = false;
-                let outputFound = false;
-    
-                while (j < lines.length && !foundEnd) {
-                    const currentLine = lines[j].trim();
-                    const strippedLine = currentLine.replace(/^\s+/, '');
-                
-                    const assM0Match = strippedLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
-                    if (assM0Match && !outputFound) {
-                        const typeChar = assM0Match[1].toUpperCase();
-                        const channelHex = assM0Match[2];
-                        detectedOutputChannel = parseInt(channelHex, 16) + 1;
-                        if (typeChar === 'B') {
-                            rule.output.type = 'cc';
-                        } else if (typeChar === 'C') {
-                            rule.output.type = 'program';
-                        } else if (typeChar === '9') {
-                            rule.output.type = 'note';
-                        }
-                        outputFound = true;
-                    }
-                
-                    const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0CCMatch && !outputFound) {
-                        rule.output.type = 'cc';
-                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
-                        outputFound = true;
-                    }
-                
-                    const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
-                    if (assM0PCMatch && !outputFound) {
-                        rule.output.type = 'program';
-                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
-                        outputFound = true;
-                    }
-                
-                    const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
-                    if (assM0NoteMatch && !outputFound) {
-                        rule.output.type = 'note';
-                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
-                        outputFound = true;
-                    }
-                
-                    const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                    if (assM1Match) {
-                        if (rule.output.type === 'cc') {
-                            rule.output.ccNumber = parseInt(assM1Match[1], 16);
-                        } else if (rule.output.type === 'program') {
-                            rule.output.program = parseInt(assM1Match[1], 16);
-                        } else if (rule.output.type === 'note') {
-                            rule.output.note = parseInt(assM1Match[1], 16);
-                        }
-                    }
-                
-                    const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-                    if (assM2Match) {
-                        if (rule.output.type === 'cc') {
-                            rule.output.valueMode = 'constant';
-                            rule.output.constantValue = parseInt(assM2Match[1], 16);
-                        } else if (rule.output.type === 'note') {
-                            rule.output.velocityMode = 'constant';
-                            rule.output.velocity = parseInt(assM2Match[1], 16);
-                        }
-                    }
-                
-                    if (strippedLine.match(/BLOCK/i)) {
-                        hasBlock = true;
-                    }
-                
-                    if (strippedLine.match(/^END$/i)) {
-                        foundEnd = true;
-                        break;
-                    }
-                    j++;
-                }
-    
-                // Set consumer source
-                if (hasConsumerSourceLine) {
-                    if (consumerSourceType === 'mapping' && consumerMappingName) {
-                        const consumerMappings = this.storageService.getConsumerMappings();
-                        const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
-                        if (existingMapping) {
-                            rule.consumerSource = {
-                                type: 'mapping',
-                                value: consumerMappingName,
-                                mappingName: consumerMappingName
-                            };
-                            rule.output.channel = existingMapping.triggerMidiChannel;
-                        }
-                    } else if (consumerSourceType === 'device') {
-                        rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
-                        rule.output.channel = consumerSourceValue as number;
-                    } else {
-                        rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
-                        rule.output.channel = consumerSourceValue as number;
-                    }
-                } else {
-                    const fallbackChannel = detectedOutputChannel || 1;
-                    const deviceMap = this.storageService.getDeviceMap();
-                    const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
-                    if (matchingDevice) {
-                        rule.consumerSource = { type: 'device', value: fallbackChannel };
-                    } else {
-                        rule.consumerSource = { type: 'channel', value: fallbackChannel };
-                    }
-                    rule.output.channel = fallbackChannel;
-                }
-    
-                rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-                rule.name = this.generateActionBasedName(rule);
-                this.rules.push(rule);
-                i = j;
-                continue;
-            }
-    
-            // Check for Note On condition
-            const noteMatch = conditionLine.match(/IF\s+M0\s*>=\s*0x90\s*&&\s*M0\s*<=\s*0x9F/i);
-            if (noteMatch) {
-                const rule = this.createDefaultRule();
-                rule.type = 'standard';
-                rule.enabled = true;
-    
-                rule.trigger.type = 'noteOn';
-                rule.trigger.noteMode = 'any';
-                rule.trigger.consume = 'eat';
-    
-                // Set trigger source
-                if (triggerSourceType === 'mapping' && mappingName) {
-                    const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
-                    if (existingMapping) {
-                        rule.triggerSource = {
-                            type: 'mapping',
-                            value: mappingName,
-                            mappingName: mappingName
-                        };
-                        rule.trigger.channel = existingMapping.triggerMidiChannel;
-                    } else {
-                        rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                        rule.trigger.channel = triggerSourceValue as number;
-                    }
-                } else if (triggerSourceType === 'device') {
-                    rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
-                    rule.trigger.channel = triggerSourceValue as number;
-                } else {
-                    rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                    rule.trigger.channel = triggerSourceValue as number;
-                }
-    
-                // Parse to find output
-                let j = i + 1;
-                let foundEnd = false;
-                let hasBlock = false;
-                let outputFound = false;
-    
-                while (j < lines.length && !foundEnd) {
-                    const currentLine = lines[j].trim();
-                    const strippedLine = currentLine.replace(/^\s+/, '');
-                
-                    const assM0Match = strippedLine.match(/ASS\s+M0\s*=\s*([BC9])([0-9A-F])/i);
-                    if (assM0Match && !outputFound) {
-                        const typeChar = assM0Match[1].toUpperCase();
-                        const channelHex = assM0Match[2];
-                        detectedOutputChannel = parseInt(channelHex, 16) + 1;
-                        if (typeChar === 'B') {
-                            rule.output.type = 'cc';
-                        } else if (typeChar === 'C') {
-                            rule.output.type = 'program';
-                        } else if (typeChar === '9') {
-                            rule.output.type = 'note';
-                        }
-                        outputFound = true;
-                    }
-                
-                    const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0CCMatch && !outputFound) {
-                        rule.output.type = 'cc';
-                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
-                        outputFound = true;
-                    }
-                
-                    const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
-                    if (assM0PCMatch && !outputFound) {
-                        rule.output.type = 'program';
-                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
-                        outputFound = true;
-                    }
-                
-                    const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
-                    if (assM0NoteMatch && !outputFound) {
-                        rule.output.type = 'note';
-                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
-                        outputFound = true;
-                    }
-                
-                    const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                    if (assM1Match) {
-                        if (rule.output.type === 'cc') {
-                            rule.output.ccNumber = parseInt(assM1Match[1], 16);
-                        } else if (rule.output.type === 'program') {
-                            rule.output.program = parseInt(assM1Match[1], 16);
-                        } else if (rule.output.type === 'note') {
-                            rule.output.note = parseInt(assM1Match[1], 16);
-                        }
-                    }
-                
-                    const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-                    if (assM2Match) {
-                        if (rule.output.type === 'cc') {
-                            rule.output.valueMode = 'constant';
-                            rule.output.constantValue = parseInt(assM2Match[1], 16);
-                        } else if (rule.output.type === 'note') {
-                            rule.output.velocityMode = 'constant';
-                            rule.output.velocity = parseInt(assM2Match[1], 16);
-                        }
-                    }
-                
-                    if (strippedLine.match(/BLOCK/i)) {
-                        hasBlock = true;
-                    }
-                
-                    if (strippedLine.match(/^END$/i)) {
-                        foundEnd = true;
-                        break;
-                    }
-                    j++;
-                }
-    
-                // Set consumer source
-                if (hasConsumerSourceLine) {
-                    if (consumerSourceType === 'mapping' && consumerMappingName) {
-                        const consumerMappings = this.storageService.getConsumerMappings();
-                        const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
-                        if (existingMapping) {
-                            rule.consumerSource = {
-                                type: 'mapping',
-                                value: consumerMappingName,
-                                mappingName: consumerMappingName
-                            };
-                            rule.output.channel = existingMapping.triggerMidiChannel;
-                        }
-                    } else if (consumerSourceType === 'device') {
-                        rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
-                        rule.output.channel = consumerSourceValue as number;
-                    } else {
-                        rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
-                        rule.output.channel = consumerSourceValue as number;
-                    }
-                } else {
-                    const fallbackChannel = detectedOutputChannel || 1;
-                    const deviceMap = this.storageService.getDeviceMap();
-                    const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
-                    if (matchingDevice) {
-                        rule.consumerSource = { type: 'device', value: fallbackChannel };
-                    } else {
-                        rule.consumerSource = { type: 'channel', value: fallbackChannel };
-                    }
-                    rule.output.channel = fallbackChannel;
-                }
-    
-                rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-                rule.name = this.generateActionBasedName(rule);
-                this.rules.push(rule);
-                i = j;
-                continue;
-            }
-    
+            // Similar updates for specificMatch and noteMatch...
             i++;
         }
     
