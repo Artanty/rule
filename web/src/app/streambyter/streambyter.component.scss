@@ -852,3 +852,18 @@
         border-color: #9f7afe;
     }
 }
+
+.mappings-editors {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    @media (min-width: 1200px) {
+        flex-direction: row;
+
+        >* {
+            flex: 1;
+        }
+    }
+}

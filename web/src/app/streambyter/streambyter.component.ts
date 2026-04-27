@@ -44,7 +44,7 @@ interface Rule {
 @Component({
     selector: 'app-streambyter',
     templateUrl: './streambyter.component.html',
-    styleUrls: ['./streambyter.component.scss'],
+    styleUrls: ['./streambyter.component.scss'], 
     standalone: false,
 })
 export class StreambyterComponent implements OnInit {

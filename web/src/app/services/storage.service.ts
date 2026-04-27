@@ -22,10 +22,15 @@ export interface TriggerMapping {
   rules: TriggerRule[];
 }
 
+// export interface TriggerRule {
+//   name: string;
+//   value: number;
+//   type: 'cc' | 'note';
+// }
 export interface TriggerRule {
   name: string;
   value: number;
-  type: 'cc' | 'note';
+  type: 'cc' | 'note' | 'program';
 }
 
 @Injectable({
@@ -35,6 +40,7 @@ export class StorageService {
   private readonly STORAGE_DEVICE_MAP = 'mmv3_deviceMap';
   private readonly STORAGE_CC_LIBRARY = 'mmv3_ccLibrary_typed';
   private readonly STORAGE_TRIGGER_MAPPINGS = 'mmv3_trigger_mappings';
+  private readonly STORAGE_CONSUMER_MAPPINGS = 'mmv3_consumer_mappings';
     
   getDeviceMap(): DeviceMapEntry[] {
     const stored = localStorage.getItem(this.STORAGE_DEVICE_MAP);
@@ -84,7 +90,7 @@ export class StorageService {
     return type === 'cc' ? `CC#${value}` : `Note#${value}`;
   }
 
-  // Trigger Mapping methods
+  // Trigger Mapping methods (Producer)
   getTriggerMappings(): TriggerMapping[] {
     const stored = localStorage.getItem(this.STORAGE_TRIGGER_MAPPINGS);
     if (stored) {
@@ -103,13 +109,10 @@ export class StorageService {
 
   addTriggerMapping(mapping: TriggerMapping): void {
     const mappings = this.getTriggerMappings();
-    // Check if mapping with same name exists
     const existingIndex = mappings.findIndex(m => m.name === mapping.name);
     if (existingIndex !== -1) {
-      // Update existing
       mappings[existingIndex] = mapping;
     } else {
-      // Add new
       mappings.push(mapping);
     }
     this.saveTriggerMappings(mappings);
@@ -123,6 +126,45 @@ export class StorageService {
 
   getTriggerMapping(name: string): TriggerMapping | undefined {
     const mappings = this.getTriggerMappings();
+    return mappings.find(m => m.name === name); 
+  }
+
+  // Consumer Mapping methods
+  getConsumerMappings(): TriggerMapping[] {
+    const stored = localStorage.getItem(this.STORAGE_CONSUMER_MAPPINGS);
+    if (stored) { 
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  saveConsumerMappings(mappings: TriggerMapping[]): void {
+    localStorage.setItem(this.STORAGE_CONSUMER_MAPPINGS, JSON.stringify(mappings));
+  }
+
+  addConsumerMapping(mapping: TriggerMapping): void {
+    const mappings = this.getConsumerMappings();
+    const existingIndex = mappings.findIndex(m => m.name === mapping.name);
+    if (existingIndex !== -1) {
+      mappings[existingIndex] = mapping;
+    } else {
+      mappings.push(mapping);
+    }
+    this.saveConsumerMappings(mappings);
+  }
+
+  deleteConsumerMapping(name: string): void {
+    const mappings = this.getConsumerMappings();
+    const filtered = mappings.filter(m => m.name !== name);
+    this.saveConsumerMappings(filtered);
+  }
+
+  getConsumerMapping(name: string): TriggerMapping | undefined {
+    const mappings = this.getConsumerMappings();
     return mappings.find(m => m.name === name);
   }
 }
