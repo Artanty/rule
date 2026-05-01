@@ -1,0 +1,1213 @@
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 60,
+                            "last": 60
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 60,
+                            "last": 60
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 55,
+                            "last": 55
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 55,
+                            "last": 55
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 50,
+                            "last": 50
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 50,
+                            "last": 50
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 45,
+                            "last": 45
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 45,
+                            "last": 45
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 40,
+                            "last": 40
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 40,
+                            "last": 40
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 35,
+                            "last": 35
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 35,
+                            "last": 35
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 30,
+                            "last": 30
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 30,
+                            "last": 30
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 25,
+                            "last": 25
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 25,
+                            "last": 25
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 20,
+                            "last": 20
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 20,
+                            "last": 20
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 15,
+                            "last": 15
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 15,
+                            "last": 15
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 10,
+                            "last": 10
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 10,
+                            "last": 10
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 5,
+                            "last": 5
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 5,
+                            "last": 5
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "enabled": true,
+      "name": null,
+      "valid": true,
+      "output": {
+        "delay": {
+          "ms": 0
+        },
+        "message": {
+          "Protocol": {
+            "_0": 176,
+            "channel": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 9
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data1": [
+              {
+                "source": {
+                  "Constant": {
+                    "_0": 1
+                  }
+                },
+                "ops": []
+              }
+            ],
+            "data2": {
+              "source": {
+                "Constant": {
+                  "_0": 0
+                }
+              },
+              "ops": []
+            }
+          }
+        }
+      },
+      "trigger": {
+        "MessageBased": {
+          "_0": {
+            "variants": {
+              "VoiceCategory": {
+                "_0": {
+                  "enabledChannels": {
+                    "rawValue": 1
+                  },
+                  "variants": {
+                    "ControlChange": {
+                      "_0": {
+                        "displayedRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 1,
+                            "last": 1
+                          }
+                        ]
+                      },
+                      "_1": {
+                        "displayedRanges": [
+                          {
+                            "first": 0,
+                            "last": 0
+                          }
+                        ],
+                        "implRanges": [
+                          {
+                            "first": 0,
+                            "last": 0
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "passTrough": {
+              "EatMatching": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

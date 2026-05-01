@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Messenger · device-aware CC lib</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #181826; color: #eee; display: flex; justify-content: center; padding: 1rem; margin: 0; }
+        .app { max-width: 1600px; width: 100%; }
+
+        .top-bar { background: #202038; border-radius: 16px; padding: 0.7rem 1.5rem; margin-bottom: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between; border: 1px solid #4a4a7a; }
+        .btn { background: #3a3a5a; border: none; color: white; padding: 0.3rem 1rem; border-radius: 30px; font-weight: 500; font-size: 0.85rem; cursor: pointer; border: 1px solid #7a7ab0; white-space: nowrap; }
+        .btn:hover { background: #505080; }
+        .btn.primary { background: #2b5f8a; }
+        .btn.warn { background: #5d3b6b; }
+
+        .maps-panel { background: #1e1e34; border-radius: 16px; padding: 0.7rem 1.2rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; align-items: center; border-left: 5px solid #9f7afe; font-size: 0.85rem; }
+        .map-section { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+        .map-title { font-weight: 700; color: #cfcfff; margin-right: 0.3rem; }
+
+        .rules-container { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+        .rule-card { background: #1c1c2e; border-radius: 14px; padding: 0.7rem; border-left: 5px solid #5f7edb; box-shadow: 0 2px 6px #0b0b16; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
+        .rule-header { display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
+        .rule-name-input { background: #0f0f1c; border: 1px solid #4b4b81; color: white; padding: 0.2rem 0.6rem; border-radius: 30px; font-size: 0.8rem; width: 170px; }
+        .badge-btn { background: #2f2f50; border: none; color: #ccd; padding: 0.2rem 0.8rem; border-radius: 30px; font-size: 0.7rem; cursor: pointer; border: 1px solid #6a6aa0; white-space: nowrap; }
+        .delete-btn { background: #673b4b; border: none; color: white; padding: 0.2rem 0.8rem; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
+        .enable-toggle { display: flex; align-items: center; gap: 0.3rem; background: #2a2a44; padding: 0.1rem 0.7rem; border-radius: 30px; }
+
+        .param-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin: 0.1rem 0; }
+        .param-group { background: #151523; border-radius: 10px; padding: 0.3rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; border: 1px solid #3b3b60; }
+        .param-item { display: flex; align-items: center; gap: 0.2rem; }
+        .param-item label { font-size: 0.65rem; font-weight: 700; color: #aab9ff; text-transform: uppercase; }
+        select, input[type=number] { background: #0b0b16; border: 1px solid #4f4f88; color: white; padding: 0.2rem 0.3rem; border-radius: 20px; font-size: 0.7rem; max-width: 95px; }
+        select { min-width: 100px; }
+
+        .trigger-block { background: #151525; border-radius: 10px; padding: 0.3rem; border-left: 4px solid #7f92e0; }
+        .flex-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+        .cc-select, .channel-select, .note-select { max-width: 130px; }
+        .footer-actions { margin-top: 1rem; display: flex; justify-content: space-between; font-size: 0.8rem; }
+        .status-badge { background: #2a2a50; padding: 0.1rem 0.8rem; border-radius: 30px; color: #b3e0b3; font-size: 0.75rem; }
+        .device-channel-select { min-width: 150px; background: #1a1a30; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="top-bar">
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <span style="font-weight: 700;">🎛️ MMv3 device‑aware</span>
+            <span class="status-badge">CC lib shows device</span>
+        </div>
+        <div style="display: flex; gap: 6px;">
+            <button class="btn" id="importBtn">📂 Import</button>
+            <button class="btn primary" id="exportBtn">⬇️ Export</button>
+            <button class="btn warn" id="addRuleBtn">➕ Add</button>
+        </div>
+    </div>
+
+    <div class="maps-panel">
+        <div class="map-section">
+            <span class="map-title">📋 devices:</span>
+            <span id="deviceMapStatus" style="color:#bdbdff;">—</span>
+            <button class="btn" id="uploadDeviceMapBtn" style="padding:0.2rem 0.9rem;">📎 upload</button>
+            <button class="btn" id="clearDeviceMapBtn" style="padding:0.2rem 0.9rem;">🗑 clear</button>
+        </div>
+        <div class="map-section">
+            <span class="map-title">🎚️ CC/NOTE lib:</span>
+            <span id="ccLibStatus" style="color:#bdbdff;">—</span>
+            <!-- device‑aware channel select -->
+            <select id="uploadCcChannel" class="device-channel-select"></select>
+            <button class="btn" id="uploadCcMapBtn" style="padding:0.2rem 0.9rem;">📤 upload typed</button>
+            <button class="btn" id="clearAllCcMapsBtn" style="padding:0.2rem 0.9rem;">🗑 all</button>
+        </div>
+    </div>
+
+    <div id="rulesContainer" class="rules-container"></div>
+
+    <div class="footer-actions">
+        <span>⚡ CC lib channel dropdown shows device names · maps filtered by type</span>
+        <button id="resetDemoBtn" style="background: none; border: 1px solid #7777b0; color:#ccd; border-radius:30px; padding:0.2rem 1.2rem;">↺ example</button>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+        const STORAGE_DEVICE_MAP = 'mmv3_deviceMap';
+        const STORAGE_CC_LIBRARY = 'mmv3_ccLibrary_typed';
+        let deviceMap = [];
+        let ccLibrary = {};
+
+        function loadStoredMaps() {
+            const storedDevice = localStorage.getItem(STORAGE_DEVICE_MAP);
+            if (storedDevice) { try { deviceMap = JSON.parse(storedDevice); } catch (e) { deviceMap = []; } }
+            const storedCc = localStorage.getItem(STORAGE_CC_LIBRARY);
+            if (storedCc) { try { ccLibrary = JSON.parse(storedCc); } catch (e) { ccLibrary = {}; } }
+            updateMapStatusUI();
+            updateChannelSelect(); // populate device‑aware dropdown
+        }
+        function saveDeviceMap() { localStorage.setItem(STORAGE_DEVICE_MAP, JSON.stringify(deviceMap)); updateMapStatusUI(); updateChannelSelect(); }
+        function saveCcLibrary() { localStorage.setItem(STORAGE_CC_LIBRARY, JSON.stringify(ccLibrary)); updateMapStatusUI(); }
+        function updateMapStatusUI() {
+            document.getElementById('deviceMapStatus').innerText = deviceMap.length ? `${deviceMap.length} devices` : 'none';
+            const chCount = Object.keys(ccLibrary).length;
+            document.getElementById('ccLibStatus').innerText = chCount ? `${chCount} ch maps (typed)` : 'none';
+        }
+
+        // populate the channel select with device names
+        function updateChannelSelect() {
+            const sel = document.getElementById('uploadCcChannel');
+            if (!sel) return;
+            let currentValue = sel.value; // preserve if possible
+            let options = '';
+            for (let ch = 1; ch <= 16; ch++) {
+                let deviceName = getDeviceShortName(ch);
+                let label = `ch${ch} ${deviceName !== `ch${ch}` ? `(${deviceName})` : ''}`;
+                let selected = (currentValue == ch) ? 'selected' : '';
+                options += `<option value="${ch}" ${selected}>${label}</option>`;
+            }
+            sel.innerHTML = options;
+        }
+
+        function getDeviceShortName(ch) {
+            if (!deviceMap || !Array.isArray(deviceMap)) return `ch${ch}`;
+            const entry = deviceMap.find(d => d.midiChannel === ch);
+            return entry ? entry.device : `ch${ch}`;
+        }
+
+        function getParamName(channel, type, value) {
+            const chStr = String(channel);
+            if (ccLibrary[chStr] && Array.isArray(ccLibrary[chStr])) {
+                const found = ccLibrary[chStr].find(e => e.value === value && e.type === type);
+                if (found) return found.name;
+            }
+            if (type === 'cc') return `CC#${value}`;
+            else return `Note#${value}`;
+        }
+
+        function getOptionsForType(ch, type, selectedVal) {
+            const chStr = String(ch);
+            let entries = [];
+            if (ccLibrary[chStr] && Array.isArray(ccLibrary[chStr])) {
+                entries = ccLibrary[chStr].filter(e => e.type === type);
+            }
+            if (entries.length === 0) {
+                if (type === 'cc') {
+                    for (let i=0; i<=127; i++) entries.push({ name: `CC#${i}`, value: i, type: 'cc' });
+                } else {
+                    for (let i=0; i<=127; i++) entries.push({ name: `Note#${i}`, value: i, type: 'note' });
+                }
+            }
+            let opts = '';
+            for (let e of entries) {
+                let label = `${e.name} (${e.value})`;
+                let selected = (selectedVal !== undefined && e.value == selectedVal) ? 'selected' : '';
+                opts += `<option value="${e.value}" ${selected}>${escapeHtml(label)}</option>`;
+            }
+            return opts;
+        }
+
+        function generateSmartName(rule) {
+            const targetDev = getDeviceShortName(rule.output.channel);
+            let targetParam = '';
+            if (rule.output.type === 'cc') {
+                targetParam = getParamName(rule.output.channel, 'cc', rule.output.ccNumber);
+            } else if (rule.output.type === 'program') {
+                targetParam = `Program ${rule.output.program}`;
+            } else if (rule.output.type === 'note') {
+                targetParam = getParamName(rule.output.channel, 'note', rule.output.note);
+            } else {
+                targetParam = 'message';
+            }
+            const srcDev = getDeviceShortName(rule.trigger.channel);
+            return `set [${targetDev}] ${targetParam} from [${srcDev}]`;
+        }
+
+        const DEFAULT_RULE = {
+            name: "New rule", enabled: true,
+            output: { type: "cc", channel: 1, ccNumber: 0, valueMode: "constant", constantValue: 0, bank: 0, program: 0, note: 60, velocity: 64, velocityMode: "constant", delayMs: 0 },
+            trigger: { type: "noteOn", channel: 1, noteMode: "specific", specificNote: 60, ccNumber: 0, valueMode: "any", specificValue: 0, consume: "eat" }
+        };
+        let rules = [];
+
+        function importFromExternal(arr) {
+            const list = [];
+            for (const ext of arr) { 
+                try {
+                    const r = JSON.parse(JSON.stringify(DEFAULT_RULE));
+                    r.name = ext.name || "Unnamed";
+                    if (!r.name || r.name === 'null' || r.name === 'undefined') r.name = '';
+
+                    r.enabled = ext.enabled !== undefined ? ext.enabled : true;
+
+                    if (ext.output.message.Protocol) {
+                        const p = ext.output.message.Protocol;
+                        r.output.channel = p.channel[0].source.Constant._0 + 1;
+                        r.output.delayMs = ext.output.delay.ms || 0;
+                        if (p._0 === 176) {
+                            r.output.type = "cc"; 
+                            r.output.ccNumber = p.data1[0].source.Constant._0;
+                            if (p.data2.source.Constant) {
+                                r.output.valueMode = "constant"; 
+                                r.output.constantValue = p.data2.source.Constant._0;
+                            } else if (p.data2.source.FromTrigger) {
+                                r.output.valueMode = "trigger";
+                            }
+                        } else if (p._0 === 144) {
+                            r.output.type = "note"; 
+                            r.output.note = p.data1[0].source.Constant._0; 
+                            if (p.data2.source.Constant) {
+                                r.output.velocityMode = "constant";
+                                r.output.velocity = p.data2.source.Constant._0;
+                            } else if (p.data2.source.FromTrigger) {
+                                r.output.velocityMode = "trigger";
+                                r.output.velocity = 64;
+                            }
+                        }
+                    } else if (ext.output.message.ProgramChange) {
+                        r.output.type = "program"; 
+                        const pg = ext.output.message.ProgramChange;
+                        r.output.channel = pg.channel[0].source.Constant._0 + 1; 
+                        r.output.bank = pg.bank.source.Constant._0; 
+                        r.output.program = pg.program.source.Constant._0;
+                        r.output.delayMs = ext.output.delay.ms || 0;
+                    }
+
+                    const mb = ext.trigger.MessageBased._0;
+                    if (mb.passTrough) { 
+                        r.trigger.consume = mb.passTrough.EatMatching ? "eat" : "pass"; 
+                    }
+                    const vc = mb.variants.VoiceCategory._0;
+                    let ch = 1; 
+                    const rv = vc.enabledChannels.rawValue; 
+                    for (let i=0; i<16; i++) { if (rv & (1<<i)) { ch = i+1; break; } }
+                    r.trigger.channel = ch;
+
+                    if (vc.variants.NoteOn) {
+                        r.trigger.type = "noteOn"; 
+                        const nd = vc.variants.NoteOn._0;
+                        const f = nd.displayedRanges[0].first, l = nd.displayedRanges[0].last;
+                        if (f===0 && l===127) { 
+                            r.trigger.noteMode = "any"; 
+                        } else { 
+                            r.trigger.noteMode = "specific"; 
+                            r.trigger.specificNote = f; 
+                        }
+                    } else if (vc.variants.ControlChange) {
+                        r.trigger.type = "controlChange"; 
+                        r.trigger.ccNumber = vc.variants.ControlChange._0.displayedRanges[0].first;
+                        const vf = vc.variants.ControlChange._1.displayedRanges[0].first, 
+                              vl = vc.variants.ControlChange._1.displayedRanges[0].last;
+                        r.trigger.valueMode = (vf===0 && vl===127) ? "any" : "specific";
+                        if (r.trigger.valueMode === 'specific') r.trigger.specificValue = vf;
+                    }
+
+                    if (!r.name || r.name === '' || r.name === 'null' || r.name === 'undefined') {
+                        r.name = generateSmartName(r);
+                    }
+
+                    list.push(r);
+                } catch(e) { console.warn("import rule error", e); }
+            }
+            return list;
+        }
+
+        function exportToExternal(rulesInt) {
+            const ext = [];
+            for (let r of rulesInt) {
+                let outMsg = {}, trig = {};
+                if (r.output.type === 'cc') {
+                    outMsg = { Protocol: { _0:176, channel:[{source:{Constant:{_0:r.output.channel-1}},ops:[]}], data1:[{source:{Constant:{_0:r.output.ccNumber}},ops:[]}],
+                        data2: r.output.valueMode==='constant' ? {source:{Constant:{_0:r.output.constantValue}},ops:[]} : {source:{FromTrigger:{_0:{ControlerValue:{}}}},ops:[]} }};
+                } else if (r.output.type === 'note') {
+                    let data2;
+                    if (r.output.velocityMode === 'constant') {
+                        data2 = { source: { Constant: { _0: r.output.velocity } }, ops: [] };
+                    } else {
+                        data2 = { source: { FromTrigger: { _0: { ControlerValue: {} } } }, ops: [] };
+                    }
+                    outMsg = { Protocol: { _0:144, channel:[{source:{Constant:{_0:r.output.channel-1}},ops:[]}], data1:[{source:{Constant:{_0:r.output.note}},ops:[]}], data2 } };
+                } else if (r.output.type === 'program') {
+                    outMsg = { ProgramChange: { bank:{source:{Constant:{_0:r.output.bank}},ops:[]}, channel:[{source:{Constant:{_0:r.output.channel-1}},ops:[]}], program:{source:{Constant:{_0:r.output.program}},ops:[]} } };
+                }
+                const bit = 1 << (r.trigger.channel-1);
+                let variants = { VoiceCategory: { _0: { enabledChannels: { rawValue: bit }, variants: {} } } };
+                if (r.trigger.type === 'noteOn') {
+                    let f = r.trigger.noteMode==='any' ? 0 : r.trigger.specificNote, l = r.trigger.noteMode==='any' ? 127 : r.trigger.specificNote;
+                    variants.VoiceCategory._0.variants.NoteOn = { _0: { displayedRanges: [{first:f, last:l}], implRanges: [{first:f, last:l}] } };
+                } else {
+                    let vf = r.trigger.valueMode==='any' ? 0 : r.trigger.specificValue, vl = r.trigger.valueMode==='any' ? 127 : r.trigger.specificValue;
+                    variants.VoiceCategory._0.variants.ControlChange = {
+                        _0: { displayedRanges: [{first:r.trigger.ccNumber, last:r.trigger.ccNumber}], implRanges: [{first:r.trigger.ccNumber, last:r.trigger.ccNumber}] },
+                        _1: { displayedRanges: [{first:vf, last:vl}], implRanges: [{first:vf, last:vl}] }
+                    };
+                }
+                trig = { MessageBased: { _0: { variants, passTrough: r.trigger.consume==='eat' ? {EatMatching:{}} : {PassThrough:{}} } } };
+                ext.push({ enabled: r.enabled, name: r.name, valid: true, output: { delay: { ms: r.output.delayMs || 0 }, message: outMsg }, trigger: trig });
+            }
+            return { rules: ext };
+        }
+
+        function renderAll() {
+            const container = document.getElementById('rulesContainer');
+            container.innerHTML = '';
+            rules.forEach((rule, idx) => { container.appendChild(createRuleCard(rule, idx)); });
+        }
+
+        function escapeHtml(t) { if (!t) return ''; return String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+        function buildChannelSelect(selCh, fieldPath, idx) {
+            let opts = '';
+            for (let ch=1; ch<=16; ch++) {
+                let name = deviceMap.find(d=>d.midiChannel===ch)?.device || `ch${ch}`;
+                opts += `<option value="${ch}" ${selCh===ch?'selected':''}>${escapeHtml(name)}</option>`;
+            }
+            return `<select class="channel-select" data-field="${fieldPath}" data-idx="${idx}">${opts}</select>`;
+        }
+
+        function buildTypedSelect(ch, type, selectedVal, fieldPath, idx) {
+            const opts = getOptionsForType(ch, type, selectedVal);
+            return `<select class="typed-select" data-field="${fieldPath}" data-idx="${idx}">${opts}</select>`;
+        }
+
+        function createRuleCard(rule, idx) {
+            const card = document.createElement('div');
+            card.className = 'rule-card';
+            card.dataset.idx = idx;
+
+            const head = document.createElement('div');
+            head.className = 'rule-header';
+            head.innerHTML = `
+                <input type="text" class="rule-name-input" value="${escapeHtml(rule.name || '')}" placeholder="name" data-field="name" data-idx="${idx}">
+                <button class="badge-btn" data-action="generate">🎨 name</button>
+                <button class="badge-btn" data-action="duplicate">📋 dup</button>
+                <div class="enable-toggle">
+                    <span style="font-size:0.7rem;">🔵</span>
+                    <input type="checkbox" class="rule-enabled" ${rule.enabled?'checked':''} data-idx="${idx}">
+                </div>
+                <button class="delete-btn" data-action="delete">🗑</button>
+            `;
+            card.appendChild(head);
+
+            const outRow = document.createElement('div');
+            outRow.className = 'param-row';
+            outRow.innerHTML = `
+                <div class="param-group">
+                    <span style="color:#aab9ff; font-size:0.7rem;">📤 out</span>
+                    <select class="output-type-select" data-field="output.type" data-idx="${idx}">
+                        <option value="cc" ${rule.output.type==='cc'?'selected':''}>CC</option>
+                        <option value="program" ${rule.output.type==='program'?'selected':''}>Pgm</option>
+                        <option value="note" ${rule.output.type==='note'?'selected':''}>Note</option>
+                    </select>
+                    ${buildChannelSelect(rule.output.channel, 'output.channel', idx)}
+                    <input type="number" min="0" class="out-delay" value="${rule.output.delayMs}" data-field="output.delayMs" data-idx="${idx}" style="width:55px;" placeholder="delay">
+                </div>
+                <div class="param-group" id="output-detail-${idx}">
+                    ${ rule.output.type==='cc' ? 
+                        `<span>#</span>${buildTypedSelect(rule.output.channel, 'cc', rule.output.ccNumber, 'output.ccNumber', idx)}
+                         <select class="out-value-mode" data-field="output.valueMode" data-idx="${idx}"><option value="constant" ${rule.output.valueMode==='constant'?'selected':''}>const</option><option value="trigger" ${rule.output.valueMode==='trigger'?'selected':''}>trig</option></select>
+                         ${rule.output.valueMode==='constant' ? `<input type="number" min="0" max="127" class="out-const-val" value="${rule.output.constantValue}" data-field="output.constantValue" data-idx="${idx}" style="width:55px;">` : ''}`
+                        : rule.output.type==='program' ?
+                        `<span>bank</span><input type="number" class="out-bank" value="${rule.output.bank}" data-field="output.bank" data-idx="${idx}" style="width:55px;"><span>prog</span><input type="number" class="out-program" value="${rule.output.program}" data-field="output.program" data-idx="${idx}" style="width:55px;">`
+                        : 
+                        `<span>#</span>${buildTypedSelect(rule.output.channel, 'note', rule.output.note, 'output.note', idx)}
+                         <select class="out-velocity-mode" data-field="output.velocityMode" data-idx="${idx}"><option value="constant" ${rule.output.velocityMode==='constant'?'selected':''}>vel const</option><option value="trigger" ${rule.output.velocityMode==='trigger'?'selected':''}>vel trig</option></select>
+                         ${rule.output.velocityMode==='constant' ? `<input type="number" min="0" max="127" class="out-velocity" value="${rule.output.velocity}" data-field="output.velocity" data-idx="${idx}" style="width:55px;">` : ''}`
+                    }
+                </div>
+            `;
+            card.appendChild(outRow);
+
+            const trigRow = document.createElement('div');
+            trigRow.className = 'param-row';
+            trigRow.innerHTML = `
+                <div class="param-group">
+                    <span style="color:#f3b9ff;">⚡ trig</span>
+                    <select class="trigger-type-select" data-field="trigger.type" data-idx="${idx}">
+                        <option value="noteOn" ${rule.trigger.type==='noteOn'?'selected':''}>NoteOn</option>
+                        <option value="controlChange" ${rule.trigger.type==='controlChange'?'selected':''}>CC</option>
+                    </select>
+                    ${buildChannelSelect(rule.trigger.channel, 'trigger.channel', idx)}
+                    <select class="consume-select" data-field="trigger.consume" data-idx="${idx}">
+                        <option value="eat" ${rule.trigger.consume==='eat'?'selected':''}>eat</option>
+                        <option value="pass" ${rule.trigger.consume==='pass'?'selected':''}>pass</option>
+                    </select>
+                </div>
+                <div class="param-group" id="trigger-detail-${idx}">
+                    ${ rule.trigger.type === 'noteOn' ? 
+                        `<select class="trig-note-mode" data-field="trigger.noteMode" data-idx="${idx}"><option value="specific" ${rule.trigger.noteMode==='specific'?'selected':''}>spec</option><option value="any" ${rule.trigger.noteMode==='any'?'selected':''}>any</option></select>
+                         ${rule.trigger.noteMode==='specific' ? buildTypedSelect(rule.trigger.channel, 'note', rule.trigger.specificNote, 'trigger.specificNote', idx) : ''}`
+                        : 
+                        `<span>#</span>${buildTypedSelect(rule.trigger.channel, 'cc', rule.trigger.ccNumber, 'trigger.ccNumber', idx)}
+                         <select class="trig-value-mode" data-field="trigger.valueMode" data-idx="${idx}"><option value="specific" ${rule.trigger.valueMode==='specific'?'selected':''}>spec</option><option value="any" ${rule.trigger.valueMode==='any'?'selected':''}>any</option></select>
+                         ${rule.trigger.valueMode==='specific' ? `<input type="number" class="trig-spec-val" value="${rule.trigger.specificValue}" data-field="trigger.specificValue" data-idx="${idx}" style="width:55px;">` : ''}`
+                    }
+                </div>
+            `;
+            card.appendChild(trigRow);
+            attachCardListeners(card, idx);
+            return card;
+        }
+
+        function attachCardListeners(card, idx) {
+            card.querySelector('.rule-name-input')?.addEventListener('change', e => {
+                let newName = e.target.value;
+                if (!newName || newName.trim() === '') {
+                    newName = generateSmartName(rules[idx]);
+                    e.target.value = newName;
+                }
+                rules[idx].name = newName;
+            });
+
+            card.querySelector('.rule-enabled')?.addEventListener('change', e => { 
+                rules[idx].enabled = e.target.checked; 
+            });
+
+            card.querySelector('[data-action="generate"]')?.addEventListener('click', () => {
+                rules[idx].name = generateSmartName(rules[idx]);
+                card.querySelector('.rule-name-input').value = rules[idx].name;
+            });
+
+            card.querySelector('[data-action="duplicate"]')?.addEventListener('click', () => {
+                const copy = JSON.parse(JSON.stringify(rules[idx]));
+                if (!copy.name || copy.name === 'null' || copy.name === 'undefined' || copy.name.trim() === '') {
+                    copy.name = generateSmartName(copy);
+                } else {
+                    copy.name = copy.name + ' (copy)';
+                }
+                rules.splice(idx + 1, 0, copy);
+                renderAll();
+            });
+
+            card.querySelector('[data-action="delete"]')?.addEventListener('click', () => {
+                rules.splice(idx, 1);
+                renderAll();
+            });
+
+            const fields = card.querySelectorAll('[data-field]');
+            fields.forEach(el => {
+                el.addEventListener('change', function(e) {
+                    const field = this.dataset.field;
+                    const parts = field.split('.');
+                    let obj = rules[idx];
+                    for (let i=0; i<parts.length-1; i++) obj = obj[parts[i]];
+                    let val = e.target.value;
+                    if (e.target.tagName === 'SELECT' || e.target.type === 'checkbox') {
+                        if (e.target.type === 'checkbox') val = e.target.checked;
+                        else if (!isNaN(parseInt(val)) && (e.target.classList.contains('channel-select')||e.target.classList.contains('typed-select')||e.target.classList.contains('out-delay')||e.target.classList.contains('out-const-val')||e.target.classList.contains('out-bank')||e.target.classList.contains('out-program')||e.target.classList.contains('out-velocity')||e.target.classList.contains('trig-spec-val'))) 
+                            val = parseInt(val,10);
+                    } else {
+                        val = parseInt(val,10);
+                    }
+                    obj[parts[parts.length-1]] = val;
+                    if (field.includes('type') || field.includes('valueMode') || field.includes('noteMode') || field.includes('velocityMode') || field.includes('channel')) {
+                        const newCard = createRuleCard(rules[idx], idx);
+                        card.parentNode.replaceChild(newCard, card);
+                    }
+                });
+            });
+        }
+
+        function loadExampleRules() {
+            const exampleJson = {"rules":[{"trigger":{"MessageBased":{"_0":{"passTrough":{"EatMatching":{}},"variants":{"VoiceCategory":{"_0":{"variants":{"NoteOn":{"_0":{"displayedRanges":[{"first":84,"last":84}],"implRanges":[{"last":84,"first":84}]}}},"enabledChannels":{"rawValue":4096}}}}}}},"enabled":true,"name":"Message #1","output":{"delay":{"ms":0},"message":{"Protocol":{"data1":[{"source":{"Constant":{"_0":127}},"ops":[]}],"_0":176,"channel":[{"source":{"Constant":{"_0":12}},"ops":[]}],"data2":{"source":{"Constant":{"_0":0}},"ops":[]}}}},"valid":true},{"trigger":{"MessageBased":{"_0":{"variants":{"VoiceCategory":{"_0":{"enabledChannels":{"rawValue":1024},"variants":{"NoteOn":{"_0":{"implRanges":[{"last":127,"first":0}],"displayedRanges":[{"first":0,"last":127}]}}}}}},"passTrough":{"EatMatching":{}}}}},"enabled":true,"valid":true,"output":{"delay":{"ms":0},"message":{"ProgramChange":{"bank":{"source":{"Constant":{"_0":0}},"ops":[]},"channel":[{"source":{"Constant":{"_0":2}},"ops":[]}],"program":{"source":{"Constant":{"_0":3}},"ops":[]}}}},"name":"Message #2"},{"trigger":{"MessageBased":{"_0":{"variants":{"VoiceCategory":{"_0":{"enabledChannels":{"rawValue":1024},"variants":{"NoteOn":{"_0":{"implRanges":[{"last":13,"first":13}],"displayedRanges":[{"last":13,"first":13}]}}}}}},"passTrough":{"EatMatching":{}}}}},"name":"Message #3","output":{"delay":{"ms":0},"message":{"Protocol":{"data1":[{"ops":[],"source":{"Constant":{"_0":60}}}],"data2":{"ops":[],"source":{"Constant":{"_0":64}}},"channel":[{"source":{"Constant":{"_0":0}},"ops":[]}],"_0":144}}},"enabled":true,"valid":true},{"output":{"message":{"Protocol":{"data1":[{"ops":[],"source":{"Constant":{"_0":10}}}],"channel":[{"source":{"Constant":{"_0":8}},"ops":[]}],"_0":176,"data2":{"ops":[],"source":{"FromTrigger":{"_0":{"ControlerValue":{}}}}}}},"delay":{"ms":0}},"valid":true,"enabled":true,"name":"Message #4","trigger":{"MessageBased":{"_0":{"passTrough":{"EatMatching":{}},"variants":{"VoiceCategory":{"_0":{"variants":{"ControlChange":{"_1":{"implRanges":[{"last":127,"first":0}],"displayedRanges":[{"last":127,"first":0}]},"_0":{"implRanges":[{"last":47,"first":47}],"displayedRanges":[{"first":47,"last":47}]}}},"enabledChannels":{"rawValue":1024}}}}}}}}]};
+            if (exampleJson.rules) { rules = importFromExternal(exampleJson.rules); renderAll(); }
+        }
+
+        function uploadDeviceMap(file) { const r=new FileReader(); r.onload=e=>{ try{ let arr=JSON.parse(e.target.result); if(Array.isArray(arr)){ deviceMap=arr; saveDeviceMap(); renderAll(); }}catch(ex){alert('bad json');} }; r.readAsText(file); }
+        function uploadCcMap(ch,file) { const r=new FileReader(); r.onload=e=>{ try{ let arr=JSON.parse(e.target.result); if(Array.isArray(arr)){ ccLibrary[String(ch)]=arr; saveCcLibrary(); renderAll(); }}catch(ex){alert('bad typed map');} }; r.readAsText(file); }
+
+        window.onload = function() {
+            loadStoredMaps();
+            if (!deviceMap.length) {
+                deviceMap = [ {device:"hub",midiChannel:1},{device:"c4",midiChannel:2},{device:"ash",midiChannel:3},{device:"ultrawave",midiChannel:4},{device:"mgranny",midiChannel:12},{device:"korg",midiChannel:16},{device:"admiral",midiChannel:15},{device:"polymoon",midiChannel:14},{device:"sxLab chord",midiChannel:6},{device:"h90",midiChannel:11},{device:"ipad",midiChannel:10},{device:"mac logic",midiChannel:9},{device:"rc-5",midiChannel:8},{device:"morningstar",midiChannel:15},{device:"zoia",midiChannel:12},{device:"zoom L6",midiChannel:7},{device:"ipad streamByter out",midiChannel:5} ];
+                saveDeviceMap();
+            }
+            loadExampleRules();
+
+            document.getElementById('importBtn').addEventListener('click', ()=>{
+                let inp = document.createElement('input'); inp.type='file'; inp.accept='.json'; inp.onchange=e=>{ if(e.target.files[0]){ let f=e.target.files[0]; let r=new FileReader(); r.onload=ev=>{ try{ let j=JSON.parse(ev.target.result); if(j.rules) rules=importFromExternal(j.rules); renderAll(); }catch(ex){} }; r.readAsText(f); } }; inp.click();
+            });
+            document.getElementById('exportBtn').addEventListener('click', ()=>{
+                let ext = exportToExternal(rules);
+                let blob = new Blob([JSON.stringify(ext,null,2)],{type:'application/json'});
+                let a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mm_rules.json'; a.click();
+            });
+            document.getElementById('addRuleBtn').addEventListener('click', ()=>{
+                let newRule = JSON.parse(JSON.stringify(DEFAULT_RULE));
+                newRule.name = `Message #${rules.length+1}`;
+                rules.push(newRule); renderAll();
+            });
+            document.getElementById('resetDemoBtn').addEventListener('click', loadExampleRules);
+
+            document.getElementById('uploadDeviceMapBtn').addEventListener('click', ()=>{
+                let inp = document.createElement('input'); inp.type='file'; inp.accept='.json'; inp.onchange=e=>{ if(e.target.files[0]) uploadDeviceMap(e.target.files[0]); }; inp.click();
+            });
+            document.getElementById('clearDeviceMapBtn').addEventListener('click', ()=>{ deviceMap=[]; saveDeviceMap(); renderAll(); });
+            document.getElementById('uploadCcMapBtn').addEventListener('click', ()=>{
+                let sel = document.getElementById('uploadCcChannel');
+                let ch = parseInt(sel.value, 10);
+                if (ch<1||ch>16) return alert('channel 1-16');
+                let inp = document.createElement('input'); inp.type='file'; inp.accept='.json'; inp.onchange=e=>{ if(e.target.files[0]) uploadCcMap(ch, e.target.files[0]); }; inp.click();
+            });
+            document.getElementById('clearAllCcMapsBtn').addEventListener('click', ()=>{ ccLibrary={}; saveCcLibrary(); renderAll(); });
+        };
+    })();
+</script>
+</body>
+</html>

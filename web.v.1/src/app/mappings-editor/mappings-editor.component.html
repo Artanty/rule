@@ -1,0 +1,105 @@
+<div class="mappings-editor">
+    <div class="editor-header">
+        <h4>{{ getTitle() }}</h4>
+        <div class="header-actions">
+            <button class="btn-small" (click)="startNewMapping()">➕ New</button>
+            <button class="btn-small" (click)="exportMappings()">📤 Export</button>
+            <label class="btn-small">
+                📥 Import
+                <input type="file" (change)="importMappings($event)" accept=".json" style="display: none">
+            </label>
+        </div>
+    </div>
+    
+    @if (isEditing) {
+        <div class="mapping-editor">
+            <div class="editor-fields">
+                <div class="field">
+                    <label>Name:</label>
+                    <input type="text" [(ngModel)]="editForm.name" placeholder="Mapping name">
+                </div>
+                <div class="field">
+                    <label>MIDI Channel:</label>
+                    <select [(ngModel)]="editForm.triggerMidiChannel">
+                        @for (ch of channels; track ch) {
+                            <option [value]="ch">Channel {{ ch }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Device Name:</label>
+                    <input type="text" [(ngModel)]="editForm.triggerDeviceName" placeholder="Device name">
+                </div>
+            </div>
+            
+            <div class="rules-editor">
+                <div class="rules-header">
+                    <h5>Rules</h5>
+                    <button class="btn-small" (click)="addRule()">➕ Add Rule</button>
+                </div>
+                
+                @if (editForm.rules.length === 0) {
+                    <div class="empty-rules">No rules yet. Click "Add Rule" to create one.</div>
+                }
+                
+                @for (rule of editForm.rules; track $index; let idx = $index) {
+                    <div class="rule-row">
+                        <div class="rule-controls">
+                            <input type="text" [(ngModel)]="rule.name" placeholder="Rule name" class="rule-name">
+                            <select [(ngModel)]="rule.type" class="rule-type">
+                                <option value="cc">CC</option>
+                                <option value="note">Note</option>
+                                @if (type === 'consumer') {
+                                    <option value="program">PC</option>
+                                }
+                            </select>
+                            <input type="number" [(ngModel)]="rule.value" 
+                                   [min]="0" [max]="127" 
+                                   class="rule-value" 
+                                   [placeholder]="rule.type === 'program' ? 'PGM' : 'CC/Note'">
+                            @if (type === 'consumer' && rule.type !== 'program') {
+                                <input type="number" [(ngModel)]="rule.dataValue" 
+                                       min="0" max="127" 
+                                       class="rule-data-value" 
+                                       placeholder="Value">
+                            }
+                        </div>
+                        <div class="rule-actions">
+                            <button class="icon-btn" (click)="duplicateRule(idx, false)" title="Copy">📋</button>
+                            <button class="icon-btn" (click)="duplicateRule(idx, true)" title="Copy & Increment">➕📋</button>
+                            <button class="icon-btn" (click)="moveRuleUp(idx)" [disabled]="idx === 0">▲</button>
+                            <button class="icon-btn" (click)="moveRuleDown(idx)" [disabled]="idx === editForm.rules.length - 1">▼</button>
+                            <button class="icon-btn delete" (click)="removeRule(idx)">🗑</button>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div class="editor-actions">
+                <button class="btn-save" (click)="saveMapping()">💾 Save</button>
+                <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+            </div>
+        </div>
+    }
+    
+    <div class="mappings-list">
+        @for (mapping of mappings; track mapping.name) {
+            <div class="mapping-item" [class.selected]="selectedMapping?.name === mapping.name" (click)="selectMapping(mapping)">
+                <div class="mapping-info">
+                    <strong>{{ mapping.name }}</strong>
+                    <span class="mapping-details">Ch{{ mapping.triggerMidiChannel }} | {{ mapping.triggerDeviceName || 'No device' }} | {{ mapping.rules.length }} rules</span>
+                </div>
+                <div class="mapping-actions" (click)="$event.stopPropagation()">
+                    <button class="icon-btn-small" (click)="editMapping(mapping)" title="Edit">✏️</button>
+                    <button class="icon-btn-small delete" (click)="deleteMapping(mapping.name)" title="Delete">🗑</button>
+                </div>
+            </div>
+        }
+        
+        @if (mappings.length === 0 && !isEditing) {
+            <div class="empty-mappings">
+                <p>No mappings yet. Click "New" to create one.</p>
+            </div>
+        }
+    </div>
+</div>

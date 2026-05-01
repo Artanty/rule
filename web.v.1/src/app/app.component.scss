@@ -1,0 +1,65 @@
+.app-container {
+    min-height: 100vh;
+    min-width: 100vw;
+    background: #181826;
+}
+
+.nav-bar {
+    background: #202038;
+    border-bottom: 1px solid #4a4a7a;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.brand-icon {
+    font-size: 1.5rem;
+}
+
+.brand-name {
+    background: linear-gradient(135deg, #9f7afe, #5f7edb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-link {
+    color: #bdbdff;
+    text-decoration: none;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.nav-link:hover {
+    background: #3a3a5a;
+    color: white;
+}
+
+.nav-link.active {
+    background: #5f7edb;
+    color: white;
+}
+
+.content {
+    padding: 1rem;
+    // max-width: 1600px;
+    margin: 0 auto;
+}
