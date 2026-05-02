@@ -1004,36 +1004,90 @@ export class StreambyterComponent implements OnInit {
         }
         return 'unknown';
     }
-    
+
     getOutputParamName(rule: Rule): string {
         if (rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
             if (mapping) {
                 if (rule.output.type === 'cc') {
-                    const matchedRule = mapping.rules.find(r => r.type === 'cc' && r.value === rule.output.ccNumber);
+                    // Match by CC number AND constant value
+                    let matchedRule = null;
+                    if (rule.output.valueMode === 'constant') {
+                        matchedRule = mapping.rules.find(r => 
+                            r.type === 'cc' && 
+                            r.value === rule.output.ccNumber && 
+                            r.dataValue === rule.output.constantValue
+                        );
+                    }
+                    // If not found, try matching by CC number only
+                    if (!matchedRule) {
+                        matchedRule = mapping.rules.find(r => 
+                            r.type === 'cc' && 
+                            r.value === rule.output.ccNumber
+                        );
+                    }
+                    
                     if (matchedRule && matchedRule.name) {
+                        // If it has a dataValue, show it
+                        if (matchedRule.dataValue !== undefined) {
+                            return `${matchedRule.name} (${matchedRule.dataValue})`;
+                        }
                         return matchedRule.name;
                     }
                 } else if (rule.output.type === 'note') {
-                    const matchedRule = mapping.rules.find(r => r.type === 'note' && r.value === rule.output.note);
+                    // Match by note number AND velocity
+                    let matchedRule = null;
+                    if (rule.output.velocityMode === 'constant') {
+                        matchedRule = mapping.rules.find(r => 
+                            r.type === 'note' && 
+                            r.value === rule.output.note && 
+                            r.dataValue === rule.output.velocity
+                        );
+                    }
+                    // If not found, try matching by note number only
+                    if (!matchedRule) {
+                        matchedRule = mapping.rules.find(r => 
+                            r.type === 'note' && 
+                            r.value === rule.output.note
+                        );
+                    }
+                    
                     if (matchedRule && matchedRule.name) {
+                        if (matchedRule.dataValue !== undefined) {
+                            return `${matchedRule.name} (vel ${matchedRule.dataValue})`;
+                        }
                         return matchedRule.name;
                     }
                 } else if (rule.output.type === 'program') {
-                    const matchedRule = mapping.rules.find(r => r.type === 'program' && r.value === rule.output.program);
+                    const matchedRule = mapping.rules.find(r => 
+                        r.type === 'program' && 
+                        r.value === rule.output.program
+                    );
                     if (matchedRule && matchedRule.name) {
                         return matchedRule.name;
                     }
                 }
             }
         }
+        
+        // Fallback to device library
         if (rule.output.type === 'cc') {
             const ccNumber = Number(rule.output.ccNumber);
-            return this.getParamName(rule.output.channel, 'cc', ccNumber);
+            let baseName = this.getParamName(rule.output.channel, 'cc', ccNumber);
+            // Add constant value if present
+            if (rule.output.valueMode === 'constant') {
+                baseName += ` (${rule.output.constantValue})`;
+            }
+            return baseName;
         } else if (rule.output.type === 'note') {
             const noteNumber = Number(rule.output.note);
-            return this.getParamName(rule.output.channel, 'note', noteNumber);
+            let baseName = this.getParamName(rule.output.channel, 'note', noteNumber);
+            // Add constant velocity if present
+            if (rule.output.velocityMode === 'constant') {
+                baseName += ` (vel ${rule.output.velocity})`;
+            }
+            return baseName;
         } else if (rule.output.type === 'program') {
             return `program ${rule.output.program}`;
         }
