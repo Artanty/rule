@@ -1,0 +1,73 @@
+<div class="rule-row" [attr.data-rule-index]="index">
+    @if (rule.type === 'custom') {
+        <div class="custom-rule-row">
+            <div class="custom-rule-header">
+                <input type="checkbox" [ngModel]="rule.enabled" (ngModelChange)="onEnabledChange($event)" class="rule-enabled" title="Enable/Disable">
+                <input type="text" [ngModel]="rule.name" (ngModelChange)="onNameChange($event)" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
+                <span class="rule-badge">CUSTOM</span>
+                <button class="icon-btn-small" (click)="onToggleCollapse()" title="Toggle code">📄</button>
+                <div class="action-icons">
+                    <button class="icon-btn" (click)="onDuplicate()" title="Duplicate">📋</button>
+                    <button class="icon-btn" (click)="onDelete()" title="Delete">🗑</button>
+                </div>
+            </div>
+            @if (!rule.collapsed) {
+                <div class="custom-code-preview">
+                    <textarea [ngModel]="rule.customCode" (ngModelChange)="rule.customCode = $event" 
+                              class="custom-code-full" rows="4" 
+                              placeholder="# Write your custom StreamByter code here&#10;# Example:&#10;# IF M0 == B0 07&#10;#   SND M0 M1 7F&#10;# END"></textarea>
+                </div>
+            }
+        </div>
+    } @else {
+        <div class="rule-row-content">
+            <input type="checkbox" [ngModel]="rule.selected" (ngModelChange)="onSelectedChange($event)" class="rule-select">
+            
+            <div class="rule-name-cell" [class.wide]="wideRuleNames">
+                <input type="text" [ngModel]="rule.name" (ngModelChange)="onNameChange($event)" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
+            </div>
+            
+            <!-- Trigger Section -->
+            <app-trigger-section
+                [rule]="rule"
+                [triggerMappings]="triggerMappings"
+                (triggerSourceChange)="triggerSourceChange.emit($event)"
+                (triggerTypeChange)="triggerTypeChange.emit($event)"
+                (triggerCcChange)="triggerCcChange.emit($event)"
+                (triggerNoteChange)="triggerNoteChange.emit($event)"
+                (triggerValueModeChange)="triggerValueModeChange.emit($event)"
+                (triggerSpecificValueChange)="triggerSpecificValueChange.emit($event)"
+                (triggerRangeMinChange)="triggerRangeMinChange.emit($event)"
+                (triggerRangeMaxChange)="triggerRangeMaxChange.emit($event)"
+                (triggerConsumeChange)="triggerConsumeChange.emit($event)"
+                (triggerNoteModeChange)="triggerNoteModeChange.emit($event)">
+            </app-trigger-section>
+            
+            <span class="arrow">→</span>
+            
+            <!-- Output Section -->
+            <app-output-section
+                [rule]="rule"
+                [showDelayInput]="showDelayInput"
+                (consumerSourceChange)="consumerSourceChange.emit($event)"
+                (mappingRuleSelected)="mappingRuleSelected.emit($event)"
+                (outputTypeChange)="outputTypeChange.emit($event)"
+                (outputCcChange)="outputCcChange.emit($event)"
+                (outputNoteChange)="outputNoteChange.emit($event)"
+                (outputProgramChange)="outputProgramChange.emit($event)"
+                (outputValueModeChange)="outputValueModeChange.emit($event)"
+                (outputConstantValueChange)="outputConstantValueChange.emit($event)"
+                (outputVelocityModeChange)="outputVelocityModeChange.emit($event)"
+                (outputVelocityChange)="outputVelocityChange.emit($event)"
+                (outputDelayChange)="outputDelayChange.emit($event)">
+            </app-output-section>
+            
+            <div class="action-icons">
+                <input type="checkbox" [ngModel]="rule.enabled" (ngModelChange)="onEnabledChange($event)" class="rule-enabled" title="Enable/Disable">
+                <button class="icon-btn" (click)="onGenerateName()" title="Generate name">🎨</button>
+                <button class="icon-btn" (click)="onDuplicate()" title="Duplicate">📋</button>
+                <button class="icon-btn" (click)="onDelete()" title="Delete">🗑</button>
+            </div>
+        </div>
+    }
+</div>

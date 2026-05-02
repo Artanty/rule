@@ -1,0 +1,6 @@
+<select [ngModel]="rule.selectedMappingRuleKey" (ngModelChange)="onMappingRuleSelected($event)" class="mini-select" title="Mapping Rule">
+    <option [ngValue]="null">-- Select rule --</option>
+    @for (opt of getMappingRuleOptions(); track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
+    }
+</select>

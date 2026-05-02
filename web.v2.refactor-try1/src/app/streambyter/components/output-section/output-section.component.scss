@@ -1,0 +1,67 @@
+.output-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    background: #0f0f1c;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    min-height: 32px;
+    flex: 2;
+    min-width: 300px;
+}
+
+.mini-select {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    min-width: 50px;
+}
+
+.mini-select-tiny {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.2rem 0.3rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    min-width: 40px;
+}
+
+.mini-select-small {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    min-width: 60px;
+}
+
+.mini-input {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.2rem 0.3rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    width: 40px;
+    text-align: center;
+}
+
+.mini-input-tiny {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.2rem 0.3rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    width: 35px;
+    text-align: center;
+}

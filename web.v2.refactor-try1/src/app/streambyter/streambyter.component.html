@@ -1,0 +1,113 @@
+<div class="streambyter-container">    
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="rules-count">Rules: {{ ruleStore.getRules().length }}</div>
+            
+            <input type="file" [id]="importFileInputId" style="display: none" (change)="onFileSelected($event)" accept=".sbr,.json">
+            <button class="btn" (click)="triggerFileInput()">
+                📂 Import
+            </button>
+            <button class="btn primary" (click)="loadExample()">
+                📝 Example
+            </button>
+            <button class="btn warn" (click)="clearRules()">
+                🗑 Clear
+            </button>
+            <button class="btn success" (click)="addRule()">
+                ➕ Add
+            </button>
+            <button class="btn custom" (click)="addCustomRule()">
+                ✏️ Custom
+            </button>
+            <button class="btn" (click)="refreshMaps()">
+                🔄 Refresh
+            </button>
+            
+            <div class="script-name-group">
+                <input type="text" [(ngModel)]="fileName" 
+                       placeholder="Script name" class="script-name-input" title="Script name for export">
+            </div>
+            
+            <button class="btn generate-btn" (click)="generateStreamByterScript()">
+                🔧 Generate
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mappings Editors -->
+    <div class="mappings-editors">
+        <app-mappings-editor type="producer" (mappingsChanged)="refreshMaps()"></app-mappings-editor>
+        <app-mappings-editor type="consumer" (mappingsChanged)="refreshMaps()"></app-mappings-editor>
+    </div>
+    
+    <!-- Toggle Row -->
+    <div class="toggle-row">
+        <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="showDelayInput" (ngModelChange)="onShowDelayInputChange()">
+            <span>Show Delay Input</span>
+        </label>
+        <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="wideRuleNames" (ngModelChange)="onWideRuleNamesChange()">
+            <span>Wide Rule Names (600px)</span>
+        </label>
+    </div>
+    
+    <!-- Bulk Actions -->
+    @if (ruleStore.getRules().length > 0) {
+        <div class="bulk-actions">
+            <button class="btn-small" (click)="ruleStore.selectAllRules()">✓ Select All</button>
+            <button class="btn-small" (click)="ruleStore.selectRegularRules()">📌 Select Regular</button>
+            <button class="btn-small" (click)="ruleStore.selectNoneRules()">✗ Select None</button>
+            <button class="btn-small primary" (click)="generateNamesForSelected()" [disabled]="getSelectedRulesCount() === 0">
+                🎨 Name Selected
+            </button>
+            
+            @if (getSelectedRulesCount() > 0) {
+                <div class="bulk-mapping">
+                    <span class="selected-count">{{ getSelectedRulesCount() }} rule(s) selected</span>
+                    <select #bulkMappingSelect>
+                        <option [value]="null">-- Select trigger mapping --</option>
+                        @for (mapping of triggerMappings; track mapping.name) {
+                            <option [value]="mapping.name">{{ mapping.name }} (Ch{{ mapping.triggerMidiChannel }})</option>
+                        }
+                    </select>
+                    <button class="btn-small primary" (click)="applyBulkMapping(bulkMappingSelect.value)">Apply to Selected</button>
+                </div>
+            }
+        </div>
+    }
+    
+    <div class="rules-panel">
+        @if (ruleStore.getRules().length === 0) {
+            <div class="empty-state">
+                <p>No rules yet. Click "Add" or "Custom" to get started.</p>
+            </div>
+        }
+        
+        @for (rule of ruleStore.getRules(); track $index; let i = $index) {
+            <app-rule-item [index]="i"></app-rule-item>
+        }
+    </div>
+    
+    @if (showGenerated) {
+        <div class="output-panel">
+            <div class="output-header">
+                <h3>📄 Generated Script</h3>
+                <div class="output-actions">
+                    <button class="btn small" (click)="copyToClipboard()">📋 Copy</button>
+                </div>
+            </div>
+            
+            <div class="export-buttons">
+                <button class="btn export-sbr" (click)="downloadScript()">
+                    💾 Export .sbr
+                </button>
+                <button class="btn export-json" (click)="downloadAsJson()">
+                    📄 Export .json
+                </button>
+            </div>
+            
+            <textarea readonly class="script-output-textarea">{{ generatedScript }}</textarea>
+        </div>
+    }
+</div>

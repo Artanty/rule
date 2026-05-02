@@ -1,0 +1,58 @@
+<div class="trigger-cell">
+    <select [ngModel]="rule.trigger.type" (ngModelChange)="onTriggerTypeChange($event)" class="mini-select" title="Type">
+        <option value="noteOn">Note</option>
+        <option value="controlChange">CC</option>
+    </select>
+    
+    <select [ngModel]="getCurrentTriggerSourceValue()" (ngModelChange)="onTriggerSourceChange($event)" class="mini-select" title="Trigger Source">
+        @for (opt of getTriggerSourceOptions(); track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+        }
+    </select>
+    
+    @if (rule.trigger.type === 'noteOn') {
+        <select [ngModel]="rule.trigger.noteMode" (ngModelChange)="onTriggerNoteModeChange($event)" class="mini-select-tiny" title="Note Mode">
+            <option value="specific">Note</option>
+            <option value="any">Any</option>
+        </select>
+        @if (rule.trigger.noteMode === 'specific') {
+            <select [ngModel]="rule.trigger.specificNote" (ngModelChange)="onTriggerNoteChange($event)" class="mini-select-small" title="Note">
+                @for (opt of getNoteOptions(); track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                }
+            </select>
+        }
+    } @else {
+        <select [ngModel]="rule.trigger.ccNumber" (ngModelChange)="onTriggerCcChange($event)" class="mini-select-small" title="CC">
+            @for (opt of getCcOptions(); track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+            }
+        </select>
+        
+        <select [ngModel]="rule.trigger.valueMode" (ngModelChange)="onTriggerValueModeChange($event)" class="mini-select-tiny" title="Value Mode">
+            <option value="any">Any</option>
+            <option value="specific">=</option>
+            <option value="range">↔</option>
+        </select>
+        
+        @if (rule.trigger.valueMode === 'specific') {
+            <input type="number" [ngModel]="rule.trigger.specificValue" (ngModelChange)="onTriggerSpecificValueChange($event)" 
+                   min="0" max="127" class="mini-input" placeholder="Val" title="Value">
+        }
+        
+        @if (rule.trigger.valueMode === 'range') {
+            <div class="range-mini">
+                <input type="number" [ngModel]="rule.trigger.rangeMin" (ngModelChange)="onTriggerRangeMinChange($event)" 
+                       min="0" max="127" class="mini-input" placeholder="Min" title="Min">
+                <span>-</span>
+                <input type="number" [ngModel]="rule.trigger.rangeMax" (ngModelChange)="onTriggerRangeMaxChange($event)" 
+                       min="0" max="127" class="mini-input" placeholder="Max" title="Max">
+            </div>
+        }
+    }
+    
+    <select [ngModel]="rule.trigger.consume" (ngModelChange)="onTriggerConsumeChange($event)" class="mini-select-tiny" title="Consume">
+        <option value="eat">Eat</option>
+        <option value="pass">Pass</option>
+    </select>
+</div>

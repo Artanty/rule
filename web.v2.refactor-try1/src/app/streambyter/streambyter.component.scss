@@ -1,0 +1,214 @@
+.streambyter-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h1 {
+        background: linear-gradient(135deg, #9f7afe, #5f7edb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.toolbar {
+    background: #1e1e34;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.rules-count {
+    background: #2f2f50;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #9f7afe;
+}
+
+.script-name-group {
+    margin-left: auto;
+
+    @media (max-width: 1200px) {
+        margin-left: 0;
+    }
+}
+
+.script-name-input {
+    background: #0b0b16;
+    border: 1px solid #4f4f88;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    min-width: 200px;
+
+    &:focus {
+        outline: none;
+        border-color: #9f7afe;
+    }
+}
+
+.btn {
+    background: #3a3a5a;
+    border: none;
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        background: #505080;
+        transform: translateY(-1px);
+    }
+
+    &.primary {
+        background: #2b5f8a;
+    }
+
+    &.warn {
+        background: #5d3b6b;
+    }
+
+    &.success {
+        background: #2a5a3a;
+    }
+
+    &.generate-btn {
+        background: #9f7afe;
+        color: #1a1a2e;
+        font-weight: bold;
+    }
+
+    &.small {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.7rem;
+    }
+
+    &.export-sbr {
+        background: #9f7afe;
+        color: #1a1a2e;
+        font-weight: bold;
+    }
+
+    &.export-json {
+        background: #2b5f8a;
+    }
+
+    &.custom {
+        background: #6c5ce7;
+    }
+}
+
+.mappings-editors {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    @media (min-width: 1200px) {
+        flex-direction: row;
+
+        >* {
+            flex: 1;
+        }
+    }
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #1e1e34;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: #aab9ff;
+        cursor: pointer;
+
+        input {
+            cursor: pointer;
+        }
+    }
+}
+
+.output-panel {
+    background: #0a0a14;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    border: 1px solid #4a4a7a;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    h3 {
+        margin: 0;
+    }
+}
+
+.output-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.script-output-textarea {
+    width: 100%;
+    background: #0b0b16;
+    color: #aaffaa;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    border: 1px solid #4f4f88;
+    resize: vertical;
+    overflow: auto;
+    min-height: 300px;
+    max-height: 500px;
+    white-space: pre;
+    line-height: 1.4;
+
+    &:focus {
+        outline: none;
+        border-color: #9f7afe;
+    }
+}

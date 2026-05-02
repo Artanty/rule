@@ -1,0 +1,61 @@
+<div class="rule-list">
+    <!-- Bulk Actions -->
+    @if (rules.length > 0) {
+        <app-bulk-actions
+            [selectedCount]="getSelectedRulesCount()"
+            [triggerMappings]="triggerMappings"
+            (selectAll)="selectAllRules()"
+            (selectRegular)="selectRegularRules()"
+            (selectNone)="selectNoneRules()"
+            (generateNames)="generateNamesForSelected.emit()"
+            (applyMapping)="applyBulkMapping.emit($event)">
+        </app-bulk-actions>
+    }
+    
+    <div class="rules-panel">
+        @if (rules.length === 0) {
+            <div class="empty-state">
+                <p>No rules yet. Click "Add" or "Custom" to get started.</p>
+            </div>
+        }
+        
+        @for (rule of rules; track $index; let i = $index) {
+            <app-rule-item
+                [rule]="rule"
+                [index]="i"
+                [triggerMappings]="triggerMappings"
+                [showDelayInput]="showDelayInput"
+                [wideRuleNames]="wideRuleNames"
+                (ruleNameChange)="onRuleNameChange(i, $event)"
+                (ruleEnabledChange)="onRuleEnabledChange(i, $event)"
+                (ruleSelectedChange)="onRuleSelectedChange(i, $event)"
+                (refreshMaps)="refreshMaps.emit()"
+                (duplicateRule)="duplicateRule.emit(i)"
+                (deleteRule)="deleteRule.emit(i)"
+                (toggleCustomCollapse)="toggleCustomCollapse.emit(i)"
+                (generateName)="generateName.emit(i)"
+                (triggerSourceChange)="triggerSourceChange.emit({ rule, value: $event })"
+                (consumerSourceChange)="consumerSourceChange.emit({ rule, value: $event })"
+                (mappingRuleSelected)="mappingRuleSelected.emit({ rule, value: $event })"
+                (triggerTypeChange)="triggerTypeChange.emit({ rule, value: $event })"
+                (triggerCcChange)="triggerCcChange.emit({ rule, value: $event })"
+                (triggerNoteChange)="triggerNoteChange.emit({ rule, value: $event })"
+                (triggerValueModeChange)="triggerValueModeChange.emit({ rule, value: $event })"
+                (triggerSpecificValueChange)="triggerSpecificValueChange.emit({ rule, value: $event })"
+                (triggerRangeMinChange)="triggerRangeMinChange.emit({ rule, value: $event })"
+                (triggerRangeMaxChange)="triggerRangeMaxChange.emit({ rule, value: $event })"
+                (triggerConsumeChange)="triggerConsumeChange.emit({ rule, value: $event })"
+                (triggerNoteModeChange)="triggerNoteModeChange.emit({ rule, value: $event })"
+                (outputTypeChange)="outputTypeChange.emit({ rule, value: $event })"
+                (outputCcChange)="outputCcChange.emit({ rule, value: $event })"
+                (outputNoteChange)="outputNoteChange.emit({ rule, value: $event })"
+                (outputProgramChange)="outputProgramChange.emit({ rule, value: $event })"
+                (outputValueModeChange)="outputValueModeChange.emit({ rule, value: $event })"
+                (outputConstantValueChange)="outputConstantValueChange.emit({ rule, value: $event })"
+                (outputVelocityModeChange)="outputVelocityModeChange.emit({ rule, value: $event })"
+                (outputVelocityChange)="outputVelocityChange.emit({ rule, value: $event })"
+                (outputDelayChange)="outputDelayChange.emit({ rule, value: $event })">
+            </app-rule-item>
+        }
+    </div>
+</div>

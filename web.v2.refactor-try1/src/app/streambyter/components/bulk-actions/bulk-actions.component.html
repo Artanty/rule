@@ -1,0 +1,23 @@
+<div class="bulk-actions">
+    <button class="btn-small" (click)="selectAll.emit()">✓ Select All</button>
+    <button class="btn-small" (click)="selectRegular.emit()">📌 Select Regular</button>
+    <button class="btn-small" (click)="selectNone.emit()">✗ Select None</button>
+    <button class="btn-small primary" (click)="generateNames.emit()" [disabled]="selectedCount === 0">
+        🎨 Name Selected
+    </button>
+    
+    @if (selectedCount > 0) {
+        <div class="bulk-mapping">
+            <span class="selected-count">{{ selectedCount }} rule(s) selected</span>
+            <select [(ngModel)]="bulkMappingName">
+                <option [value]="null">-- Select trigger mapping --</option>
+                @for (mapping of triggerMappings; track mapping.name) {
+                    <option [value]="mapping.name">{{ mapping.name }} (Ch{{ mapping.triggerMidiChannel }})</option>
+                }
+            </select>
+            <button class="btn-small primary" (click)="applyMapping.emit(bulkMappingName!)" [disabled]="!bulkMappingName">
+                Apply to Selected
+            </button>
+        </div>
+    }
+</div>

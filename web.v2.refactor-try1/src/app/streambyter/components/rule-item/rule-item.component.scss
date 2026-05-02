@@ -1,0 +1,179 @@
+.rule-row {
+    background: #151523;
+    border-radius: 8px;
+    border-left: 3px solid #5f7edb;
+    transition: all 0.2s;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.8rem;
+
+    &:hover {
+        background: #1a1a2e;
+        transform: translateX(2px);
+    }
+}
+
+.rule-row-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 1000px) {
+        flex-direction: column;
+        align-items: stretch;
+
+        .arrow {
+            display: none;
+        }
+    }
+}
+
+.rule-name-cell {
+    display: flex;
+    align-items: center;
+    min-width: 300px;
+    width: 300px;
+    max-width: 400px;
+    flex-shrink: 0;
+
+    &.wide {
+        min-width: 600px;
+        width: 600px;
+    }
+
+    .rule-name-input {
+        width: 100%;
+        background: #0b0b16;
+        border: 1px solid #4f4f88;
+        color: white;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+
+        &.wide {
+            min-width: 580px;
+            width: 580px;
+        }
+
+        &:focus {
+            outline: none;
+            border-color: #9f7afe;
+            background: #12122a;
+        }
+    }
+}
+
+.arrow {
+    color: #5f7edb;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0 0.2rem;
+    align-self: center;
+}
+
+.action-icons {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+.icon-btn {
+    background: #2f2f50;
+    border: none;
+    color: #aab9ff;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        background: #4a4a7a;
+        color: white;
+        transform: scale(1.05);
+    }
+}
+
+.rule-select {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.rule-enabled {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.rule-badge {
+    background: #6c5ce7;
+    color: white;
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.custom-rule-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .custom-rule-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        .rule-name-input {
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+
+        .icon-btn-small {
+            background: #2f2f50;
+            border: none;
+            color: #aab9ff;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+
+            &:hover {
+                background: #4a4a7a;
+                color: white;
+            }
+        }
+
+        .action-icons {
+            margin-left: auto;
+        }
+    }
+
+    .custom-code-preview {
+        width: 100%;
+
+        .custom-code-full {
+            width: 100%;
+            background: #0b0b16;
+            border: 1px solid #4f4f88;
+            color: #d4d4d4;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            resize: vertical;
+        }
+    }
+}
