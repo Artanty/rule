@@ -23,6 +23,11 @@
                 🔄 Refresh
             </button>
             
+            <!-- Drag Mode Toggle Button -->
+            <button class="btn" [class.primary]="dragEnabled" (click)="toggleDragMode()">
+                {{ dragEnabled ? '⋮⋮ Drag ON' : '⋮⋮ Drag OFF' }}
+            </button>
+            
             <div class="script-name-group">
                 <input type="text" [(ngModel)]="fileName" 
                        placeholder="Script name" class="script-name-input" title="Script name for export">
@@ -82,7 +87,13 @@
         <app-trigger-mappings></app-trigger-mappings>
     }
      
-    <div class="rules-panel">
+    <!-- Rules List with Drag and Drop -->
+    <div cdkDropList 
+         [cdkDropListData]="rules" 
+         (cdkDropListDropped)="onDragDrop($event)"
+         [cdkDropListDisabled]="!dragEnabled"
+         class="rules-panel">
+        
         @if (rules.length === 0) {
             <div class="empty-state">
                 <p>No rules yet. Click "Add" or "Custom" to get started.</p>
@@ -90,9 +101,21 @@
         }
         
         @for (rule of rules; track $index; let i = $index) {
-            <div class="rule-row" [attr.data-rule-index]="i">
+            <div class="rule-row" 
+                 [attr.data-rule-index]="i"
+                 cdkDrag
+                 [cdkDragDisabled]="!dragEnabled"
+                 [class.drag-disabled]="!dragEnabled">
+                
+                <!-- Drag Handle -->
+                @if (dragEnabled) {
+                    <div class="drag-handle" cdkDragHandle>
+                        ⋮⋮
+                    </div>
+                }
+                
                 @if (rule.type === 'custom') {
-                    <div class="custom-rule-row">
+                    <div class="custom-rule-row" [class.with-drag-handle]="dragEnabled">
                         <div class="custom-rule-header">
                             <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled" title="Enable/Disable">
                             <input type="text" [(ngModel)]="rule.name" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
@@ -114,7 +137,7 @@
                     </div>
                 } @else {
                     <!-- Single line rule -->
-                    <div class="rule-row-content">
+                    <div class="rule-row-content" [class.with-drag-handle]="dragEnabled">
                         <!-- Selection Checkbox -->
                         <input type="checkbox" [(ngModel)]="rule.selected" class="rule-select">
                         

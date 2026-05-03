@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StorageService, DeviceMapEntry, CcLibraryEntry, TriggerMapping } from '../services/storage.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 interface Rule {
     name: string;
@@ -156,6 +157,7 @@ export class StreambyterComponent implements OnInit {
     triggerMappings: TriggerMapping[] = [];
     openMappingsEditor: boolean = false;
     bulkMappingName: string | null = null;
+    dragEnabled: boolean = true;
     
     constructor(
         private storageService: StorageService,
@@ -2251,6 +2253,15 @@ export class StreambyterComponent implements OnInit {
                 }
             }
         }
+        this.cdr.detectChanges();
+    }
+    onDragDrop(event: CdkDragDrop<Rule[]>) {
+        moveItemInArray(this.rules, event.previousIndex, event.currentIndex);
+        this.cdr.detectChanges();
+    }
+    
+    toggleDragMode() {
+        this.dragEnabled = !this.dragEnabled;
         this.cdr.detectChanges();
     }
 }

@@ -867,3 +867,126 @@
         }
     }
 }
+
+// Drag and Drop Styles
+.rule-row {
+    position: relative;
+
+    // Drag handle
+    .drag-handle {
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: grab;
+        color: #5f7edb;
+        font-size: 20px;
+        line-height: 1;
+        user-select: none;
+        padding: 8px 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        z-index: 10;
+        background: #1e1e34;
+        opacity: 0.6;
+
+        &:hover {
+            background-color: #2f2f50;
+            color: #9f7afe;
+            opacity: 1;
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    // Drag and drop states
+    &.cdk-drag {
+        cursor: grab;
+    }
+
+    &.cdk-drag:active {
+        cursor: grabbing;
+    }
+
+    &.cdk-drag-dragging {
+        opacity: 0.4;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transform: rotate(2deg) scale(0.98);
+    }
+
+    &.drag-disabled {
+        .drag-handle {
+            display: none;
+        }
+    }
+}
+
+// CDK Drop List styles
+.cdk-drop-list-dragging .rule-row:not(.cdk-drag-dragging) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-placeholder {
+    opacity: 0;
+    background: #2a2a4a;
+    border: 2px dashed #5f7edb;
+    border-radius: 8px;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+    background: #1a1a2e;
+    border-left: 3px solid #9f7afe;
+
+    .drag-handle {
+        display: flex;
+    }
+}
+
+// Adjust rule-row-content for drag handle space
+.rule-row-content {
+    position: relative;
+
+    &.with-drag-handle {
+        padding-left: 28px;
+    }
+}
+
+.custom-rule-row {
+    position: relative;
+
+    &.with-drag-handle {
+        padding-left: 28px;
+    }
+}
+
+// Responsive adjustments for drag handle
+@media (max-width: 768px) {
+    .rule-row .drag-handle {
+        left: -4px;
+        font-size: 16px;
+        padding: 4px 2px;
+    }
+
+    .rule-row-content.with-drag-handle {
+        padding-left: 20px;
+    }
+
+    .custom-rule-row.with-drag-handle {
+        padding-left: 20px;
+    }
+}
+
+// Drag mode toggle button active state
+.btn.primary.drag-active {
+    background: #5f7edb;
+    box-shadow: 0 0 5px rgba(95, 126, 219, 0.5);
+}

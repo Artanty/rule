@@ -11,7 +11,7 @@ import { StreambyterComponent } from './streambyter/streambyter.component';
 import { MappingEditorComponent } from './mapping-editor/mapping-editor.component';
 import { TriggerMappingsComponent } from './trigger-mappings/trigger-mappings.component';
 import { MappingsEditorComponent } from './mappings-editor/mappings-editor.component';
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -30,7 +30,8 @@ import { MappingsEditorComponent } from './mappings-editor/mappings-editor.compo
     BrowserModule,
     AppRoutingModule,
     CommonModule,
-    FormsModule
+    FormsModule,
+    DragDropModule
   ],
   providers: [],
   bootstrap: [AppComponent]
