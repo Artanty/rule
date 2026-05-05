@@ -279,6 +279,20 @@
                                 <input type="number" [(ngModel)]="rule.output.delayMs" 
                                        placeholder="ms" min="0" class="mini-input-tiny" title="Delay">
                             }
+
+                            <!-- +C Flag (only for CC messages) -->
+                            @if (rule.trigger.type === 'controlChange') {
+                                <label class="inline-mini" title="Clone incoming message (+C)">
+                                    <input type="checkbox" [(ngModel)]="rule.trigger.cloneTrigger" class="checkbox-mini">
+                                    <span>+C</span>
+                                </label>
+                            }
+                            
+                            <!-- +I Flag -->
+                            <label class="inline-mini" title="Inject back into StreamByter (+I)">
+                                <input type="checkbox" [(ngModel)]="rule.output.injectOutput" class="checkbox-mini">
+                                <span>+I</span>
+                            </label>
                         </div>
                         
                         <!-- Action Icons -->

@@ -34,6 +34,7 @@ interface Rule {
         velocity: number;
         velocityMode: 'constant' | 'trigger';
         delayMs: number;
+        injectOutput?: boolean;  // +I flag
     };
     trigger: {
         type: 'noteOn' | 'controlChange';
@@ -46,6 +47,7 @@ interface Rule {
         rangeMin: number;
         rangeMax: number;
         consume: 'eat' | 'pass';
+        cloneTrigger?: boolean;  // +C flag (only for CC)
     };
 }
 
@@ -897,7 +899,8 @@ export class StreambyterComponent implements OnInit {
                 note: 60,
                 velocity: 64,
                 velocityMode: "constant",
-                delayMs: 0
+                delayMs: 0,
+                injectOutput: false
             },
             trigger: {
                 type: "controlChange",
@@ -909,7 +912,8 @@ export class StreambyterComponent implements OnInit {
                 specificValue: 0,
                 rangeMin: 0,
                 rangeMax: 127,
-                consume: "eat"
+                consume: "eat",
+                cloneTrigger: false
             }
         };
         this.rules.push(newRule);
@@ -1115,6 +1119,12 @@ export class StreambyterComponent implements OnInit {
             } else if (rule.output.type === 'note' && rule.output.velocityMode === 'constant') {
                 newName += ` vel=${rule.output.velocity}`;
             }
+            if (rule.trigger.cloneTrigger) {
+                newName += ` [+C]`;
+            }
+            if (rule.output.injectOutput) {
+                newName += ` [+I]`;
+            }
             this.rules[index].name = newName;
             this.cdr.detectChanges();
         }
@@ -1176,7 +1186,9 @@ export class StreambyterComponent implements OnInit {
                 } else if (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'specific') {
                     rangeInfo = ` = ${rule.trigger.specificValue}`;
                 }
-                lines.push(`# == RULE ${ruleCounter}: [${srcDev}] ${srcParam}${rangeInfo} → [${dstDev}] ${dstParam} ==`);
+                const cloneTriggerFlag = rule.trigger.cloneTrigger ? ' [+C]' : '';
+const injectOutputFlag = rule.output.injectOutput ? ' [+I]' : '';
+lines.push(`# == RULE ${ruleCounter}: [${srcDev}] ${srcParam}${rangeInfo} → [${dstDev}] ${dstParam}${cloneTriggerFlag}${injectOutputFlag} ==`);
                 if (triggerSourceLine) {
                     lines.push(triggerSourceLine);
                 }
@@ -1196,45 +1208,90 @@ export class StreambyterComponent implements OnInit {
         this.cdr.detectChanges();
     }
     
-    private generateStreamByterIIRule(rule: Rule): string[] {
-        const lines: string[] = [];
-        const toHex = (value: any, padding: number = 2): string => {
-            const num = typeof value === 'string' ? parseInt(value, 10) : value;
-            return num.toString(16).toUpperCase().padStart(padding, '0');
-        };
-        const toChannelHex = (channel: number): string => {
-            const channelNum = typeof channel === 'string' ? parseInt(channel, 10) : channel;
-            return (channelNum - 1).toString(16).toUpperCase();
-        };
-        const toHexCompare = (value: any): string => {
-            const num = typeof value === 'string' ? parseInt(value, 10) : value;
-            return `0x${num.toString(16).toUpperCase()}`;
-        };
-        if (rule.trigger.type === 'controlChange') {
-            const triggerChannelHex = toChannelHex(rule.trigger.channel);
-            const ccHex = toHex(rule.trigger.ccNumber);
-            if (rule.trigger.valueMode === 'specific') {
-                const valueHex = toHex(rule.trigger.specificValue);
-                lines.push(`IF M0 == B${triggerChannelHex} ${ccHex} ${valueHex}`);
-            } else if (rule.trigger.valueMode === 'range') {
-                const minHex = toHexCompare(rule.trigger.rangeMin);
-                const maxHex = toHexCompare(rule.trigger.rangeMax);
-                lines.push(`IF M0 == B${triggerChannelHex} ${ccHex}`);
-                lines.push(`  IF M2 >= ${minHex}`);
-                lines.push(`    IF M2 <= ${maxHex}`);
-            } else {
-                lines.push(`IF M0 == B${triggerChannelHex} ${ccHex}`);
-            }
-        } else if (rule.trigger.type === 'noteOn') {
-            const triggerChannelHex = toChannelHex(rule.trigger.channel);
-            if (rule.trigger.noteMode === 'specific') {
-                const noteHex = toHex(rule.trigger.specificNote);
-                lines.push(`IF M0 == 9${triggerChannelHex} ${noteHex}`);
-            } else {
-                lines.push(`IF M0 >= 0x90 && M0 <= 0x9F`);
-            }
+private generateStreamByterIIRule(rule: Rule): string[] {
+    const lines: string[] = [];
+    const toHex = (value: any, padding: number = 2): string => {
+        const num = typeof value === 'string' ? parseInt(value, 10) : value;
+        return num.toString(16).toUpperCase().padStart(padding, '0');
+    };
+    const toChannelHex = (channel: number): string => {
+        const channelNum = typeof channel === 'string' ? parseInt(channel, 10) : channel;
+        return (channelNum - 1).toString(16).toUpperCase();
+    };
+    const toHexCompare = (value: any): string => {
+        const num = typeof value === 'string' ? parseInt(value, 10) : value;
+        return `0x${num.toString(16).toUpperCase()}`;
+    };
+    
+    // IF condition line
+    if (rule.trigger.type === 'controlChange') {
+        const triggerChannelHex = toChannelHex(rule.trigger.channel);
+        const ccHex = toHex(rule.trigger.ccNumber);
+        if (rule.trigger.valueMode === 'specific') {
+            const valueHex = toHex(rule.trigger.specificValue);
+            lines.push(`IF M0 == B${triggerChannelHex} ${ccHex} ${valueHex}`);
+        } else if (rule.trigger.valueMode === 'range') {
+            const minHex = toHexCompare(rule.trigger.rangeMin);
+            const maxHex = toHexCompare(rule.trigger.rangeMax);
+            lines.push(`IF M0 == B${triggerChannelHex} ${ccHex}`);
+            lines.push(`  IF M2 >= ${minHex}`);
+            lines.push(`    IF M2 <= ${maxHex}`);
+        } else {
+            lines.push(`IF M0 == B${triggerChannelHex} ${ccHex}`);
         }
-        const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
+    } else if (rule.trigger.type === 'noteOn') {
+        const triggerChannelHex = toChannelHex(rule.trigger.channel);
+        if (rule.trigger.noteMode === 'specific') {
+            const noteHex = toHex(rule.trigger.specificNote);
+            lines.push(`IF M0 == 9${triggerChannelHex} ${noteHex}`);
+        } else {
+            lines.push(`IF M0 >= 0x90 && M0 <= 0x9F`);
+        }
+    }
+    
+    const indent = (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') ? '  ' : '';
+    
+    // Check if we're using the special inline style (only for CC with cloneTrigger or injectOutput)
+    const useInlineStyle = (rule.trigger.cloneTrigger || rule.output.injectOutput) && rule.trigger.type === 'controlChange';
+    
+    if (useInlineStyle) {
+        // INLINE STYLE: BX cc = XX cc +C and SND B9 17 +I
+        
+        // +C line: BX cc = XX cc +C (only for CC messages)
+        if (rule.trigger.cloneTrigger) {
+            const ccHex = toHex(rule.trigger.ccNumber);
+            lines.push(`${indent}  BX ${ccHex} = XX ${ccHex} +C`);
+        }
+        
+        // SND line with +I flag
+        const delayFlag = rule.output.delayMs > 0 ? ` +D${rule.output.delayMs}` : '';
+        const injectOutputFlag = rule.output.injectOutput ? ' +I' : '';
+        
+        if (rule.output.type === 'cc') {
+            const outputChannelHex = toChannelHex(rule.output.channel);
+            const ccHex = toHex(rule.output.ccNumber);
+            if (rule.output.valueMode === 'constant') {
+                const valueHex = toHex(rule.output.constantValue);
+                lines.push(`${indent}  SND B${outputChannelHex} ${ccHex} ${valueHex}${delayFlag}${injectOutputFlag}`);
+            } else {
+                lines.push(`${indent}  SND B${outputChannelHex} ${ccHex} XX${delayFlag}${injectOutputFlag}`);
+            }
+        } else if (rule.output.type === 'note') {
+            const outputChannelHex = toChannelHex(rule.output.channel);
+            const noteHex = toHex(rule.output.note);
+            if (rule.output.velocityMode === 'constant') {
+                const velocityHex = toHex(rule.output.velocity);
+                lines.push(`${indent}  SND 9${outputChannelHex} ${noteHex} ${velocityHex}${delayFlag}${injectOutputFlag}`);
+            } else {
+                lines.push(`${indent}  SND 9${outputChannelHex} ${noteHex} XX${delayFlag}${injectOutputFlag}`);
+            }
+        } else if (rule.output.type === 'program') {
+            const outputChannelHex = toChannelHex(rule.output.channel);
+            const programHex = toHex(rule.output.program);
+            lines.push(`${indent}  SND C${outputChannelHex} ${programHex}${delayFlag}${injectOutputFlag}`);
+        }
+    } else {
+        // STANDARD STYLE: ASS M0, M1, M2
         if (rule.output.type === 'cc') {
             const outputChannelHex = toChannelHex(rule.output.channel);
             const ccHex = toHex(rule.output.ccNumber);
@@ -1259,24 +1316,28 @@ export class StreambyterComponent implements OnInit {
             lines.push(`${indent}  ASS M0 = C${outputChannelHex}`);
             lines.push(`${indent}  ASS M1 = ${programHex}`);
         }
+        
         const delayFlag = rule.output.delayMs > 0 ? ` +D${rule.output.delayMs}` : '';
         if (rule.output.type === 'program') {
             lines.push(`${indent}  SND M0 M1${delayFlag}`);
         } else {
             lines.push(`${indent}  SND M0 M1 M2${delayFlag}`);
         }
-        if (rule.trigger.consume === 'eat') {
-            lines.push(`${indent}  BLOCK`);
-        }
-        if (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') {
-            lines.push(`  END`);
-            lines.push(`  END`);
-            lines.push(`END`);
-        } else {
-            lines.push(`END`);
-        }
-        return lines;
     }
+    
+    if (rule.trigger.consume === 'eat') {
+        lines.push(`${indent}  BLOCK`);
+    }
+    
+    if (rule.trigger.type === 'controlChange' && rule.trigger.valueMode === 'range') {
+        lines.push(`  END`);
+        lines.push(`  END`);
+        lines.push(`END`);
+    } else {
+        lines.push(`END`);
+    }
+    return lines;
+}
     
     private importSbrFile(file: File) {
         const reader = new FileReader();
@@ -1476,100 +1537,166 @@ export class StreambyterComponent implements OnInit {
                     rule.trigger.channel = triggerSourceValue as number;
                 }
 
-                // Parse to find output
-                let j = i + 1;
-                let foundEnd = false;
-                let hasBlock = false;
-                let outputFound = false;
+              // Parse to find output
+let j = i + 1;
+let foundEnd = false;
+let hasBlock = false;
+let outputFound = false;
+let usesInlineStyle = false;
 
-                while (j < lines.length && !foundEnd) {
-                    const currentLine = lines[j].trim();
-                    const strippedLine = currentLine.replace(/^\s+/, '');
+while (j < lines.length && !foundEnd) {
+    const currentLine = lines[j].trim();
+    const strippedLine = currentLine.replace(/^\s+/, '');
 
-                    // Look for Program Change output (C)
-                    const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
-                    if (assM0PCMatch && !outputFound) {
-                        rule.output.type = 'program';
-                        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
-                        detectedOutputChannel = rule.output.channel;
-                        detectedOutputType = 'program';
-                        outputFound = true;
-                    
-                        const sameLineM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                        if (sameLineM1Match) {
-                            const programValue = parseInt(sameLineM1Match[1], 16);
-                            rule.output.program = programValue;
-                            detectedProgramNumber = programValue;
-                        }
-                        j++;
-                        continue;
-                    }
-                
-                    // Look for CC output (B)
-                    const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                    if (assM0CCMatch && !outputFound) {
-                        rule.output.type = 'cc';
-                        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
-                        detectedOutputChannel = rule.output.channel;
-                        detectedOutputType = 'cc';
-                        outputFound = true;
-                        j++;
-                        continue;
-                    }
-                
-                    // Look for Note output (9)
-                    const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
-                    if (assM0NoteMatch && !outputFound) {
-                        rule.output.type = 'note';
-                        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
-                        detectedOutputChannel = rule.output.channel;
-                        detectedOutputType = 'note';
-                        outputFound = true;
-                        j++;
-                        continue;
-                    }
-                
-                    // Look for ASS M1 (CC number, Note number, or Program number)
-                    const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                    if (assM1Match) {
-                        const value = parseInt(assM1Match[1], 16);
-                        if (rule.output.type === 'cc') {
-                            rule.output.ccNumber = value;
-                            detectedCcNumber = value;
-                        } else if (rule.output.type === 'program') {
-                            rule.output.program = value;
-                            detectedProgramNumber = value;
-                        } else if (rule.output.type === 'note') {
-                            rule.output.note = value;
-                            detectedNoteNumber = value;
-                        }
-                    }
-            
-                    // Look for ASS M2 (CC constant value or Note velocity)
-                    const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-                    if (assM2Match) {
-                        const value = parseInt(assM2Match[1], 16);
-                        if (rule.output.type === 'cc') {
-                            rule.output.valueMode = 'constant';
-                            rule.output.constantValue = value;
-                            detectedConstantValue = value;
-                        } else if (rule.output.type === 'note') {
-                            rule.output.velocityMode = 'constant';
-                            rule.output.velocity = value;
-                            detectedVelocity = value;
-                        }
-                    }
+    // Check for inline style: BX line
+    const bxMatch = strippedLine.match(/BX\s+([0-9A-F]{2})\s*=\s*XX\s+\1\s+\+C/i);
+    if (bxMatch && !outputFound) {
+        usesInlineStyle = true;
+        rule.trigger.cloneTrigger = true;
+        j++;
+        continue;
+    }
 
-                    if (strippedLine.match(/BLOCK/i)) {
-                        hasBlock = true;
-                    }
+    // Check for inline style: SND line with +I
+    const inlineSndMatch = strippedLine.match(/SND\s+([B9C])([0-9A-F])\s+([0-9A-F]{2})(?:\s+([0-9A-F]{2}|XX))?(?:\s+\+D(\d+))?(?:\s+\+I)?/i);
+    if (inlineSndMatch && !outputFound && usesInlineStyle) {
+        const type = inlineSndMatch[1];
+        const channel = parseInt(inlineSndMatch[2], 16) + 1;
+        const num = parseInt(inlineSndMatch[3], 16);
+        const val = inlineSndMatch[4];
+        const delay = inlineSndMatch[5];
+        
+        if (type === 'B') {
+            rule.output.type = 'cc';
+            rule.output.ccNumber = num;
+            if (val && val !== 'XX') {
+                rule.output.valueMode = 'constant';
+                rule.output.constantValue = parseInt(val, 16);
+                detectedConstantValue = rule.output.constantValue;
+            } else {
+                rule.output.valueMode = 'trigger';
+            }
+        } else if (type === '9') {
+            rule.output.type = 'note';
+            rule.output.note = num;
+            if (val && val !== 'XX') {
+                rule.output.velocityMode = 'constant';
+                rule.output.velocity = parseInt(val, 16);
+                detectedVelocity = rule.output.velocity;
+            } else {
+                rule.output.velocityMode = 'trigger';
+            }
+        } else if (type === 'C') {
+            rule.output.type = 'program';
+            rule.output.program = num;
+        }
+        rule.output.channel = channel;
+        if (delay) {
+            rule.output.delayMs = parseInt(delay, 10);
+        }
+        if (inlineSndMatch[0].includes('+I')) {
+            rule.output.injectOutput = true;
+        }
+        detectedOutputChannel = channel;
+        outputFound = true;
+        j++;
+        continue;
+    }
 
-                    if (strippedLine.match(/^END$/i)) {
-                        foundEnd = true;
-                        break;
-                    }
-                    j++;
-                }
+    // Check for standard style: ASS lines
+    const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+    if (assM0PCMatch && !outputFound && !usesInlineStyle) {
+        rule.output.type = 'program';
+        rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+        detectedOutputChannel = rule.output.channel;
+        detectedOutputType = 'program';
+        outputFound = true;
+    
+        const sameLineM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+        if (sameLineM1Match) {
+            const programValue = parseInt(sameLineM1Match[1], 16);
+            rule.output.program = programValue;
+            detectedProgramNumber = programValue;
+        }
+        j++;
+        continue;
+    }
+
+    const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+    if (assM0CCMatch && !outputFound && !usesInlineStyle) {
+        rule.output.type = 'cc';
+        rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
+        detectedOutputChannel = rule.output.channel;
+        detectedOutputType = 'cc';
+        outputFound = true;
+        j++;
+        continue;
+    }
+
+    const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+    if (assM0NoteMatch && !outputFound && !usesInlineStyle) {
+        rule.output.type = 'note';
+        rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+        detectedOutputChannel = rule.output.channel;
+        detectedOutputType = 'note';
+        outputFound = true;
+        j++;
+        continue;
+    }
+
+    const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+    if (assM1Match && outputFound && !usesInlineStyle) {
+        const value = parseInt(assM1Match[1], 16);
+        if (rule.output.type === 'cc') {
+            rule.output.ccNumber = value;
+            detectedCcNumber = value;
+        } else if (rule.output.type === 'program') {
+            rule.output.program = value;
+            detectedProgramNumber = value;
+        } else if (rule.output.type === 'note') {
+            rule.output.note = value;
+            detectedNoteNumber = value;
+        }
+        j++;
+        continue;
+    }
+
+    const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+    if (assM2Match && outputFound && !usesInlineStyle) {
+        const value = parseInt(assM2Match[1], 16);
+        if (rule.output.type === 'cc') {
+            rule.output.valueMode = 'constant';
+            rule.output.constantValue = value;
+            detectedConstantValue = value;
+        } else if (rule.output.type === 'note') {
+            rule.output.velocityMode = 'constant';
+            rule.output.velocity = value;
+            detectedVelocity = value;
+        }
+        j++;
+        continue;
+    }
+
+    // Standard SND line
+    const sndMatch = strippedLine.match(/SND\s+M0\s+M1(?:\s+M2)?(?:\s+\+D(\d+))?/i);
+    if (sndMatch && outputFound && !usesInlineStyle) {
+        if (sndMatch[1]) {
+            rule.output.delayMs = parseInt(sndMatch[1], 10);
+        }
+        j++;
+        continue;
+    }
+
+    if (strippedLine.match(/BLOCK/i)) {
+        hasBlock = true;
+    }
+
+    if (strippedLine.match(/^END$/i)) {
+        foundEnd = true;
+        break;
+    }
+    j++;
+}
 
                 // Set output values from detected data
                 if (detectedOutputType) {
@@ -2140,7 +2267,9 @@ export class StreambyterComponent implements OnInit {
                 note: 60,
                 velocity: 64,
                 velocityMode: "trigger",
-                delayMs: 0
+                delayMs: 0,
+                            injectOutput: false
+
             },
             trigger: {
                 type: "controlChange",
@@ -2152,7 +2281,8 @@ export class StreambyterComponent implements OnInit {
                 specificValue: 0,
                 rangeMin: 0,
                 rangeMax: 127,
-                consume: "eat"
+                consume: "eat",
+                cloneTrigger: false
             }
         };
     }
@@ -2285,7 +2415,8 @@ export class StreambyterComponent implements OnInit {
                 note: ext.output?.note || 60,
                 velocity: ext.output?.velocity || 64,
                 velocityMode: ext.output?.velocityMode || 'trigger',
-                delayMs: ext.output?.delayMs || 0
+                delayMs: ext.output?.delayMs || 0,
+                injectOutput: ext.output?.injectOutput || false
             },
             trigger: {
                 type: ext.trigger?.type || 'controlChange',
@@ -2297,7 +2428,9 @@ export class StreambyterComponent implements OnInit {
                 specificValue: ext.trigger?.specificValue || 0,
                 rangeMin: ext.trigger?.rangeMin || 0,
                 rangeMax: ext.trigger?.rangeMax || 127,
-                consume: ext.trigger?.consume || 'eat'
+                consume: ext.trigger?.consume || 'eat',
+                            cloneTrigger: ext.trigger?.cloneTrigger || false
+
             }
         }));
     }
