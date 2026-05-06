@@ -1311,7 +1311,14 @@ export class StreambyterComponent implements OnInit {
     private parseStreamByterScript(script: string) {
         this.rules = [];
         this.loadTriggerMappings();
-        const lines = script.split('\n');
+        
+        // First, decode HTML entities in the script
+        let decodedScript = script
+            .replace(/&gt;/g, '>')
+            .replace(/&lt;/g, '<')
+            .replace(/&amp;/g, '&');
+        
+        const lines = decodedScript.split('\n');
         let i = 0;
         
         while (i < lines.length) {
@@ -1355,18 +1362,23 @@ export class StreambyterComponent implements OnInit {
             // Determine if this is inline style (has SND with +I or +C)
             const isInline = this.detectInlineStyle(lines, i + 1);
             
-            // Determine the type of condition and parse accordingly
+            // Determine the type of condition
             const specificMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
             const anyValueMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
-            const noteMatch = conditionLine.match(/IF\s+M0\s*>=\s*0x90\s*&&\s*M0\s*<=\s*0x9F/i);
+            
+            // Check if this rule has range conditions (nested IF with >= and <=)
+            const hasRangeCondition = this.detectRangeCondition(lines, i + 1);
             
             if (specificMatch) {
                 // CC with specific value (3 hex values)
                 i = this.parseSpecificRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine, isInline);
+            } else if (anyValueMatch && hasRangeCondition) {
+                // CC with ANY value but has range conditions on M2
+                i = this.parseRangeRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine);
             } else if (anyValueMatch) {
-                // CC with ANY value (2 hex values) - this can be inline or standard
+                // CC with ANY value (2 hex values) - no range condition
                 i = this.parseAnyValueRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine, isInline);
-            } else if (noteMatch) {
+            } else if (conditionLine.match(/IF\s+M0\s*>=\s*0x90\s*&&\s*M0\s*<=\s*0x9F/i)) {
                 i = this.parseNoteRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine);
             } else {
                 i++;
@@ -1381,6 +1393,48 @@ export class StreambyterComponent implements OnInit {
                 this.cdr.detectChanges();
             }, 50);
         }, 100);
+    }
+
+    private detectRangeCondition(lines: string[], startIndex: number): boolean {
+        let j = startIndex;
+        let foundMin = false;
+        let foundMax = false;
+        
+        while (j < lines.length) {
+            const nextLine = lines[j].trim();
+            if (nextLine === '' || nextLine.startsWith('#')) {
+                j++;
+                continue;
+            }
+            
+            // Check for >= condition
+            if (nextLine.includes('>=') || nextLine.includes('&gt;=')) {
+                foundMin = true;
+            }
+            
+            // Check for <= condition
+            if (nextLine.includes('<=') || nextLine.includes('&lt;=')) {
+                foundMax = true;
+            }
+            
+            // If we found both min and max conditions, it's a range rule
+            if (foundMin && foundMax) {
+                return true;
+            }
+            
+            // Stop if we hit END (end of this rule)
+            if (nextLine === 'END') {
+                break;
+            }
+            
+            // If we hit another IF that's not about M2, this might not be a range
+            if (nextLine.startsWith('IF') && !nextLine.includes('M2')) {
+                break;
+            }
+            
+            j++;
+        }
+        return false;
     }
 
     private parseRuleHeader(line: string, index: number, lines: string[]): any {
@@ -2053,6 +2107,7 @@ export class StreambyterComponent implements OnInit {
     }
 
     private parseRangeRule(lines: string[], startIndex: number, rule: Rule, conditionLine: string, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, hasConsumerSourceLine: boolean): number {
+        // debugger;
         const match = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
         if (!match) return startIndex + 1;
         
@@ -2086,6 +2141,24 @@ export class StreambyterComponent implements OnInit {
             const strippedLine = currentLine.replace(/^\s+/, '');
             
             if (strippedLine === '' || strippedLine.startsWith('#')) {
+                j++;
+                continue;
+            }
+            
+            // Parse min condition (>=) - handle both >= and decoded >=
+            const minMatch = strippedLine.match(/IF\s+M2\s*>=?\s*(?:0x)?([0-9A-F]+)/i);
+            if (minMatch && rangeMin === null) {
+                rangeMin = parseInt(minMatch[1], 16);
+                nestedLevel++;
+                j++;
+                continue;
+            }
+            
+            // Parse max condition (<=) - handle both <= and decoded <=
+            const maxMatch = strippedLine.match(/IF\s+M2\s*<=?\s*(?:0x)?([0-9A-F]+)/i);
+            if (maxMatch && rangeMax === null) {
+                rangeMax = parseInt(maxMatch[1], 16);
+                nestedLevel++;
                 j++;
                 continue;
             }
@@ -2156,18 +2229,11 @@ export class StreambyterComponent implements OnInit {
                 continue;
             }
             
-            const minMatch = strippedLine.match(/IF\s+M2\s*>=\s*(?:0x)?([0-9A-F]+)/i);
-            if (minMatch && rangeMin === null) {
-                rangeMin = parseInt(minMatch[1], 16);
-                nestedLevel++;
-                j++;
-                continue;
-            }
-            
-            const maxMatch = strippedLine.match(/IF\s+M2\s*<=\s*(?:0x)?([0-9A-F]+)/i);
-            if (maxMatch && rangeMax === null) {
-                rangeMax = parseInt(maxMatch[1], 16);
-                nestedLevel++;
+            const sndMatch = strippedLine.match(/SND\s+M0\s+M1(?:\s+M2)?(?:\s+\+D(\d+))?/i);
+            if (sndMatch && outputFound) {
+                if (sndMatch[1]) {
+                    rule.output.delayMs = parseInt(sndMatch[1], 10);
+                }
                 j++;
                 continue;
             }
