@@ -1308,38 +1308,84 @@ export class StreambyterComponent implements OnInit {
         reader.readAsText(file);
     }
     
-private parseStreamByterScript(script: string) {
-    this.rules = [];
-    this.loadTriggerMappings();
-    const lines = script.split('\n');
-    let i = 0;
-    while (i < lines.length) {
-        const line = lines[i].trim();
-        if (line === '# == CUSTOM_RULE ==') {
-            const rule = this.createDefaultRule();
-            rule.type = 'custom';
-            rule.enabled = true;
-            let customCodeLines: string[] = [];
-            i++;
-            while (i < lines.length) {
-                const currentLine = lines[i];
-                if (currentLine.trim().startsWith('# == RULE') || 
-                    currentLine.trim() === '# == CUSTOM_RULE ==') {
-                    break;
-                }
-                customCodeLines.push(currentLine);
+    private parseStreamByterScript(script: string) {
+        this.rules = [];
+        this.loadTriggerMappings();
+        const lines = script.split('\n');
+        let i = 0;
+        
+        while (i < lines.length) {
+            const line = lines[i].trim();
+            
+            if (line === '# == CUSTOM_RULE ==') {
+                i = this.parseCustomRule(lines, i);
+                continue;
+            }
+            
+            if (!line.startsWith('# == RULE')) {
+                i++;
+                continue;
+            }
+            
+            // Parse rule header
+            const ruleHeader = this.parseRuleHeader(line, i, lines);
+            if (!ruleHeader) {
+                i++;
+                continue;
+            }
+            
+            const { rule, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine, cloneTriggerFlag, injectOutputFlag } = ruleHeader;
+            
+            // Move past the header lines
+            i = ruleHeader.nextIndex;
+            if (i >= lines.length) break;
+            
+            // Get condition line
+            let conditionLine = lines[i].trim();
+            while (conditionLine === '' && i < lines.length) {
+                i++;
+                conditionLine = lines[i].trim();
+            }
+            
+            if (!conditionLine) {
+                i++;
+                continue;
+            }
+            
+            // Determine if this is inline style (has SND with +I or +C)
+            const isInline = this.detectInlineStyle(lines, i + 1);
+            
+            // Determine the type of condition and parse accordingly
+            const specificMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
+            const anyValueMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
+            const noteMatch = conditionLine.match(/IF\s+M0\s*>=\s*0x90\s*&&\s*M0\s*<=\s*0x9F/i);
+            
+            if (specificMatch) {
+                // CC with specific value (3 hex values)
+                i = this.parseSpecificRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine, isInline);
+            } else if (anyValueMatch) {
+                // CC with ANY value (2 hex values) - this can be inline or standard
+                i = this.parseAnyValueRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine, isInline);
+            } else if (noteMatch) {
+                i = this.parseNoteRule(lines, i, rule, conditionLine, triggerSourceType, triggerSourceValue, mappingName, consumerSourceType, consumerSourceValue, consumerMappingName, hasConsumerSourceLine);
+            } else {
                 i++;
             }
-            rule.customCode = customCodeLines.join('\n').trim();
-            rule.name = "Custom Rule";
-            this.rules.push(rule);
-            continue;
         }
-        if (!line.startsWith('# == RULE')) {
-            i++;
-            continue;
-        }
+        
+        setTimeout(() => {
+            this.rules = [...this.rules];
+            this.refreshMaps();
+            this.cdr.detectChanges();
+            setTimeout(() => {
+                this.cdr.detectChanges();
+            }, 50);
+        }, 100);
+    }
 
+    private parseRuleHeader(line: string, index: number, lines: string[]): any {
+        let i = index;
+        
         // Parse flags from comment line
         let cloneTriggerFlag = false;
         let injectOutputFlag = false;
@@ -1349,24 +1395,16 @@ private parseStreamByterScript(script: string) {
         if (line.includes('[+I]')) {
             injectOutputFlag = true;
         }
-
+        
         let triggerSourceType: 'mapping' | 'device' | 'channel' = 'channel';
         let triggerSourceValue: string | number = 1;
         let mappingName: string | null = null;
-    
+        
         let consumerSourceType: 'mapping' | 'device' | 'channel' = 'channel';
         let consumerSourceValue: string | number = 1;
         let consumerMappingName: string | null = null;
         let hasConsumerSourceLine = false;
-
-        let detectedOutputChannel: number | null = null;
-        let detectedOutputType: string | null = null;
-        let detectedCcNumber: number | null = null;
-        let detectedNoteNumber: number | null = null;
-        let detectedProgramNumber: number | null = null;
-        let detectedConstantValue: number | null = null;
-        let detectedVelocity: number | null = null;
-
+        
         let nextLineIndex = i + 1;
         if (nextLineIndex < lines.length && lines[nextLineIndex].trim().startsWith('# trigger-source:')) {
             const triggerSourceLine = lines[nextLineIndex].trim();
@@ -1392,7 +1430,7 @@ private parseStreamByterScript(script: string) {
                 }
             }
         }
-
+        
         nextLineIndex = i + 1;
         if (nextLineIndex < lines.length && lines[nextLineIndex].trim().startsWith('# consumer-source:')) {
             const consumerSourceLine = lines[nextLineIndex].trim();
@@ -1421,109 +1459,157 @@ private parseStreamByterScript(script: string) {
                 }
             }
         }
+        
+        const rule = this.createDefaultRule();
+        rule.type = 'standard';
+        rule.enabled = true;
+        rule.trigger.cloneTrigger = cloneTriggerFlag;
+        rule.output.injectOutput = injectOutputFlag;
+        
+        return {
+            rule,
+            triggerSourceType,
+            triggerSourceValue,
+            mappingName,
+            consumerSourceType,
+            consumerSourceValue,
+            consumerMappingName,
+            hasConsumerSourceLine,
+            cloneTriggerFlag,
+            injectOutputFlag,
+            nextIndex: i + 1
+        };
+    }
 
-        i++;
-        if (i >= lines.length) break;
-    
-        let conditionLine = lines[i].trim();
-        while (conditionLine === '' && i < lines.length) {
-            i++;
-            conditionLine = lines[i].trim();
-        }
-
-        // Check for specific value condition (3 hex values after B)
-        const specificMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
-        if (specificMatch) {
-            const rule = this.createDefaultRule();
-            rule.type = 'standard';
-            rule.enabled = true;
-            const parsedChannel = parseInt(specificMatch[1], 16) + 1;
-            const triggerCC = parseInt(specificMatch[2], 16);
-            const specificValue = parseInt(specificMatch[3], 16);
-
-            rule.trigger.type = 'controlChange';
-            rule.trigger.ccNumber = triggerCC;
-            rule.trigger.valueMode = 'specific';
-            rule.trigger.specificValue = specificValue;
-            rule.trigger.consume = 'eat';
-            rule.trigger.cloneTrigger = cloneTriggerFlag;
-            rule.output.injectOutput = injectOutputFlag;
-
-            // Set trigger source
-            if (triggerSourceType === 'mapping' && mappingName) {
-                const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
-                if (existingMapping) {
-                    rule.triggerSource = {
-                        type: 'mapping',
-                        value: mappingName,
-                        mappingName: mappingName
-                    };
-                    rule.trigger.channel = existingMapping.triggerMidiChannel;
-                } else {
-                    rule.triggerSource = { type: 'channel', value: parsedChannel };
-                    rule.trigger.channel = parsedChannel;
-                }
-            } else if (triggerSourceType === 'device') {
-                rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
-                rule.trigger.channel = triggerSourceValue as number;
-            } else {
-                rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                rule.trigger.channel = triggerSourceValue as number;
+    private detectInlineStyle(lines: string[], startIndex: number): boolean {
+        let j = startIndex;
+        while (j < lines.length) {
+            const nextLine = lines[j].trim();
+            if (nextLine === '' || nextLine.startsWith('#')) {
+                j++;
+                continue;
             }
-
-            let j = i + 1;
-            let foundEnd = false;
-            let hasBlock = false;
-            let outputFound = false;
-
-            while (j < lines.length && !foundEnd) {
-                const currentLine = lines[j].trim();
-                const strippedLine = currentLine.replace(/^\s+/, '');
-
-                // Check for inline SND with +I
-                const inlineSndMatch = strippedLine.match(/SND\s+([B9C])([0-9A-F])\s+([0-9A-F]{2})(?:\s+([0-9A-F]{2}|XX))?(?:\s+\+D(\d+))?(?:\s+\+I)?/i);
-                if (inlineSndMatch && !outputFound) {
-                    const type = inlineSndMatch[1];
-                    const channel = parseInt(inlineSndMatch[2], 16) + 1;
-                    const num = parseInt(inlineSndMatch[3], 16);
-                    const val = inlineSndMatch[4];
-                    const delay = inlineSndMatch[5];
-                    
-                    if (type === 'B') {
-                        rule.output.type = 'cc';
-                        rule.output.ccNumber = num;
-                        if (val && val !== 'XX') {
-                            rule.output.valueMode = 'constant';
-                            rule.output.constantValue = parseInt(val, 16);
-                            detectedConstantValue = rule.output.constantValue;
-                        } else {
-                            rule.output.valueMode = 'trigger';
-                        }
-                    } else if (type === '9') {
-                        rule.output.type = 'note';
-                        rule.output.note = num;
-                        if (val && val !== 'XX') {
-                            rule.output.velocityMode = 'constant';
-                            rule.output.velocity = parseInt(val, 16);
-                            detectedVelocity = rule.output.velocity;
-                        } else {
-                            rule.output.velocityMode = 'trigger';
-                        }
-                    } else if (type === 'C') {
-                        rule.output.type = 'program';
-                        rule.output.program = num;
-                    }
-                    rule.output.channel = channel;
-                    if (delay) {
-                        rule.output.delayMs = parseInt(delay, 10);
-                    }
-                    detectedOutputChannel = channel;
-                    outputFound = true;
-                    j++;
-                    continue;
+            // Check for SND line (inline style)
+            if (nextLine.startsWith('SND')) {
+                // Inline style has direct hex values like "SND B9 00 01 +I" or "SND 90 3C 64 +I"
+                // Standard style has "SND M0 M1 M2"
+                if (!nextLine.includes('M0') && !nextLine.includes('M1') && !nextLine.includes('M2')) {
+                    return true;
                 }
+            }
+            // Stop if we hit END or a new IF
+            if (nextLine === 'END' || nextLine.startsWith('IF')) {
+                break;
+            }
+            j++;
+        }
+        return false;
+    }
 
-                // Check for standard style: ASS lines
+    /**
+     * parses rules where the trigger condition has a specific CC value (3 hex numbers after B).
+     * Example trigger: IF M0 == B1 29 01 (CC number 41, value 1)
+    */
+    private parseSpecificRule(lines: string[], startIndex: number, rule: Rule, conditionLine: string, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, hasConsumerSourceLine: boolean, isInline: boolean): number {
+        const match = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})\s+([0-9A-F]{2})/i);
+        if (!match) return startIndex + 1;
+        
+        const parsedChannel = parseInt(match[1], 16) + 1;
+        const triggerCC = parseInt(match[2], 16);
+        const specificValue = parseInt(match[3], 16);
+        
+        rule.trigger.type = 'controlChange';
+        rule.trigger.ccNumber = triggerCC;
+        rule.trigger.valueMode = 'specific';
+        rule.trigger.specificValue = specificValue;
+        rule.trigger.consume = 'eat';
+        
+        // Set trigger source
+        this.setTriggerSource(rule, triggerSourceType, triggerSourceValue, mappingName, parsedChannel);
+        
+        let j = startIndex + 1;
+        let foundEnd = false;
+        let hasBlock = false;
+        let outputFound = false;
+        let detectedOutputChannel: number | null = null;
+        let detectedOutputType: string | null = null;
+        let detectedCcNumber: number | null = null;
+        let detectedNoteNumber: number | null = null;
+        let detectedProgramNumber: number | null = null;
+        let detectedConstantValue: number | null = null;
+        let detectedVelocity: number | null = null;
+        
+        while (j < lines.length && !foundEnd) {
+            const currentLine = lines[j].trim();
+            const strippedLine = currentLine.replace(/^\s+/, '');
+            
+            if (strippedLine === '' || strippedLine.startsWith('#')) {
+                j++;
+                continue;
+            }
+            
+            if (isInline) {
+                // Parse inline SND format: SND B9 00 01 +I or SND 90 3C 64 +I
+                if (strippedLine.startsWith('SND')) {
+                    const parts = strippedLine.split(/\s+/);
+                    if (parts.length >= 3) {
+                        const typeChannel = parts[1]; // 'B9' or '90' or 'C0'
+                        const type = typeChannel[0];  // 'B', '9', or 'C'
+                        const channelHex = typeChannel[1]; // '9' or '0'
+                        const numHex = parts[2];      // '00' or '3C'
+                        const hasPlusI = strippedLine.endsWith('+I');
+                        const hasPlusC = strippedLine.endsWith('+C');
+                        
+                        const channel = parseInt(channelHex, 16) + 1;
+                        const num = parseInt(numHex, 16);
+                        
+                        console.log('Inline SND parsed:', { type, channel, num, parts, hasPlusI });
+                        
+                        if (type === 'B') {
+                            // CC message
+                            rule.output.type = 'cc';
+                            rule.output.ccNumber = num;
+                            rule.output.valueMode = 'constant';
+                            if (parts.length >= 4 && parts[3] !== '+I' && parts[3] !== '+C') {
+                                rule.output.constantValue = parseInt(parts[3], 16);
+                                detectedConstantValue = rule.output.constantValue;
+                            } else {
+                                rule.output.constantValue = 0;
+                            }
+                        } else if (type === '9') {
+                            // Note message
+                            rule.output.type = 'note';
+                            rule.output.note = num;
+                            rule.output.velocityMode = 'constant';
+                            if (parts.length >= 4 && parts[3] !== '+I' && parts[3] !== '+C') {
+                                rule.output.velocity = parseInt(parts[3], 16);
+                                detectedVelocity = rule.output.velocity;
+                            } else {
+                                rule.output.velocity = 64;
+                            }
+                        } else if (type === 'C') {
+                            // Program Change
+                            rule.output.type = 'program';
+                            rule.output.program = num;
+                        }
+                        
+                        rule.output.channel = channel;
+                        detectedOutputChannel = channel;
+                        
+                        if (hasPlusI) {
+                            rule.output.injectOutput = true;
+                        }
+                        if (hasPlusC) {
+                            rule.trigger.cloneTrigger = true;
+                        }
+                        
+                        outputFound = true;
+                        j++;
+                        continue;
+                    }
+                }
+            } else {
+                // Parse standard style with ASS lines (keep your existing code)
                 const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
                 if (assM0PCMatch && !outputFound) {
                     rule.output.type = 'program';
@@ -1534,7 +1620,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
+                
                 const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                 if (assM0CCMatch && !outputFound) {
                     rule.output.type = 'cc';
@@ -1545,7 +1631,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
+                
                 const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
                 if (assM0NoteMatch && !outputFound) {
                     rule.output.type = 'note';
@@ -1556,7 +1642,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
+                
                 const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                 if (assM1Match && outputFound) {
                     const value = parseInt(assM1Match[1], 16);
@@ -1573,7 +1659,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
+                
                 const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                 if (assM2Match && outputFound) {
                     const value = parseInt(assM2Match[1], 16);
@@ -1589,7 +1675,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
+                
                 const sndMatch = strippedLine.match(/SND\s+M0\s+M1(?:\s+M2)?(?:\s+\+D(\d+))?/i);
                 if (sndMatch && outputFound) {
                     if (sndMatch[1]) {
@@ -1598,182 +1684,148 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
-                if (strippedLine.match(/BLOCK/i)) {
-                    hasBlock = true;
-                }
-
-                if (strippedLine.match(/^END$/i)) {
-                    foundEnd = true;
-                    break;
-                }
+            }
+            
+            // Check for BX line (+C)
+            const bxMatch = strippedLine.match(/BX\s+([0-9A-F]{2})\s*=\s*XX\s+\1\s+\+C/i);
+            if (bxMatch) {
+                rule.trigger.cloneTrigger = true;
                 j++;
+                continue;
             }
+            
+            if (strippedLine.match(/BLOCK/i)) {
+                hasBlock = true;
+            }
+            
+            if (strippedLine.match(/^END$/i)) {
+                foundEnd = true;
+                break;
+            }
+            j++;
+        }
+        
+        // Set output values from detected data (for standard style)
+        if (detectedOutputType && !isInline) {
+            rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
+        }
+        if (detectedCcNumber !== null && !isInline) rule.output.ccNumber = detectedCcNumber;
+        if (detectedNoteNumber !== null && !isInline) rule.output.note = detectedNoteNumber;
+        if (detectedProgramNumber !== null && !isInline) rule.output.program = detectedProgramNumber;
+        if (detectedConstantValue !== null && !isInline) {
+            rule.output.valueMode = 'constant';
+            rule.output.constantValue = detectedConstantValue;
+        }
+        if (detectedVelocity !== null && !isInline) {
+            rule.output.velocityMode = 'constant';
+            rule.output.velocity = detectedVelocity;
+        }
+        
+        // Set consumer source
+        this.setConsumerSource(rule, hasConsumerSourceLine, consumerSourceType, consumerSourceValue, consumerMappingName, detectedOutputChannel);
+        
+        rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+        
+        this.rules.push(rule);
+        const ruleIndex = this.rules.length - 1;
+        this.generateNameForRule(ruleIndex);
+        
+        return j;
+    }
 
-            // Set output values from detected data
-            if (detectedOutputType) {
-                rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
+    private parseAnyValueRule(lines: string[], startIndex: number, rule: Rule, conditionLine: string, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, hasConsumerSourceLine: boolean, isInline: boolean): number {
+        const match = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
+        if (!match) return startIndex + 1;
+        
+        const parsedChannel = parseInt(match[1], 16) + 1;
+        const triggerCC = parseInt(match[2], 16);
+        
+        rule.trigger.type = 'controlChange';
+        rule.trigger.ccNumber = triggerCC;
+        rule.trigger.valueMode = 'any';  // ANY value, not specific or range
+        rule.trigger.consume = 'eat';
+        
+        // Set trigger source
+        this.setTriggerSource(rule, triggerSourceType, triggerSourceValue, mappingName, parsedChannel);
+        
+        let j = startIndex + 1;
+        let foundEnd = false;
+        let hasBlock = false;
+        let outputFound = false;
+        let detectedOutputChannel: number | null = null;
+        let detectedOutputType: string | null = null;
+        let detectedCcNumber: number | null = null;
+        let detectedNoteNumber: number | null = null;
+        let detectedProgramNumber: number | null = null;
+        let detectedConstantValue: number | null = null;
+        let detectedVelocity: number | null = null;
+        
+        while (j < lines.length && !foundEnd) {
+            const currentLine = lines[j].trim();
+            const strippedLine = currentLine.replace(/^\s+/, '');
+            
+            if (strippedLine === '' || strippedLine.startsWith('#')) {
+                j++;
+                continue;
             }
-            if (detectedCcNumber !== null) rule.output.ccNumber = detectedCcNumber;
-            if (detectedNoteNumber !== null) rule.output.note = detectedNoteNumber;
-            if (detectedProgramNumber !== null) rule.output.program = detectedProgramNumber;
-            if (detectedConstantValue !== null) {
-                rule.output.valueMode = 'constant';
-                rule.output.constantValue = detectedConstantValue;
-            }
-            if (detectedVelocity !== null) {
-                rule.output.velocityMode = 'constant';
-                rule.output.velocity = detectedVelocity;
-            }
-
-            // Set consumer source and try to match the mapping rule
-            if (hasConsumerSourceLine && consumerSourceType === 'mapping' && consumerMappingName) {
-                const consumerMappings = this.storageService.getConsumerMappings();
-                const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
-                if (existingMapping) {
-                    rule.consumerSource = {
-                        type: 'mapping',
-                        value: consumerMappingName,
-                        mappingName: consumerMappingName
-                    };
-                    rule.output.channel = existingMapping.triggerMidiChannel;
-                    rule.showMappingSelector = true;
-                
-                    // Try to find matching rule in the consumer mapping
-                    let matchedRule = null;
-                    if (rule.output.type === 'cc' && detectedCcNumber !== null) {
-                        // Try to match by CC number AND constant value
-                        if (detectedConstantValue !== null) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'cc' && 
-                                r.value === detectedCcNumber && 
-                                r.dataValue === detectedConstantValue
-                            );
-                        }
-                        // If not found, try by CC number only
-                        if (!matchedRule) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'cc' && 
-                                r.value === detectedCcNumber
-                            );
-                        }
-                    } else if (rule.output.type === 'note' && detectedNoteNumber !== null) {
-                        if (detectedVelocity !== null) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'note' && 
-                                r.value === detectedNoteNumber && 
-                                r.dataValue === detectedVelocity
-                            );
-                        }
-                        if (!matchedRule) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'note' && 
-                                r.value === detectedNoteNumber
-                            );
-                        }
-                    } else if (rule.output.type === 'program' && detectedProgramNumber !== null) {
-                        matchedRule = existingMapping.rules.find(r => 
-                            r.type === 'program' && 
-                            r.value === detectedProgramNumber
-                        );
-                    }
-                
-                    if (matchedRule) {
-                        (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
-                        // Also update the output values to match the mapping rule
-                        if (matchedRule.type === 'cc' && matchedRule.dataValue !== undefined) {
+            
+            if (isInline) {
+                // Parse inline SND format: SND B9 00 01 +I
+                if (strippedLine.startsWith('SND')) {
+                    const parts = strippedLine.split(/\s+/);
+                    if (parts.length >= 3) {
+                        const typeChannel = parts[1];
+                        const type = typeChannel[0];
+                        const channelHex = typeChannel[1];
+                        const numHex = parts[2];
+                        const hasPlusI = strippedLine.endsWith('+I');
+                        const hasPlusC = strippedLine.endsWith('+C');
+                        
+                        const channel = parseInt(channelHex, 16) + 1;
+                        const num = parseInt(numHex, 16);
+                        
+                        if (type === 'B') {
+                            rule.output.type = 'cc';
+                            rule.output.ccNumber = num;
                             rule.output.valueMode = 'constant';
-                            rule.output.constantValue = matchedRule.dataValue;
-                        } else if (matchedRule.type === 'note' && matchedRule.dataValue !== undefined) {
+                            if (parts.length >= 4 && parts[3] !== '+I' && parts[3] !== '+C') {
+                                rule.output.constantValue = parseInt(parts[3], 16);
+                                detectedConstantValue = rule.output.constantValue;
+                            } else {
+                                rule.output.constantValue = 0;
+                            }
+                        } else if (type === '9') {
+                            rule.output.type = 'note';
+                            rule.output.note = num;
                             rule.output.velocityMode = 'constant';
-                            rule.output.velocity = matchedRule.dataValue;
+                            if (parts.length >= 4 && parts[3] !== '+I' && parts[3] !== '+C') {
+                                rule.output.velocity = parseInt(parts[3], 16);
+                                detectedVelocity = rule.output.velocity;
+                            } else {
+                                rule.output.velocity = 64;
+                            }
+                        } else if (type === 'C') {
+                            rule.output.type = 'program';
+                            rule.output.program = num;
                         }
-                    } else {
-                        (rule as any).selectedMappingRuleKey = undefined;
+                        
+                        rule.output.channel = channel;
+                        detectedOutputChannel = channel;
+                        
+                        if (hasPlusI) {
+                            rule.output.injectOutput = true;
+                        }
+                        if (hasPlusC) {
+                            rule.trigger.cloneTrigger = true;
+                        }
+                        
+                        outputFound = true;
+                        j++;
+                        continue;
                     }
-                } else {
-                    rule.consumerSource = { type: 'channel', value: detectedOutputChannel || 1 };
-                    rule.output.channel = detectedOutputChannel || 1;
-                    rule.showMappingSelector = false;
                 }
-            } else if (hasConsumerSourceLine && consumerSourceType === 'device') {
-                rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
-                rule.output.channel = consumerSourceValue as number;
-                rule.showMappingSelector = false;
-            } else if (hasConsumerSourceLine && consumerSourceType === 'channel') {
-                rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
-                rule.output.channel = consumerSourceValue as number;
-                rule.showMappingSelector = false;
             } else {
-                const fallbackChannel = detectedOutputChannel || 1;
-                const deviceMap = this.storageService.getDeviceMap();
-                const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
-                if (matchingDevice) {
-                    rule.consumerSource = { type: 'device', value: fallbackChannel };
-                } else {
-                    rule.consumerSource = { type: 'channel', value: fallbackChannel };
-                }
-                rule.output.channel = fallbackChannel;
-                rule.showMappingSelector = false;
-            }
-
-            rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-
-            this.rules.push(rule);
-            const ruleIndex = this.rules.length - 1;
-            this.generateNameForRule(ruleIndex);
-
-            i = j;
-            continue;
-        }
-
-        // Check for range condition (2 hex values after B)
-        const rangeMatch = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
-        if (rangeMatch) {
-            const rule = this.createDefaultRule();
-            rule.type = 'standard';
-            rule.enabled = true;
-            const parsedChannel = parseInt(rangeMatch[1], 16) + 1;
-            const triggerCC = parseInt(rangeMatch[2], 16);
-            rule.trigger.type = 'controlChange';
-            rule.trigger.ccNumber = triggerCC;
-            rule.trigger.consume = 'eat';
-            rule.trigger.cloneTrigger = cloneTriggerFlag;
-            rule.output.injectOutput = injectOutputFlag;
-
-            if (triggerSourceType === 'mapping' && mappingName) {
-                const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
-                if (existingMapping) {
-                    rule.triggerSource = {
-                        type: 'mapping',
-                        value: mappingName,
-                        mappingName: mappingName
-                    };
-                    rule.trigger.channel = existingMapping.triggerMidiChannel;
-                } else {
-                    rule.triggerSource = { type: 'channel', value: parsedChannel };
-                    rule.trigger.channel = parsedChannel;
-                }
-            } else if (triggerSourceType === 'device') {
-                rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
-                rule.trigger.channel = triggerSourceValue as number;
-            } else {
-                rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                rule.trigger.channel = triggerSourceValue as number;
-            }
-
-            let j = i + 1;
-            let foundEnd = false;
-            let rangeMin: number | null = null;
-            let rangeMax: number | null = null;
-            let nestedLevel = 1;
-            let hasBlock = false;
-            let outputFound = false;
-
-            while (j < lines.length && !foundEnd) {
-                const currentLine = lines[j].trim();
-                const strippedLine = currentLine.replace(/^\s+/, '');
-        
+                // Parse standard style with ASS lines (for ANY value rules without +I)
                 const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
                 if (assM0PCMatch && !outputFound) {
                     rule.output.type = 'program';
@@ -1784,7 +1836,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-            
+                
                 const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
                 if (assM0CCMatch && !outputFound) {
                     rule.output.type = 'cc';
@@ -1795,7 +1847,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-            
+                
                 const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
                 if (assM0NoteMatch && !outputFound) {
                     rule.output.type = 'note';
@@ -1806,7 +1858,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-            
+                
                 const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
                 if (assM1Match && outputFound) {
                     const value = parseInt(assM1Match[1], 16);
@@ -1823,7 +1875,7 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-        
+                
                 const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
                 if (assM2Match && outputFound) {
                     const value = parseInt(assM2Match[1], 16);
@@ -1839,391 +1891,507 @@ private parseStreamByterScript(script: string) {
                     j++;
                     continue;
                 }
-
-                const minMatch = strippedLine.match(/IF\s+M2\s*>=\s*(?:0x)?([0-9A-F]+)/i);
-                if (minMatch && rangeMin === null) {
-                    rangeMin = parseInt(minMatch[1], 16);
-                    nestedLevel++;
-                    j++;
-                    continue;
-                }
-        
-                const maxMatch = strippedLine.match(/IF\s+M2\s*<=\s*(?:0x)?([0-9A-F]+)/i);
-                if (maxMatch && rangeMax === null) {
-                    rangeMax = parseInt(maxMatch[1], 16);
-                    nestedLevel++;
-                    j++;
-                    continue;
-                }
-        
-                if (strippedLine.match(/BLOCK/i)) {
-                    hasBlock = true;
-                }
-        
-                if (strippedLine.match(/^END$/i)) {
-                    nestedLevel--;
-                    if (nestedLevel === 0) {
-                        foundEnd = true;
-                        break;
-                    }
-                }
-                j++;
-            }
-
-            if (detectedOutputType) {
-                rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
-            }
-            if (detectedCcNumber !== null) rule.output.ccNumber = detectedCcNumber;
-            if (detectedNoteNumber !== null) rule.output.note = detectedNoteNumber;
-            if (detectedProgramNumber !== null) rule.output.program = detectedProgramNumber;
-            if (detectedConstantValue !== null) {
-                rule.output.valueMode = 'constant';
-                rule.output.constantValue = detectedConstantValue;
-            }
-            if (detectedVelocity !== null) {
-                rule.output.velocityMode = 'constant';
-                rule.output.velocity = detectedVelocity;
-            }
-
-            // Set consumer source with mapping matching
-            if (hasConsumerSourceLine && consumerSourceType === 'mapping' && consumerMappingName) {
-                const consumerMappings = this.storageService.getConsumerMappings();
-                const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
-                if (existingMapping) {
-                    rule.consumerSource = {
-                        type: 'mapping',
-                        value: consumerMappingName,
-                        mappingName: consumerMappingName
-                    };
-                    rule.output.channel = existingMapping.triggerMidiChannel;
-                    rule.showMappingSelector = true;
                 
-                    let matchedRule = null;
-                    if (rule.output.type === 'cc' && detectedCcNumber !== null) {
-                        if (detectedConstantValue !== null) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'cc' && 
-                                r.value === detectedCcNumber && 
-                                r.dataValue === detectedConstantValue
-                            );
-                        }
-                        if (!matchedRule) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'cc' && 
-                                r.value === detectedCcNumber
-                            );
-                        }
-                    } else if (rule.output.type === 'note' && detectedNoteNumber !== null) {
-                        if (detectedVelocity !== null) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'note' && 
-                                r.value === detectedNoteNumber && 
-                                r.dataValue === detectedVelocity
-                            );
-                        }
-                        if (!matchedRule) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'note' && 
-                                r.value === detectedNoteNumber
-                            );
-                        }
-                    } else if (rule.output.type === 'program' && detectedProgramNumber !== null) {
+                const sndMatch = strippedLine.match(/SND\s+M0\s+M1(?:\s+M2)?(?:\s+\+D(\d+))?/i);
+                if (sndMatch && outputFound) {
+                    if (sndMatch[1]) {
+                        rule.output.delayMs = parseInt(sndMatch[1], 10);
+                    }
+                    j++;
+                    continue;
+                }
+            }
+            
+            // Check for BX line (+C)
+            const bxMatch = strippedLine.match(/BX\s+([0-9A-F]{2})\s*=\s*XX\s+\1\s+\+C/i);
+            if (bxMatch) {
+                rule.trigger.cloneTrigger = true;
+                j++;
+                continue;
+            }
+            
+            if (strippedLine.match(/BLOCK/i)) {
+                hasBlock = true;
+            }
+            
+            if (strippedLine.match(/^END$/i)) {
+                foundEnd = true;
+                break;
+            }
+            j++;
+        }
+        
+        // Set output values from detected data (for standard style)
+        if (detectedOutputType && !isInline) {
+            rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
+        }
+        if (detectedCcNumber !== null && !isInline) rule.output.ccNumber = detectedCcNumber;
+        if (detectedNoteNumber !== null && !isInline) rule.output.note = detectedNoteNumber;
+        if (detectedProgramNumber !== null && !isInline) rule.output.program = detectedProgramNumber;
+        if (detectedConstantValue !== null && !isInline) {
+            rule.output.valueMode = 'constant';
+            rule.output.constantValue = detectedConstantValue;
+        }
+        if (detectedVelocity !== null && !isInline) {
+            rule.output.velocityMode = 'constant';
+            rule.output.velocity = detectedVelocity;
+        }
+        
+        // Set consumer source
+        this.setConsumerSource(rule, hasConsumerSourceLine, consumerSourceType, consumerSourceValue, consumerMappingName, detectedOutputChannel);
+        
+        rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+        
+        this.rules.push(rule);
+        const ruleIndex = this.rules.length - 1;
+        this.generateNameForRule(ruleIndex);
+        
+        return j;
+    }
+
+    private setTriggerSource(rule: Rule, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, parsedChannel: number): void {
+        if (triggerSourceType === 'mapping' && mappingName) {
+            const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
+            if (existingMapping) {
+                rule.triggerSource = {
+                    type: 'mapping',
+                    value: mappingName,
+                    mappingName: mappingName
+                };
+                rule.trigger.channel = existingMapping.triggerMidiChannel;
+            } else {
+                rule.triggerSource = { type: 'channel', value: parsedChannel };
+                rule.trigger.channel = parsedChannel;
+            }
+        } else if (triggerSourceType === 'device') {
+            rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
+            rule.trigger.channel = triggerSourceValue as number;
+        } else {
+            rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
+            rule.trigger.channel = triggerSourceValue as number;
+        }
+    }
+
+    private setConsumerSource(rule: Rule, hasConsumerSourceLine: boolean, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, detectedOutputChannel: number | null): void {
+        if (hasConsumerSourceLine && consumerSourceType === 'mapping' && consumerMappingName) {
+            const consumerMappings = this.storageService.getConsumerMappings();
+            const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
+            if (existingMapping) {
+                rule.consumerSource = {
+                    type: 'mapping',
+                    value: consumerMappingName,
+                    mappingName: consumerMappingName
+                };
+                rule.output.channel = existingMapping.triggerMidiChannel;
+                rule.showMappingSelector = true;
+                
+                // Try to find matching rule in the consumer mapping
+                let matchedRule = null;
+                if (rule.output.type === 'cc') {
+                    if (rule.output.valueMode === 'constant') {
                         matchedRule = existingMapping.rules.find(r => 
-                            r.type === 'program' && 
-                            r.value === detectedProgramNumber
+                            r.type === 'cc' && 
+                            r.value === rule.output.ccNumber && 
+                            r.dataValue === rule.output.constantValue
                         );
                     }
+                    if (!matchedRule) {
+                        matchedRule = existingMapping.rules.find(r => 
+                            r.type === 'cc' && 
+                            r.value === rule.output.ccNumber
+                        );
+                    }
+                } else if (rule.output.type === 'note') {
+                    if (rule.output.velocityMode === 'constant') {
+                        matchedRule = existingMapping.rules.find(r => 
+                            r.type === 'note' && 
+                            r.value === rule.output.note && 
+                            r.dataValue === rule.output.velocity
+                        );
+                    }
+                    if (!matchedRule) {
+                        matchedRule = existingMapping.rules.find(r => 
+                            r.type === 'note' && 
+                            r.value === rule.output.note
+                        );
+                    }
+                } else if (rule.output.type === 'program') {
+                    matchedRule = existingMapping.rules.find(r => 
+                        r.type === 'program' && 
+                        r.value === rule.output.program
+                    );
+                }
                 
-                    if (matchedRule) {
-                        (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
-                    } else {
-                        (rule as any).selectedMappingRuleKey = undefined;
-                    }
-                } else {
-                    rule.consumerSource = { type: 'channel', value: detectedOutputChannel || 1 };
-                    rule.output.channel = detectedOutputChannel || 1;
-                    rule.showMappingSelector = false;
+                if (matchedRule) {
+                    (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
                 }
-            } else if (hasConsumerSourceLine && consumerSourceType === 'device') {
-                rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
-                rule.output.channel = consumerSourceValue as number;
-                rule.showMappingSelector = false;
-            } else if (hasConsumerSourceLine && consumerSourceType === 'channel') {
-                rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
-                rule.output.channel = consumerSourceValue as number;
-                rule.showMappingSelector = false;
             } else {
-                const fallbackChannel = detectedOutputChannel || 1;
-                const deviceMap = this.storageService.getDeviceMap();
-                const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
-                if (matchingDevice) {
-                    rule.consumerSource = { type: 'device', value: fallbackChannel };
-                } else {
-                    rule.consumerSource = { type: 'channel', value: fallbackChannel };
-                }
-                rule.output.channel = fallbackChannel;
+                rule.consumerSource = { type: 'channel', value: detectedOutputChannel || 1 };
+                rule.output.channel = detectedOutputChannel || 1;
                 rule.showMappingSelector = false;
             }
-
-            rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-            if (rangeMin !== null && rangeMax !== null) {
-                rule.trigger.valueMode = 'range';
-                rule.trigger.rangeMin = rangeMin;
-                rule.trigger.rangeMax = rangeMax;
+        } else if (hasConsumerSourceLine && consumerSourceType === 'device') {
+            rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
+            rule.output.channel = consumerSourceValue as number;
+            rule.showMappingSelector = false;
+        } else if (hasConsumerSourceLine && consumerSourceType === 'channel') {
+            rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
+            rule.output.channel = consumerSourceValue as number;
+            rule.showMappingSelector = false;
+        } else {
+            const fallbackChannel = detectedOutputChannel || 1;
+            const deviceMap = this.storageService.getDeviceMap();
+            const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
+            if (matchingDevice) {
+                rule.consumerSource = { type: 'device', value: fallbackChannel };
             } else {
-                rule.trigger.valueMode = 'any';
+                rule.consumerSource = { type: 'channel', value: fallbackChannel };
             }
-        
-            this.rules.push(rule);
-            const ruleIndex = this.rules.length - 1;
-            this.generateNameForRule(ruleIndex);
-        
-            i = j;
-            continue;
+            rule.output.channel = fallbackChannel;
+            rule.showMappingSelector = false;
         }
+    }
 
-        // Check for Note On condition
-        const noteMatch = conditionLine.match(/IF\s+M0\s*>=\s*0x90\s*&&\s*M0\s*<=\s*0x9F/i);
-        if (noteMatch) {
-            const rule = this.createDefaultRule();
-            rule.type = 'standard';
-            rule.enabled = true;
+    private parseRangeRule(lines: string[], startIndex: number, rule: Rule, conditionLine: string, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, hasConsumerSourceLine: boolean): number {
+        const match = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
+        if (!match) return startIndex + 1;
         
-            rule.trigger.type = 'noteOn';
-            rule.trigger.noteMode = 'any';
-            rule.trigger.consume = 'eat';
-            rule.trigger.cloneTrigger = false;
-            rule.output.injectOutput = injectOutputFlag;
-
-            if (triggerSourceType === 'mapping' && mappingName) {
-                const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
-                if (existingMapping) {
-                    rule.triggerSource = {
-                        type: 'mapping',
-                        value: mappingName,
-                        mappingName: mappingName
-                    };
-                    rule.trigger.channel = existingMapping.triggerMidiChannel;
-                } else {
-                    rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                    rule.trigger.channel = triggerSourceValue as number;
-                }
-            } else if (triggerSourceType === 'device') {
-                rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
-                rule.trigger.channel = triggerSourceValue as number;
-            } else {
-                rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
-                rule.trigger.channel = triggerSourceValue as number;
+        const parsedChannel = parseInt(match[1], 16) + 1;
+        const triggerCC = parseInt(match[2], 16);
+        
+        rule.trigger.type = 'controlChange';
+        rule.trigger.ccNumber = triggerCC;
+        rule.trigger.consume = 'eat';
+        
+        // Set trigger source
+        this.setTriggerSource(rule, triggerSourceType, triggerSourceValue, mappingName, parsedChannel);
+        
+        let j = startIndex + 1;
+        let foundEnd = false;
+        let rangeMin: number | null = null;
+        let rangeMax: number | null = null;
+        let nestedLevel = 1;
+        let hasBlock = false;
+        let outputFound = false;
+        let detectedOutputChannel: number | null = null;
+        let detectedOutputType: string | null = null;
+        let detectedCcNumber: number | null = null;
+        let detectedNoteNumber: number | null = null;
+        let detectedProgramNumber: number | null = null;
+        let detectedConstantValue: number | null = null;
+        let detectedVelocity: number | null = null;
+        
+        while (j < lines.length && !foundEnd) {
+            const currentLine = lines[j].trim();
+            const strippedLine = currentLine.replace(/^\s+/, '');
+            
+            if (strippedLine === '' || strippedLine.startsWith('#')) {
+                j++;
+                continue;
             }
-
-            let j = i + 1;
-            let foundEnd = false;
-            let hasBlock = false;
-            let outputFound = false;
-
-            while (j < lines.length && !foundEnd) {
-                const currentLine = lines[j].trim();
-                const strippedLine = currentLine.replace(/^\s+/, '');
-        
-                const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
-                if (assM0PCMatch && !outputFound) {
-                    rule.output.type = 'program';
-                    rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
-                    detectedOutputChannel = rule.output.channel;
-                    detectedOutputType = 'program';
-                    outputFound = true;
-                    j++;
-                    continue;
-                }
             
-                const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
-                if (assM0CCMatch && !outputFound) {
-                    rule.output.type = 'cc';
-                    rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
-                    detectedOutputChannel = rule.output.channel;
-                    detectedOutputType = 'cc';
-                    outputFound = true;
-                    j++;
-                    continue;
-                }
+            const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+            if (assM0PCMatch && !outputFound) {
+                rule.output.type = 'program';
+                rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+                detectedOutputChannel = rule.output.channel;
+                detectedOutputType = 'program';
+                outputFound = true;
+                j++;
+                continue;
+            }
             
-                const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
-                if (assM0NoteMatch && !outputFound) {
-                    rule.output.type = 'note';
-                    rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
-                    detectedOutputChannel = rule.output.channel;
-                    detectedOutputType = 'note';
-                    outputFound = true;
-                    j++;
-                    continue;
-                }
+            const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+            if (assM0CCMatch && !outputFound) {
+                rule.output.type = 'cc';
+                rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
+                detectedOutputChannel = rule.output.channel;
+                detectedOutputType = 'cc';
+                outputFound = true;
+                j++;
+                continue;
+            }
             
-                const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
-                if (assM1Match && outputFound) {
-                    const value = parseInt(assM1Match[1], 16);
-                    if (rule.output.type === 'cc') {
-                        rule.output.ccNumber = value;
-                        detectedCcNumber = value;
-                    } else if (rule.output.type === 'program') {
-                        rule.output.program = value;
-                        detectedProgramNumber = value;
-                    } else if (rule.output.type === 'note') {
-                        rule.output.note = value;
-                        detectedNoteNumber = value;
-                    }
-                    j++;
-                    continue;
-                }
+            const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+            if (assM0NoteMatch && !outputFound) {
+                rule.output.type = 'note';
+                rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+                detectedOutputChannel = rule.output.channel;
+                detectedOutputType = 'note';
+                outputFound = true;
+                j++;
+                continue;
+            }
             
-                const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
-                if (assM2Match && outputFound) {
-                    const value = parseInt(assM2Match[1], 16);
-                    if (rule.output.type === 'cc') {
-                        rule.output.valueMode = 'constant';
-                        rule.output.constantValue = value;
-                        detectedConstantValue = value;
-                    } else if (rule.output.type === 'note') {
-                        rule.output.velocityMode = 'constant';
-                        rule.output.velocity = value;
-                        detectedVelocity = value;
-                    }
-                    j++;
-                    continue;
+            const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+            if (assM1Match && outputFound) {
+                const value = parseInt(assM1Match[1], 16);
+                if (rule.output.type === 'cc') {
+                    rule.output.ccNumber = value;
+                    detectedCcNumber = value;
+                } else if (rule.output.type === 'program') {
+                    rule.output.program = value;
+                    detectedProgramNumber = value;
+                } else if (rule.output.type === 'note') {
+                    rule.output.note = value;
+                    detectedNoteNumber = value;
                 }
+                j++;
+                continue;
+            }
             
-                if (strippedLine.match(/BLOCK/i)) {
-                    hasBlock = true;
+            const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+            if (assM2Match && outputFound) {
+                const value = parseInt(assM2Match[1], 16);
+                if (rule.output.type === 'cc') {
+                    rule.output.valueMode = 'constant';
+                    rule.output.constantValue = value;
+                    detectedConstantValue = value;
+                } else if (rule.output.type === 'note') {
+                    rule.output.velocityMode = 'constant';
+                    rule.output.velocity = value;
+                    detectedVelocity = value;
                 }
+                j++;
+                continue;
+            }
             
-                if (strippedLine.match(/^END$/i)) {
+            const minMatch = strippedLine.match(/IF\s+M2\s*>=\s*(?:0x)?([0-9A-F]+)/i);
+            if (minMatch && rangeMin === null) {
+                rangeMin = parseInt(minMatch[1], 16);
+                nestedLevel++;
+                j++;
+                continue;
+            }
+            
+            const maxMatch = strippedLine.match(/IF\s+M2\s*<=\s*(?:0x)?([0-9A-F]+)/i);
+            if (maxMatch && rangeMax === null) {
+                rangeMax = parseInt(maxMatch[1], 16);
+                nestedLevel++;
+                j++;
+                continue;
+            }
+            
+            if (strippedLine.match(/BLOCK/i)) {
+                hasBlock = true;
+            }
+            
+            if (strippedLine.match(/^END$/i)) {
+                nestedLevel--;
+                if (nestedLevel === 0) {
                     foundEnd = true;
                     break;
                 }
-                j++;
             }
-
-            if (detectedOutputType) {
-                rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
-            }
-            if (detectedCcNumber !== null) rule.output.ccNumber = detectedCcNumber;
-            if (detectedNoteNumber !== null) rule.output.note = detectedNoteNumber;
-            if (detectedProgramNumber !== null) rule.output.program = detectedProgramNumber;
-            if (detectedConstantValue !== null) {
-                rule.output.valueMode = 'constant';
-                rule.output.constantValue = detectedConstantValue;
-            }
-            if (detectedVelocity !== null) {
-                rule.output.velocityMode = 'constant';
-                rule.output.velocity = detectedVelocity;
-            }
-
-            // Set consumer source with mapping matching
-            if (hasConsumerSourceLine && consumerSourceType === 'mapping' && consumerMappingName) {
-                const consumerMappings = this.storageService.getConsumerMappings();
-                const existingMapping = consumerMappings.find(m => m.name === consumerMappingName);
-                if (existingMapping) {
-                    rule.consumerSource = {
-                        type: 'mapping',
-                        value: consumerMappingName,
-                        mappingName: consumerMappingName
-                    };
-                    rule.output.channel = existingMapping.triggerMidiChannel;
-                    rule.showMappingSelector = true;
-                
-                    let matchedRule = null;
-                    if (rule.output.type === 'cc' && detectedCcNumber !== null) {
-                        if (detectedConstantValue !== null) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'cc' && 
-                                r.value === detectedCcNumber && 
-                                r.dataValue === detectedConstantValue
-                            );
-                        }
-                        if (!matchedRule) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'cc' && 
-                                r.value === detectedCcNumber
-                            );
-                        }
-                    } else if (rule.output.type === 'note' && detectedNoteNumber !== null) {
-                        if (detectedVelocity !== null) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'note' && 
-                                r.value === detectedNoteNumber && 
-                                r.dataValue === detectedVelocity
-                            );
-                        }
-                        if (!matchedRule) {
-                            matchedRule = existingMapping.rules.find(r => 
-                                r.type === 'note' && 
-                                r.value === detectedNoteNumber
-                            );
-                        }
-                    } else if (rule.output.type === 'program' && detectedProgramNumber !== null) {
-                        matchedRule = existingMapping.rules.find(r => 
-                            r.type === 'program' && 
-                            r.value === detectedProgramNumber
-                        );
-                    }
-                
-                    if (matchedRule) {
-                        (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
-                    } else {
-                        (rule as any).selectedMappingRuleKey = undefined;
-                    }
-                } else {
-                    rule.consumerSource = { type: 'channel', value: detectedOutputChannel || 1 };
-                    rule.output.channel = detectedOutputChannel || 1;
-                    rule.showMappingSelector = false;
-                }
-            } else if (hasConsumerSourceLine && consumerSourceType === 'device') {
-                rule.consumerSource = { type: 'device', value: consumerSourceValue as number };
-                rule.output.channel = consumerSourceValue as number;
-                rule.showMappingSelector = false;
-            } else if (hasConsumerSourceLine && consumerSourceType === 'channel') {
-                rule.consumerSource = { type: 'channel', value: consumerSourceValue as number };
-                rule.output.channel = consumerSourceValue as number;
-                rule.showMappingSelector = false;
-            } else {
-                const fallbackChannel = detectedOutputChannel || 1;
-                const deviceMap = this.storageService.getDeviceMap();
-                const matchingDevice = deviceMap.find(d => d.midiChannel === fallbackChannel);
-                if (matchingDevice) {
-                    rule.consumerSource = { type: 'device', value: fallbackChannel };
-                } else {
-                    rule.consumerSource = { type: 'channel', value: fallbackChannel };
-                }
-                rule.output.channel = fallbackChannel;
-                rule.showMappingSelector = false;
-            }
-
-            rule.trigger.consume = hasBlock ? 'eat' : 'pass';
-        
-            this.rules.push(rule);
-            const ruleIndex = this.rules.length - 1;
-            this.generateNameForRule(ruleIndex);
-        
-            i = j;
-            continue;
+            j++;
         }
+        
+        if (detectedOutputType) {
+            rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
+        }
+        if (detectedCcNumber !== null) rule.output.ccNumber = detectedCcNumber;
+        if (detectedNoteNumber !== null) rule.output.note = detectedNoteNumber;
+        if (detectedProgramNumber !== null) rule.output.program = detectedProgramNumber;
+        if (detectedConstantValue !== null) {
+            rule.output.valueMode = 'constant';
+            rule.output.constantValue = detectedConstantValue;
+        }
+        if (detectedVelocity !== null) {
+            rule.output.velocityMode = 'constant';
+            rule.output.velocity = detectedVelocity;
+        }
+        
+        this.setConsumerSource(rule, hasConsumerSourceLine, consumerSourceType, consumerSourceValue, consumerMappingName, detectedOutputChannel);
+        
+        rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+        if (rangeMin !== null && rangeMax !== null) {
+            rule.trigger.valueMode = 'range';
+            rule.trigger.rangeMin = rangeMin;
+            rule.trigger.rangeMax = rangeMax;
+        } else {
+            rule.trigger.valueMode = 'any';
+        }
+        
+        this.rules.push(rule);
+        const ruleIndex = this.rules.length - 1;
+        this.generateNameForRule(ruleIndex);
+        
+        return j;
+    }
 
+    private parseNoteRule(lines: string[], startIndex: number, rule: Rule, conditionLine: string, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, hasConsumerSourceLine: boolean): number {
+        rule.trigger.type = 'noteOn';
+        rule.trigger.noteMode = 'any';
+        rule.trigger.consume = 'eat';
+        
+        // Set trigger source
+        if (triggerSourceType === 'mapping' && mappingName) {
+            const existingMapping = this.triggerMappings.find(m => m.name === mappingName);
+            if (existingMapping) {
+                rule.triggerSource = {
+                    type: 'mapping',
+                    value: mappingName,
+                    mappingName: mappingName
+                };
+                rule.trigger.channel = existingMapping.triggerMidiChannel;
+            } else {
+                rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
+                rule.trigger.channel = triggerSourceValue as number;
+            }
+        } else if (triggerSourceType === 'device') {
+            rule.triggerSource = { type: 'device', value: triggerSourceValue as number };
+            rule.trigger.channel = triggerSourceValue as number;
+        } else {
+            rule.triggerSource = { type: 'channel', value: triggerSourceValue as number };
+            rule.trigger.channel = triggerSourceValue as number;
+        }
+        
+        let j = startIndex + 1;
+        let foundEnd = false;
+        let hasBlock = false;
+        let outputFound = false;
+        let detectedOutputChannel: number | null = null;
+        let detectedOutputType: string | null = null;
+        let detectedCcNumber: number | null = null;
+        let detectedNoteNumber: number | null = null;
+        let detectedProgramNumber: number | null = null;
+        let detectedConstantValue: number | null = null;
+        let detectedVelocity: number | null = null;
+        
+        while (j < lines.length && !foundEnd) {
+            const currentLine = lines[j].trim();
+            const strippedLine = currentLine.replace(/^\s+/, '');
+            
+            if (strippedLine === '' || strippedLine.startsWith('#')) {
+                j++;
+                continue;
+            }
+            
+            const assM0PCMatch = strippedLine.match(/ASS\s+M0\s*=\s*C([0-9A-F])/i);
+            if (assM0PCMatch && !outputFound) {
+                rule.output.type = 'program';
+                rule.output.channel = parseInt(assM0PCMatch[1], 16) + 1;
+                detectedOutputChannel = rule.output.channel;
+                detectedOutputType = 'program';
+                outputFound = true;
+                j++;
+                continue;
+            }
+            
+            const assM0CCMatch = strippedLine.match(/ASS\s+M0\s*=\s*B([0-9A-F])/i);
+            if (assM0CCMatch && !outputFound) {
+                rule.output.type = 'cc';
+                rule.output.channel = parseInt(assM0CCMatch[1], 16) + 1;
+                detectedOutputChannel = rule.output.channel;
+                detectedOutputType = 'cc';
+                outputFound = true;
+                j++;
+                continue;
+            }
+            
+            const assM0NoteMatch = strippedLine.match(/ASS\s+M0\s*=\s*9([0-9A-F])/i);
+            if (assM0NoteMatch && !outputFound) {
+                rule.output.type = 'note';
+                rule.output.channel = parseInt(assM0NoteMatch[1], 16) + 1;
+                detectedOutputChannel = rule.output.channel;
+                detectedOutputType = 'note';
+                outputFound = true;
+                j++;
+                continue;
+            }
+            
+            const assM1Match = strippedLine.match(/ASS\s+M1\s*=\s*([0-9A-F]{2})/i);
+            if (assM1Match && outputFound) {
+                const value = parseInt(assM1Match[1], 16);
+                if (rule.output.type === 'cc') {
+                    rule.output.ccNumber = value;
+                    detectedCcNumber = value;
+                } else if (rule.output.type === 'program') {
+                    rule.output.program = value;
+                    detectedProgramNumber = value;
+                } else if (rule.output.type === 'note') {
+                    rule.output.note = value;
+                    detectedNoteNumber = value;
+                }
+                j++;
+                continue;
+            }
+            
+            const assM2Match = strippedLine.match(/ASS\s+M2\s*=\s*([0-9A-F]{2})/i);
+            if (assM2Match && outputFound) {
+                const value = parseInt(assM2Match[1], 16);
+                if (rule.output.type === 'cc') {
+                    rule.output.valueMode = 'constant';
+                    rule.output.constantValue = value;
+                    detectedConstantValue = value;
+                } else if (rule.output.type === 'note') {
+                    rule.output.velocityMode = 'constant';
+                    rule.output.velocity = value;
+                    detectedVelocity = value;
+                }
+                j++;
+                continue;
+            }
+            
+            if (strippedLine.match(/BLOCK/i)) {
+                hasBlock = true;
+            }
+            
+            if (strippedLine.match(/^END$/i)) {
+                foundEnd = true;
+                break;
+            }
+            j++;
+        }
+        
+        if (detectedOutputType) {
+            rule.output.type = detectedOutputType as 'cc' | 'program' | 'note';
+        }
+        if (detectedCcNumber !== null) rule.output.ccNumber = detectedCcNumber;
+        if (detectedNoteNumber !== null) rule.output.note = detectedNoteNumber;
+        if (detectedProgramNumber !== null) rule.output.program = detectedProgramNumber;
+        if (detectedConstantValue !== null) {
+            rule.output.valueMode = 'constant';
+            rule.output.constantValue = detectedConstantValue;
+        }
+        if (detectedVelocity !== null) {
+            rule.output.velocityMode = 'constant';
+            rule.output.velocity = detectedVelocity;
+        }
+        
+        this.setConsumerSource(rule, hasConsumerSourceLine, consumerSourceType, consumerSourceValue, consumerMappingName, detectedOutputChannel);
+        
+        rule.trigger.consume = hasBlock ? 'eat' : 'pass';
+        
+        this.rules.push(rule);
+        const ruleIndex = this.rules.length - 1;
+        this.generateNameForRule(ruleIndex);
+        
+        return j;
+    }
+
+    private parseCustomRule(lines: string[], startIndex: number): number {
+        let i = startIndex;
+        const rule = this.createDefaultRule();
+        rule.type = 'custom';
+        rule.enabled = true;
+        let customCodeLines: string[] = [];
         i++;
+        while (i < lines.length) {
+            const currentLine = lines[i];
+            if (currentLine.trim().startsWith('# == RULE') || 
+                currentLine.trim() === '# == CUSTOM_RULE ==') {
+                break;
+            }
+            customCodeLines.push(currentLine);
+            i++;
+        }
+        rule.customCode = customCodeLines.join('\n').trim();
+        rule.name = "Custom Rule";
+        this.rules.push(rule);
+        return i;
     }
 
-    if (this.rules.length === 0) {
-        console.log('No rules could be parsed from the script');
-    }
-
-    setTimeout(() => {
-        this.rules = [...this.rules];
-        this.refreshMaps();
-        this.cdr.detectChanges();
-        setTimeout(() => {
-            this.cdr.detectChanges();
-        }, 50);
-    }, 100);
-}
-    
     private createDefaultRule(): Rule {
         return {
             name: "Imported Rule",

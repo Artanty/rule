@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>StreamByter-Rules</key>
+    <string># launch-c4-page3-148
+# Generated: 06.05.2026, 21:12:01
+
+# == RULE 1: [launch for c4 - knobs] knob 1 → [Channel 10] CC#23 (1) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [channel] "10"
+IF M0 == B1 29
+  SND B9 17 01 +I
+END
+
+# == RULE 2: [launch for c4 - knobs] knob 1 → [c4 octave] voice 1 octave -3 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  ASS M0 = B1
+  ASS M1 = 17
+  ASS M2 = 01
+  SND M0 M1 M2
+END
+
+# == RULE 3: [c4] voice 1 octave → [c4 voices view] touch voice 1 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B1 17
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 4: [Channel 10] CC#23 = 1 → [c4 octave view] voice 1 octave -3 (0) ==
+# trigger-source: [channel] "10"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B9 17 01
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+</string>
+</dict>
+</plist>
