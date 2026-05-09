@@ -1,0 +1,39 @@
+{
+  "script": "# golden\n# Generated: 09.05.2026, 09:19:09\n\n# == RULE 1: [launch for c4 - knobs] knob 1 → [loopy] util (1) [+I] ==\n# trigger-source: [mapping] \"launch for c4 - knobs\"\n# consumer-source: [device] \"10\"\nIF M0 == B1 29\n  SND B9 7F 01 +I\nEND\n\n# == RULE 2: [launch for c4 - knobs] knob 1 [0-17] → [c4 octave] voice 1 octave -3 (1) ==\n# trigger-source: [mapping] \"launch for c4 - knobs\"\n# consumer-source: [mapping] \"c4 octave\"\nIF M0 == B1 29\n  IF M2 >= 0x0\n    IF M2 <= 0x11\n    ASS M0 = B1\n    ASS M1 = 17\n    ASS M2 = 01\n    SND M0 M1 M2\n  END\n  END\nEND\n\n# == RULE 3: [launch for c4 - knobs] knob 1 [18-35] → [c4 octave] voice 1 octave -2 (2) ==\n# trigger-source: [mapping] \"launch for c4 - knobs\"\n# consumer-source: [mapping] \"c4 octave\"\nIF M0 == B1 29\n  IF M2 >= 0x12\n    IF M2 <= 0x23\n    ASS M0 = B1\n    ASS M1 = 17\n    ASS M2 = 02\n    SND M0 M1 M2\n  END\n  END\nEND\n\n# == RULE 4: [c4] voice 1 octave = 1 → [c4 octave view] octave -3 (0) ==\n# trigger-source: [device] \"2\"\n# consumer-source: [mapping] \"c4 octave view\"\nIF M0 == B1 17 01\n  ASS M0 = B9\n  ASS M1 = 01\n  ASS M2 = 00\n  SND M0 M1 M2\n  BLOCK\nEND\n\n# == RULE 5: [c4] voice 1 octave = 2 → [c4 octave view] octave -2 (1) ==\n# trigger-source: [device] \"2\"\n# consumer-source: [mapping] \"c4 octave view\"\nIF M0 == B1 17 02\n  ASS M0 = B9\n  ASS M1 = 01\n  ASS M2 = 01\n  SND M0 M1 M2\n  BLOCK\nEND\n\n# == RULE 6: [loopy] util = 1 → [c4 voices view] touch voice 1 (0) ==\n# trigger-source: [device] \"10\"\n# consumer-source: [mapping] \"c4 voices view\"\nIF M0 == B9 7F 01\n  ASS M0 = B9\n  ASS M1 = 00\n  ASS M2 = 00\n  SND M0 M1 M2\n  BLOCK\nEND\n",
+  "generated": "2026-05-09T06:19:26.842Z",
+  "rulesCount": 6,
+  "deviceMap": [
+    {
+      "device": "launch",
+      "midiChannel": 1
+    },
+    {
+      "device": "c4",
+      "midiChannel": 2
+    },
+    {
+      "device": "ash",
+      "midiChannel": 3
+    },
+    {
+      "device": "ultrawave",
+      "midiChannel": 4
+    },
+    {
+      "device": "mgranny",
+      "midiChannel": 12
+    },
+    {
+      "device": "korg",
+      "midiChannel": 16
+    },
+    {
+      "device": "zoom L6",
+      "midiChannel": 7
+    },
+    {
+      "device": "loopy",
+      "midiChannel": 10
+    }
+  ]
+}

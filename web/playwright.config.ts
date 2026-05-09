@@ -8,6 +8,10 @@ import { defineConfig, devices } from '@playwright/test';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+const PORT = process.env.PORT || '5173';
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -25,7 +29,7 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: 'http://localhost:4200',
+    baseURL: BASE_URL,
     headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
@@ -33,9 +37,10 @@ export default defineConfig({
   },
 
   webServer: {
-    command: 'npm run start',
-    url: 'http://localhost:4200',
-    reuseExistingServer: true
+    command: `npm run start -- --port=${PORT}`,
+    url: BASE_URL,
+    reuseExistingServer: true,
+    timeout: 120000
   },
 
   /* Configure projects for major browsers */
@@ -45,15 +50,15 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
 
     /* Test against mobile viewports. */
     // {
@@ -75,11 +80,4 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

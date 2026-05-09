@@ -1,5 +1,3 @@
-// tests/streambyter.spec.ts
-
 import { test, expect } from '@playwright/test';
 
 test('user can add a rule', async ({ page }) => {
@@ -73,18 +71,24 @@ test('user can import config', async ({ page }) => {
 
   await page.setInputFiles(
     'input[type="file"]',
-    'tests/fixtures/example.json'
+    'tests/fixtures/golden.json'
   );
 
   await expect(
     page.getByTestId('rule-row')
-  ).toHaveCount(3);
+  ).toHaveCount(6);
 });
 
 test('user can export json', async ({ page }) => {
   await page.goto('/streambyter');
 
   await page.getByTestId('add-rule').click();
+
+  await page.getByTestId('generate-script').click();
+
+  await expect(
+    page.getByTestId('generated-script')
+  ).not.toBeEmpty();
 
   const downloadPromise =
     page.waitForEvent('download');
@@ -95,6 +99,28 @@ test('user can export json', async ({ page }) => {
 
   expect(download.suggestedFilename())
     .toContain('.json');
+});
+
+test('user can export sbr', async ({ page }) => {
+  await page.goto('/streambyter');
+
+  await page.getByTestId('add-rule').click();
+
+  await page.getByTestId('generate-script').click();
+
+  await expect(
+    page.getByTestId('generated-script')
+  ).not.toBeEmpty();
+
+  const downloadPromise =
+    page.waitForEvent('download');
+
+  await page.getByTestId('export-sbr').click();
+
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename())
+    .toContain('.sbr');
 });
 
 test('user can reorder rules', async ({ page }) => {
