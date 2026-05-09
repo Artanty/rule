@@ -7,13 +7,13 @@
             <button class="btn" (click)="triggerFileInput()">
                 📂 Import
             </button>
-            <button class="btn primary" (click)="loadExample()">
+            <button class="btn primary" (click)="loadExample()" data-testid="load-example">
                 📝 Example
             </button>
-            <button class="btn warn" (click)="clearRules()">
+            <button class="btn warn" (click)="clearRules()" data-testid="clear-rules">
                 🗑 Clear
             </button>
-            <button class="btn success" (click)="addRule()">
+            <button class="btn success" (click)="addRule()" data-testid="add-rule">
                 ➕ Add
             </button>
             <button class="btn custom" (click)="addCustomRule()">
@@ -33,7 +33,7 @@
                        placeholder="Script name" class="script-name-input" title="Script name for export">
             </div>
             
-            <button class="btn generate-btn" (click)="generateStreamByterScript()">
+            <button class="btn generate-btn" (click)="generateStreamByterScript()" data-testid="generate-script">
                 🔧 Generate
             </button>
         </div>
@@ -78,6 +78,14 @@
                     </select>
                     <button class="btn-small primary" (click)="applyBulkMapping()">Apply to Selected</button>
                 </div>
+                <button
+                    class="btn-small warn"
+                    (click)="deleteSelectedRules()"
+                    [disabled]="getSelectedRulesCount() === 0"
+                    data-testid="delete-selected-rules"
+                >
+                    🗑 Delete Selected
+                </button>
             }
         </div>
     }
@@ -101,7 +109,7 @@
         }
         
         @for (rule of rules; track $index; let i = $index) {
-            <div class="rule-row" 
+            <div class="rule-row" data-testid="rule-row"
                  [attr.data-rule-index]="i"
                  cdkDrag
                  [cdkDragDisabled]="!dragEnabled"
@@ -122,7 +130,7 @@
                             <span class="rule-badge">CUSTOM</span>
                             <button class="icon-btn-small" (click)="toggleCustomRuleCollapse(i)" title="Toggle code">📄</button>
                             <div class="action-icons">
-                                <button class="icon-btn" (click)="duplicateRule(i)" title="Duplicate">📋</button>
+                                <button class="icon-btn" (click)="duplicateRule(i)" title="Duplicate" data-testid="duplicate-rule">📋</button>
                                 <button class="icon-btn" (click)="deleteRule(i)" title="Delete">🗑</button>
                             </div>
                         </div>
@@ -298,9 +306,9 @@
                         <!-- Action Icons -->
                         <div class="action-icons">
                             <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled" title="Enable/Disable">
-                            <button class="icon-btn" (click)="generateNameForRule(i)" title="Generate name">🎨</button>
-                            <button class="icon-btn" (click)="duplicateRule(i)" title="Duplicate">📋</button>
-                            <button class="icon-btn" (click)="deleteRule(i)" title="Delete">🗑</button>
+                            <button class="icon-btn" (click)="generateNameForRule(i)" title="Generate name" data-testid="generate-name">🎨</button>
+                            <button class="icon-btn" (click)="duplicateRule(i)" title="Duplicate" data-testid="duplicate-rule">📋</button>
+                            <button class="icon-btn" (click)="deleteRule(i)" title="Delete" data-testid="delete-rule">🗑</button>
                         </div>
                     </div>
                 }
@@ -326,7 +334,7 @@
                 </button>
             </div>
             
-            <textarea readonly class="script-output-textarea">{{ generatedScript }}</textarea>
+            <textarea readonly class="script-output-textarea" data-testid="generated-script">{{ generatedScript }}</textarea>
         </div>
     }
 </div>

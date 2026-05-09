@@ -2693,4 +2693,28 @@ export class StreambyterComponent implements OnInit {
         this.dragEnabled = !this.dragEnabled;
         this.cdr.detectChanges();
     }
+
+    deleteSelectedRules() {
+        const selectedRules = this.rules.filter(
+            r => r.type === 'standard' && r.selected
+        );
+
+        if (selectedRules.length === 0) {
+            return;
+        }
+
+        const confirmed = confirm(
+            `Delete ${selectedRules.length} selected rule(s)?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        this.rules = this.rules.filter(
+            rule => !(rule.type === 'standard' && rule.selected)
+        );
+
+        this.cdr.detectChanges();
+    }
 }

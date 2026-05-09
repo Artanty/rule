@@ -1,0 +1,3154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>StreamByter-Rules</key>
+    <string># launch-c4-page3-166-change4
+# Generated: 08.05.2026, 15:51:59
+
+# == RULE 1: [launch for c4 - knobs] knob 1 → [loopy] util (1) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 29
+  SND B9 7F 01 +I
+END
+
+# == RULE 2: [launch for c4 - knobs] knob 1 [0-17] → [c4 octave] voice 1 octave -3 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x11
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 3: [launch for c4 - knobs] knob 1 [18-35] → [c4 octave] voice 1 octave -2 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x12
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 4: [launch for c4 - knobs] knob 1 [36-53] → [c4 octave] voice 1 octave -1 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x35
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 5: [launch for c4 - knobs] knob 1 [54-71] → [c4 octave] voice 1 octave 0 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x36
+    IF M2 &lt;= 0x47
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 6: [launch for c4 - knobs] knob 1 [72-89] → [c4 octave] voice 1 octave +1 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x48
+    IF M2 &lt;= 0x59
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 7: [launch for c4 - knobs] knob 1 [90-107] → [c4 octave] voice 1 octave +2 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x5A
+    IF M2 &lt;= 0x6B
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 8: [launch for c4 - knobs] knob 1 [108-127] → [c4 octave] voice 1 octave +3 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 29
+  IF M2 &gt;= 0x6C
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 17
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 9: [c4] voice 1 octave = 1 → [c4 octave view] octave -3 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 01
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 10: [c4] voice 1 octave = 2 → [c4 octave view] octave -2 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 02
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 11: [c4] voice 1 octave = 3 → [c4 octave view] octave -1 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 03
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 12: [c4] voice 1 octave = 4 → [c4 octave view] octave 0 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 04
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 13: [c4] voice 1 octave = 5 → [c4 octave view] octave +1 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 05
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 14: [c4] voice 1 octave = 6 → [c4 octave view] octave +2 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 06
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 15: [c4] voice 1 octave = 7 → [c4 octave view] octave +3 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 17 07
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 16: [loopy] util = 1 → [c4 voices view] touch voice 1 (0) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 01
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 17: [launch for c4 - knobs] knob 2 → [loopy] util (2) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 2A
+  SND B9 7F 02 +I
+END
+
+# == RULE 18: [launch for c4 - knobs] knob 2 [0-17] → [c4 octave] voice 2 octave -3 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x11
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 19: [launch for c4 - knobs] knob 2 [18-35] → [c4 octave] voice 2 octave -2 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x12
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 20: [launch for c4 - knobs] knob 2 [36-53] → [c4 octave] voice 2 octave -1 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x35
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 21: [launch for c4 - knobs] knob 2 [54-71] → [c4 octave] voice 2 octave 0 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x36
+    IF M2 &lt;= 0x47
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 22: [launch for c4 - knobs] knob 2 [72-89] → [c4 octave] voice 2 octave +1 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x48
+    IF M2 &lt;= 0x59
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 23: [launch for c4 - knobs] knob 2 [90-107] → [c4 octave] voice 2 octave +2 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x5A
+    IF M2 &lt;= 0x6B
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 24: [launch for c4 - knobs] knob 2 [108-127] → [c4 octave] voice 2 octave +3 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2A
+  IF M2 &gt;= 0x6C
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 18
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 25: [c4] voice 2 octave = 1 → [c4 octave view] octave -3 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 01
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 26: [c4] voice 2 octave = 2 → [c4 octave view] octave -2 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 02
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 27: [c4] voice 2 octave = 3 → [c4 octave view] octave -1 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 03
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 28: [c4] voice 2 octave = 4 → [c4 octave view] octave 0 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 04
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 29: [c4] voice 2 octave = 5 → [c4 octave view] octave +1 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 05
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 30: [c4] voice 2 octave = 6 → [c4 octave view] octave +2 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 06
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 31: [c4] voice 2 octave = 7 → [c4 octave view] octave +3 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 18 07
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 32: [loopy] util = 2 → [c4 voices view] touch voice 2 (1) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 02
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 33: [launch for c4 - knobs] knob 3 → [loopy] util (3) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 2B
+  SND B9 7F 03 +I
+END
+
+# == RULE 34: [launch for c4 - knobs] knob 3 [0-17] → [c4 octave] voice 3 octave -3 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x11
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 35: [launch for c4 - knobs] knob 3 [18-35] → [c4 octave] voice 3 octave -2 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x12
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 36: [launch for c4 - knobs] knob 3 [36-53] → [c4 octave] voice 3 octave -1 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x35
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 37: [launch for c4 - knobs] knob 3 [54-71] → [c4 octave] voice 3 octave 0 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x36
+    IF M2 &lt;= 0x47
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 38: [launch for c4 - knobs] knob 3 [72-89] → [c4 octave] voice 3 octave +1 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x48
+    IF M2 &lt;= 0x59
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 39: [launch for c4 - knobs] knob 3 [90-107] → [c4 octave] voice 3 octave +2 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x5A
+    IF M2 &lt;= 0x6B
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 40: [launch for c4 - knobs] knob 3 [108-127] → [c4 octave] voice 3 octave +3 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2B
+  IF M2 &gt;= 0x6C
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 19
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 41: [c4] voice 3 octave = 1 → [c4 octave view] octave -3 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 01
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 42: [c4] voice 3 octave = 2 → [c4 octave view] octave -2 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 02
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 43: [c4] voice 3 octave = 3 → [c4 octave view] octave -1 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 03
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 44: [c4] voice 3 octave = 4 → [c4 octave view] octave 0 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 04
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 45: [c4] voice 3 octave = 5 → [c4 octave view] octave +1 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 05
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 46: [c4] voice 3 octave = 6 → [c4 octave view] octave +2 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 06
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 47: [c4] voice 3 octave = 7 → [c4 octave view] octave +3 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 19 07
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 48: [loopy] util = 3 → [c4 voices view] touch voice 3 (2) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 03
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 49: [launch for c4 - knobs] knob 4 → [loopy] util (4) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 2C
+  SND B9 7F 04 +I
+END
+
+# == RULE 50: [launch for c4 - knobs] knob 4 [0-17] → [c4 octave] voice 4 octave -3 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x11
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 51: [launch for c4 - knobs] knob 4 [18-35] → [c4 octave] voice 4 octave -2 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x12
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 52: [launch for c4 - knobs] knob 4 [36-53] → [c4 octave] voice 4 octave -1 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x35
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 53: [launch for c4 - knobs] knob 4 [54-71] → [c4 octave] voice 4 octave 0 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x36
+    IF M2 &lt;= 0x47
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 54: [launch for c4 - knobs] knob 4 [72-89] → [c4 octave] voice 4 octave +1 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x48
+    IF M2 &lt;= 0x59
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 55: [launch for c4 - knobs] knob 4 [90-107] → [c4 octave] voice 4 octave +2 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x5A
+    IF M2 &lt;= 0x6B
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 56: [launch for c4 - knobs] knob 4 [108-127] → [c4 octave] voice 4 octave +3 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 octave"
+IF M0 == B1 2C
+  IF M2 &gt;= 0x6C
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 1A
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 57: [c4] voice 4 octave = 1 → [c4 octave view] octave -3 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 01
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 58: [c4] voice 4 octave = 2 → [c4 octave view] octave -2 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 02
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 59: [c4] voice 4 octave = 3 → [c4 octave view] octave -1 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 03
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 60: [c4] voice 4 octave = 4 → [c4 octave view] octave 0 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 04
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 61: [c4] voice 4 octave = 5 → [c4 octave view] octave +1 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 05
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 62: [c4] voice 4 octave = 6 → [c4 octave view] octave +2 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 06
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 63: [c4] voice 4 octave = 7 → [c4 octave view] octave +3 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 octave view"
+IF M0 == B1 1A 07
+  ASS M0 = B9
+  ASS M1 = 01
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 64: [loopy] util = 4 → [c4 voices view] touch voice 4 (3) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 04
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 65: [launch for c4 - knobs] knob 5 → [loopy] util (5) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 2D
+  SND B9 7F 05 +I
+END
+
+# == RULE 66: [launch for c4 - knobs] knob 5 [0-5] → [c4 semi] voice 1 semi -11 (0) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x5
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 00
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 67: [launch for c4 - knobs] knob 5 [6-10] → [c4 semi] voice 1 semi -10 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x6
+    IF M2 &lt;= 0xA
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 68: [launch for c4 - knobs] knob 5 [11-15] → [c4 semi] voice 1 semi -9 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0xB
+    IF M2 &lt;= 0xF
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 69: [launch for c4 - knobs] knob 5 [16-20] → [c4 semi] voice 1 semi -8 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x10
+    IF M2 &lt;= 0x14
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 70: [launch for c4 - knobs] knob 5 [21-25] → [c4 semi] voice 1 semi -7 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x15
+    IF M2 &lt;= 0x19
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 71: [launch for c4 - knobs] knob 5 [26-30] → [c4 semi] voice 1 semi -6 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x1A
+    IF M2 &lt;= 0x1E
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 72: [launch for c4 - knobs] knob 5 [31-35] → [c4 semi] voice 1 semi -5 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x1F
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 73: [launch for c4 - knobs] knob 5 [36-40] → [c4 semi] voice 1 semi -4 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x28
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 74: [launch for c4 - knobs] knob 5 [41-45] → [c4 semi] voice 1 semi -3 (8) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x29
+    IF M2 &lt;= 0x2D
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 08
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 75: [launch for c4 - knobs] knob 5 [46-50] → [c4 semi] voice 1 semi -2 (9) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x2E
+    IF M2 &lt;= 0x32
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 09
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 76: [launch for c4 - knobs] knob 5 [51-55] → [c4 semi] voice 1 semi -1 (10) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x33
+    IF M2 &lt;= 0x37
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 0A
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 77: [launch for c4 - knobs] knob 5 [56-60] → [c4 semi] voice 1 semi 0 (11) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x38
+    IF M2 &lt;= 0x3C
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 0B
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 78: [launch for c4 - knobs] knob 5 [61-65] → [c4 semi] voice 1 semi 1 (12) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x3D
+    IF M2 &lt;= 0x41
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 0C
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 79: [launch for c4 - knobs] knob 5 [66-70] → [c4 semi] voice 1 semi 2 (13) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x42
+    IF M2 &lt;= 0x46
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 0D
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 80: [launch for c4 - knobs] knob 5 [71-75] → [c4 semi] voice 1 semi 3 (14) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x47
+    IF M2 &lt;= 0x4B
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 0E
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 81: [launch for c4 - knobs] knob 5 [76-80] → [c4 semi] voice 1 semi 4 (15) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x4C
+    IF M2 &lt;= 0x50
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 0F
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 82: [launch for c4 - knobs] knob 5 [81-85] → [c4 semi] voice 1 semi 5 (16) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x51
+    IF M2 &lt;= 0x55
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 10
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 83: [launch for c4 - knobs] knob 5 [86-90] → [c4 semi] voice 1 semi 6 (17) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x56
+    IF M2 &lt;= 0x5A
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 11
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 84: [launch for c4 - knobs] knob 5 [91-95] → [c4 semi] voice 1 semi 7 (18) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x5B
+    IF M2 &lt;= 0x5F
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 12
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 85: [launch for c4 - knobs] knob 5 [96-100] → [c4 semi] voice 1 semi 8 (19) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x60
+    IF M2 &lt;= 0x64
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 13
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 86: [launch for c4 - knobs] knob 5 [101-105] → [c4 semi] voice 1 semi 9 (20) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x65
+    IF M2 &lt;= 0x69
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 14
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 87: [launch for c4 - knobs] knob 5 [106-110] → [c4 semi] voice 1 semi 10 (21) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x6A
+    IF M2 &lt;= 0x6E
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 15
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 88: [launch for c4 - knobs] knob 5 [111-127] → [c4 semi] voice 1 semi 11 (22) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2D
+  IF M2 &gt;= 0x6F
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 13
+    ASS M2 = 16
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 89: [c4] voice 1 semitone = 0 → [c4 semi view] semi -11 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 00
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 90: [c4] voice 1 semitone = 1 → [c4 semi view] semi -10 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 01
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 91: [c4] voice 1 semitone = 2 → [c4 semi view] semi -9 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 02
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 92: [c4] voice 1 semitone = 3 → [c4 semi view] semi -8 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 03
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 93: [c4] voice 1 semitone = 4 → [c4 semi view] semi -7 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 04
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 94: [c4] voice 1 semitone = 5 → [c4 semi view] semi -6 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 05
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 95: [c4] voice 1 semitone = 6 → [c4 semi view] semi -5 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 06
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 96: [c4] voice 1 semitone = 7 → [c4 semi view] semi -4 (7) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 07
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 07
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 97: [c4] voice 1 semitone = 8 → [c4 semi view] semi -3 (8) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 08
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 08
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 98: [c4] voice 1 semitone = 9 → [c4 semi view] semi -2 (9) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 09
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 09
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 99: [c4] voice 1 semitone = 10 → [c4 semi view] semi -1 (10) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 0A
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0A
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 100: [c4] voice 1 semitone = 11 → [c4 semi view] semi 0 (11) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 0B
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0B
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 101: [c4] voice 1 semitone = 12 → [c4 semi view] semi 1 (12) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 0C
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0C
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 102: [c4] voice 1 semitone = 13 → [c4 semi view] semi 2 (13) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 0D
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0D
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 103: [c4] voice 1 semitone = 14 → [c4 semi view] semi 3 (14) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 0E
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0E
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 104: [c4] voice 1 semitone = 15 → [c4 semi view] semi 4 (15) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 0F
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0F
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 105: [c4] voice 1 semitone = 16 → [c4 semi view] semi 5 (16) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 10
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 10
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 106: [c4] voice 1 semitone = 17 → [c4 semi view] semi 6 (17) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 11
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 11
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 107: [c4] voice 1 semitone = 18 → [c4 semi view] semi 7 (18) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 12
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 12
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 108: [c4] voice 1 semitone = 19 → [c4 semi view] semi 8 (19) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 13
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 13
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 109: [c4] voice 1 semitone = 20 → [c4 semi view] semi 9 (20) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 14
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 14
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 110: [c4] voice 1 semitone = 21 → [c4 semi view] semi 10 (21) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 15
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 15
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 111: [c4] voice 1 semitone = 22 → [c4 semi view] semi 11 (22) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 13 16
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 16
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 112: [loopy] util = 5 → [c4 voices view] touch voice 1 (0) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 05
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 113: [launch for c4 - knobs] knob 6 → [loopy] util (6) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 2E
+  SND B9 7F 06 +I
+END
+
+# == RULE 114: [launch for c4 - knobs] knob 6 [0-5] → [c4 semi] voice 2 semi -11 (0) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x5
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 00
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 115: [launch for c4 - knobs] knob 6 [6-10] → [c4 semi] voice 2 semi -10 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x6
+    IF M2 &lt;= 0xA
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 116: [launch for c4 - knobs] knob 6 [11-15] → [c4 semi] voice 2 semi -9 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0xB
+    IF M2 &lt;= 0xF
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 117: [launch for c4 - knobs] knob 6 [16-20] → [c4 semi] voice 2 semi -8 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x10
+    IF M2 &lt;= 0x14
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 118: [launch for c4 - knobs] knob 6 [21-25] → [c4 semi] voice 2 semi -7 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x15
+    IF M2 &lt;= 0x19
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 119: [launch for c4 - knobs] knob 6 [26-30] → [c4 semi] voice 2 semi -6 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x1A
+    IF M2 &lt;= 0x1E
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 120: [launch for c4 - knobs] knob 6 [31-35] → [c4 semi] voice 2 semi -5 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x1F
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 121: [launch for c4 - knobs] knob 6 [36-40] → [c4 semi] voice 2 semi -4 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x28
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 122: [launch for c4 - knobs] knob 6 [41-45] → [c4 semi] voice 2 semi -3 (8) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x29
+    IF M2 &lt;= 0x2D
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 08
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 123: [launch for c4 - knobs] knob 6 [46-50] → [c4 semi] voice 2 semi -2 (9) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x2E
+    IF M2 &lt;= 0x32
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 09
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 124: [launch for c4 - knobs] knob 6 [51-55] → [c4 semi] voice 2 semi -1 (10) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x33
+    IF M2 &lt;= 0x37
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 0A
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 125: [launch for c4 - knobs] knob 6 [56-60] → [c4 semi] voice 2 semi 0 (11) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x38
+    IF M2 &lt;= 0x3C
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 0B
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 126: [launch for c4 - knobs] knob 6 [61-65] → [c4 semi] voice 2 semi 1 (12) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x3D
+    IF M2 &lt;= 0x41
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 0C
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 127: [launch for c4 - knobs] knob 6 [66-70] → [c4 semi] voice 2 semi 2 (13) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x42
+    IF M2 &lt;= 0x46
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 0D
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 128: [launch for c4 - knobs] knob 6 [71-75] → [c4 semi] voice 2 semi 3 (14) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x47
+    IF M2 &lt;= 0x4B
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 0E
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 129: [launch for c4 - knobs] knob 6 [76-80] → [c4 semi] voice 2 semi 4 (15) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x4C
+    IF M2 &lt;= 0x50
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 0F
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 130: [launch for c4 - knobs] knob 6 [81-85] → [c4 semi] voice 2 semi 5 (16) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x51
+    IF M2 &lt;= 0x55
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 10
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 131: [launch for c4 - knobs] knob 6 [86-90] → [c4 semi] voice 2 semi 6 (17) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x56
+    IF M2 &lt;= 0x5A
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 11
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 132: [launch for c4 - knobs] knob 6 [91-95] → [c4 semi] voice 2 semi 7 (18) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x5B
+    IF M2 &lt;= 0x5F
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 12
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 133: [launch for c4 - knobs] knob 6 [96-100] → [c4 semi] voice 2 semi 8 (19) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x60
+    IF M2 &lt;= 0x64
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 13
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 134: [launch for c4 - knobs] knob 6 [101-105] → [c4 semi] voice 2 semi 9 (20) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x65
+    IF M2 &lt;= 0x69
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 14
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 135: [launch for c4 - knobs] knob 6 [106-110] → [c4 semi] voice 2 semi 10 (21) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x6A
+    IF M2 &lt;= 0x6E
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 15
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 136: [launch for c4 - knobs] knob 6 [111-127] → [c4 semi] voice 2 semi 11 (22) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2E
+  IF M2 &gt;= 0x6F
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 14
+    ASS M2 = 16
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 137: [c4] voice 2 semitone = 0 → [c4 semi view] semi -11 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 00
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 138: [c4] voice 2 semitone = 1 → [c4 semi view] semi -10 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 01
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 139: [c4] voice 2 semitone = 2 → [c4 semi view] semi -9 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 02
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 140: [c4] voice 2 semitone = 3 → [c4 semi view] semi -8 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 03
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 141: [c4] voice 2 semitone = 4 → [c4 semi view] semi -7 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 04
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 142: [c4] voice 2 semitone = 5 → [c4 semi view] semi -6 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 05
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 143: [c4] voice 2 semitone = 6 → [c4 semi view] semi -5 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 06
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 144: [c4] voice 2 semitone = 7 → [c4 semi view] semi -4 (7) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 07
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 07
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 145: [c4] voice 2 semitone = 8 → [c4 semi view] semi -3 (8) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 08
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 08
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 146: [c4] voice 2 semitone = 9 → [c4 semi view] semi -2 (9) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 09
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 09
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 147: [c4] voice 2 semitone = 10 → [c4 semi view] semi -1 (10) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 0A
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0A
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 148: [c4] voice 2 semitone = 11 → [c4 semi view] semi 0 (11) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 0B
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0B
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 149: [c4] voice 2 semitone = 12 → [c4 semi view] semi 1 (12) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 0C
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0C
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 150: [c4] voice 2 semitone = 13 → [c4 semi view] semi 2 (13) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 0D
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0D
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 151: [c4] voice 2 semitone = 14 → [c4 semi view] semi 3 (14) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 0E
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0E
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 152: [c4] voice 2 semitone = 15 → [c4 semi view] semi 4 (15) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 0F
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0F
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 153: [c4] voice 2 semitone = 16 → [c4 semi view] semi 5 (16) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 10
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 10
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 154: [c4] voice 2 semitone = 17 → [c4 semi view] semi 6 (17) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 11
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 11
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 155: [c4] voice 2 semitone = 18 → [c4 semi view] semi 7 (18) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 12
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 12
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 156: [c4] voice 2 semitone = 19 → [c4 semi view] semi 8 (19) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 13
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 13
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 157: [c4] voice 2 semitone = 20 → [c4 semi view] semi 9 (20) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 14
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 14
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 158: [c4] voice 2 semitone = 21 → [c4 semi view] semi 10 (21) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 15
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 15
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 159: [c4] voice 2 semitone = 22 → [c4 semi view] semi 11 (22) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 14 16
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 16
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 160: [loopy] util = 6 → [c4 voices view] touch voice 2 (1) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 06
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 161: [launch for c4 - knobs] knob 7 → [loopy] util (7) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 2F
+  SND B9 7F 07 +I
+END
+
+# == RULE 162: [launch for c4 - knobs] knob 7 [0-5] → [c4 semi] voice 3 semi -11 (0) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x5
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 00
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 163: [launch for c4 - knobs] knob 7 [6-10] → [c4 semi] voice 3 semi -10 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x6
+    IF M2 &lt;= 0xA
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 164: [launch for c4 - knobs] knob 7 [11-15] → [c4 semi] voice 3 semi -9 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0xB
+    IF M2 &lt;= 0xF
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 165: [launch for c4 - knobs] knob 7 [16-20] → [c4 semi] voice 3 semi -8 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x10
+    IF M2 &lt;= 0x14
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 166: [launch for c4 - knobs] knob 7 [21-25] → [c4 semi] voice 3 semi -7 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x15
+    IF M2 &lt;= 0x19
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 167: [launch for c4 - knobs] knob 7 [26-30] → [c4 semi] voice 3 semi -6 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x1A
+    IF M2 &lt;= 0x1E
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 168: [launch for c4 - knobs] knob 7 [31-35] → [c4 semi] voice 3 semi -5 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x1F
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 169: [launch for c4 - knobs] knob 7 [36-40] → [c4 semi] voice 3 semi -4 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x28
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 170: [launch for c4 - knobs] knob 7 [41-45] → [c4 semi] voice 3 semi -3 (8) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x29
+    IF M2 &lt;= 0x2D
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 08
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 171: [launch for c4 - knobs] knob 7 [46-50] → [c4 semi] voice 3 semi -2 (9) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x2E
+    IF M2 &lt;= 0x32
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 09
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 172: [launch for c4 - knobs] knob 7 [51-55] → [c4 semi] voice 3 semi -1 (10) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x33
+    IF M2 &lt;= 0x37
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 0A
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 173: [launch for c4 - knobs] knob 7 [56-60] → [c4 semi] voice 3 semi 0 (11) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x38
+    IF M2 &lt;= 0x3C
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 0B
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 174: [launch for c4 - knobs] knob 7 [61-65] → [c4 semi] voice 3 semi 1 (12) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x3D
+    IF M2 &lt;= 0x41
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 0C
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 175: [launch for c4 - knobs] knob 7 [66-70] → [c4 semi] voice 3 semi 2 (13) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x42
+    IF M2 &lt;= 0x46
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 0D
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 176: [launch for c4 - knobs] knob 7 [71-75] → [c4 semi] voice 3 semi 3 (14) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x47
+    IF M2 &lt;= 0x4B
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 0E
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 177: [launch for c4 - knobs] knob 7 [76-80] → [c4 semi] voice 3 semi 4 (15) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x4C
+    IF M2 &lt;= 0x50
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 0F
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 178: [launch for c4 - knobs] knob 7 [81-85] → [c4 semi] voice 3 semi 5 (16) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x51
+    IF M2 &lt;= 0x55
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 10
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 179: [launch for c4 - knobs] knob 7 [86-90] → [c4 semi] voice 3 semi 6 (17) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x56
+    IF M2 &lt;= 0x5A
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 11
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 180: [launch for c4 - knobs] knob 7 [91-95] → [c4 semi] voice 3 semi 7 (18) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x5B
+    IF M2 &lt;= 0x5F
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 12
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 181: [launch for c4 - knobs] knob 7 [96-100] → [c4 semi] voice 3 semi 8 (19) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x60
+    IF M2 &lt;= 0x64
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 13
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 182: [launch for c4 - knobs] knob 7 [101-105] → [c4 semi] voice 3 semi 9 (20) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x65
+    IF M2 &lt;= 0x69
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 14
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 183: [launch for c4 - knobs] knob 7 [106-110] → [c4 semi] voice 3 semi 10 (21) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x6A
+    IF M2 &lt;= 0x6E
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 15
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 184: [launch for c4 - knobs] knob 7 [111-127] → [c4 semi] voice 3 semi 11 (22) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 2F
+  IF M2 &gt;= 0x6F
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 15
+    ASS M2 = 16
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 185: [c4] voice 3 semitone = 0 → [c4 semi view] semi -11 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 00
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 186: [c4] voice 3 semitone = 1 → [c4 semi view] semi -10 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 01
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 187: [c4] voice 3 semitone = 2 → [c4 semi view] semi -9 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 02
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 188: [c4] voice 3 semitone = 3 → [c4 semi view] semi -8 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 03
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 189: [c4] voice 3 semitone = 4 → [c4 semi view] semi -7 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 04
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 190: [c4] voice 3 semitone = 5 → [c4 semi view] semi -6 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 05
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 191: [c4] voice 3 semitone = 6 → [c4 semi view] semi -5 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 06
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 192: [c4] voice 3 semitone = 7 → [c4 semi view] semi -4 (7) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 07
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 07
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 193: [c4] voice 3 semitone = 8 → [c4 semi view] semi -3 (8) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 08
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 08
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 194: [c4] voice 3 semitone = 9 → [c4 semi view] semi -2 (9) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 09
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 09
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 195: [c4] voice 3 semitone = 10 → [c4 semi view] semi -1 (10) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 0A
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0A
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 196: [c4] voice 3 semitone = 11 → [c4 semi view] semi 0 (11) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 0B
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0B
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 197: [c4] voice 3 semitone = 12 → [c4 semi view] semi 1 (12) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 0C
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0C
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 198: [c4] voice 3 semitone = 13 → [c4 semi view] semi 2 (13) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 0D
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0D
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 199: [c4] voice 3 semitone = 14 → [c4 semi view] semi 3 (14) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 0E
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0E
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 200: [c4] voice 3 semitone = 15 → [c4 semi view] semi 4 (15) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 0F
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0F
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 201: [c4] voice 3 semitone = 16 → [c4 semi view] semi 5 (16) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 10
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 10
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 202: [c4] voice 3 semitone = 17 → [c4 semi view] semi 6 (17) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 11
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 11
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 203: [c4] voice 3 semitone = 18 → [c4 semi view] semi 7 (18) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 12
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 12
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 204: [c4] voice 3 semitone = 19 → [c4 semi view] semi 8 (19) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 13
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 13
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 205: [c4] voice 3 semitone = 20 → [c4 semi view] semi 9 (20) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 14
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 14
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 206: [c4] voice 3 semitone = 21 → [c4 semi view] semi 10 (21) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 15
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 15
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 207: [c4] voice 3 semitone = 22 → [c4 semi view] semi 11 (22) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 15 16
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 16
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 208: [loopy] util = 7 → [c4 voices view] touch voice 3 (2) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 07
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 209: [launch for c4 - knobs] knob 8 → [loopy] util (8) [+I] ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "10"
+IF M0 == B1 30
+  SND B9 7F 08 +I
+END
+
+# == RULE 210: [launch for c4 - knobs] knob 8 [0-5] → [c4 semi] voice 4 semi -11 (0) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x0
+    IF M2 &lt;= 0x5
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 00
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 211: [launch for c4 - knobs] knob 8 [6-10] → [c4 semi] voice 4 semi -10 (1) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x6
+    IF M2 &lt;= 0xA
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 01
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 212: [launch for c4 - knobs] knob 8 [11-15] → [c4 semi] voice 4 semi -9 (2) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0xB
+    IF M2 &lt;= 0xF
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 02
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 213: [launch for c4 - knobs] knob 8 [16-20] → [c4 semi] voice 4 semi -8 (3) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x10
+    IF M2 &lt;= 0x14
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 03
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 214: [launch for c4 - knobs] knob 8 [21-25] → [c4 semi] voice 4 semi -7 (4) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x15
+    IF M2 &lt;= 0x19
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 04
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 215: [launch for c4 - knobs] knob 8 [26-30] → [c4 semi] voice 4 semi -6 (5) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x1A
+    IF M2 &lt;= 0x1E
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 05
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 216: [launch for c4 - knobs] knob 8 [31-35] → [c4 semi] voice 4 semi -5 (6) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x1F
+    IF M2 &lt;= 0x23
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 06
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 217: [launch for c4 - knobs] knob 8 [36-40] → [c4 semi] voice 4 semi -4 (7) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x24
+    IF M2 &lt;= 0x28
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 07
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 218: [launch for c4 - knobs] knob 8 [41-45] → [c4 semi] voice 4 semi -3 (8) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x29
+    IF M2 &lt;= 0x2D
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 08
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 219: [launch for c4 - knobs] knob 8 [46-50] → [c4 semi] voice 4 semi -2 (9) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x2E
+    IF M2 &lt;= 0x32
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 09
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 220: [launch for c4 - knobs] knob 8 [51-55] → [c4 semi] voice 4 semi -1 (10) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x33
+    IF M2 &lt;= 0x37
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 0A
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 221: [launch for c4 - knobs] knob 8 [56-60] → [c4 semi] voice 4 semi 0 (11) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x38
+    IF M2 &lt;= 0x3C
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 0B
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 222: [launch for c4 - knobs] knob 8 [61-65] → [c4 semi] voice 4 semi 1 (12) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x3D
+    IF M2 &lt;= 0x41
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 0C
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 223: [launch for c4 - knobs] knob 8 [66-70] → [c4 semi] voice 4 semi 2 (13) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x42
+    IF M2 &lt;= 0x46
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 0D
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 224: [launch for c4 - knobs] knob 8 [71-75] → [c4 semi] voice 4 semi 3 (14) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x47
+    IF M2 &lt;= 0x4B
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 0E
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 225: [launch for c4 - knobs] knob 8 [76-80] → [c4 semi] voice 4 semi 4 (15) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x4C
+    IF M2 &lt;= 0x50
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 0F
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 226: [launch for c4 - knobs] knob 8 [81-85] → [c4 semi] voice 4 semi 5 (16) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x51
+    IF M2 &lt;= 0x55
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 10
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 227: [launch for c4 - knobs] knob 8 [86-90] → [c4 semi] voice 4 semi 6 (17) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x56
+    IF M2 &lt;= 0x5A
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 11
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 228: [launch for c4 - knobs] knob 8 [91-95] → [c4 semi] voice 4 semi 7 (18) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x5B
+    IF M2 &lt;= 0x5F
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 12
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 229: [launch for c4 - knobs] knob 8 [96-100] → [c4 semi] voice 4 semi 8 (19) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x60
+    IF M2 &lt;= 0x64
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 13
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 230: [launch for c4 - knobs] knob 8 [101-105] → [c4 semi] voice 4 semi 9 (20) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x65
+    IF M2 &lt;= 0x69
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 14
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 231: [launch for c4 - knobs] knob 8 [106-110] → [c4 semi] voice 4 semi 10 (21) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x6A
+    IF M2 &lt;= 0x6E
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 15
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 232: [launch for c4 - knobs] knob 8 [111-127] → [c4 semi] voice 4 semi 11 (22) ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [mapping] "c4 semi"
+IF M0 == B1 30
+  IF M2 &gt;= 0x6F
+    IF M2 &lt;= 0x7F
+    ASS M0 = B1
+    ASS M1 = 16
+    ASS M2 = 16
+    SND M0 M1 M2
+  END
+  END
+END
+
+# == RULE 233: [c4] voice 4 semitone = 0 → [c4 semi view] semi -11 (0) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 00
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 00
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 234: [c4] voice 4 semitone = 1 → [c4 semi view] semi -10 (1) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 01
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 01
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 235: [c4] voice 4 semitone = 2 → [c4 semi view] semi -9 (2) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 02
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 02
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 236: [c4] voice 4 semitone = 3 → [c4 semi view] semi -8 (3) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 03
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 237: [c4] voice 4 semitone = 4 → [c4 semi view] semi -7 (4) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 04
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 04
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 238: [c4] voice 4 semitone = 5 → [c4 semi view] semi -6 (5) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 05
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 05
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 239: [c4] voice 4 semitone = 6 → [c4 semi view] semi -5 (6) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 06
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 06
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 240: [c4] voice 4 semitone = 7 → [c4 semi view] semi -4 (7) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 07
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 07
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 241: [c4] voice 4 semitone = 8 → [c4 semi view] semi -3 (8) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 08
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 08
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 242: [c4] voice 4 semitone = 9 → [c4 semi view] semi -2 (9) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 09
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 09
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 243: [c4] voice 4 semitone = 10 → [c4 semi view] semi -1 (10) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 0A
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0A
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 244: [c4] voice 4 semitone = 11 → [c4 semi view] semi 0 (11) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 0B
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0B
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 245: [c4] voice 4 semitone = 12 → [c4 semi view] semi 1 (12) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 0C
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0C
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 246: [c4] voice 4 semitone = 13 → [c4 semi view] semi 2 (13) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 0D
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0D
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 247: [c4] voice 4 semitone = 14 → [c4 semi view] semi 3 (14) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 0E
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0E
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 248: [c4] voice 4 semitone = 15 → [c4 semi view] semi 4 (15) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 0F
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 0F
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 249: [c4] voice 4 semitone = 16 → [c4 semi view] semi 5 (16) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 10
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 10
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 250: [c4] voice 4 semitone = 17 → [c4 semi view] semi 6 (17) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 11
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 11
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 251: [c4] voice 4 semitone = 18 → [c4 semi view] semi 7 (18) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 12
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 12
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 252: [c4] voice 4 semitone = 19 → [c4 semi view] semi 8 (19) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 13
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 13
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 253: [c4] voice 4 semitone = 20 → [c4 semi view] semi 9 (20) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 14
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 14
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 254: [c4] voice 4 semitone = 21 → [c4 semi view] semi 10 (21) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 15
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 15
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 255: [c4] voice 4 semitone = 22 → [c4 semi view] semi 11 (22) ==
+# trigger-source: [device] "2"
+# consumer-source: [mapping] "c4 semi view"
+IF M0 == B1 16 16
+  ASS M0 = B9
+  ASS M1 = 13
+  ASS M2 = 16
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 256: [loopy] util = 8 → [c4 voices view] touch voice 4 (3) ==
+# trigger-source: [device] "10"
+# consumer-source: [mapping] "c4 voices view"
+IF M0 == B9 7F 08
+  ASS M0 = B9
+  ASS M1 = 00
+  ASS M2 = 03
+  SND M0 M1 M2
+  BLOCK
+END
+</string>
+</dict>
+</plist>
