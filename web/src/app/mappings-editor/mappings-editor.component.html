@@ -4,7 +4,7 @@
         <div class="header-actions">
             <button class="btn-small" (click)="startNewMapping()">➕ New</button>
             <button class="btn-small" (click)="exportMappings()">📤 Export</button>
-            <label class="btn-small">
+            <label class="btn-small" [attr.data-testid]="'map-' + type + '-import'">
                 📥 Import
                 <input type="file" (change)="importMappings($event)" accept=".json" style="display: none">
             </label>
@@ -43,7 +43,7 @@
                 }
                 
                 @for (rule of editForm.rules; track $index; let idx = $index) {
-                    <div class="rule-row">
+                    <div class="rule-row" [attr.data-testid]="'map-' + type + '-rule-of-editing-map'">
                         <div class="rule-controls">
                             <input type="text" [(ngModel)]="rule.name" placeholder="Rule name" class="rule-name">
                             <select [(ngModel)]="rule.type" class="rule-type">
@@ -84,13 +84,15 @@
     
     <div class="mappings-list">
         @for (mapping of mappings; track mapping.name) {
-            <div class="mapping-item" [class.selected]="selectedMapping?.name === mapping.name" (click)="selectMapping(mapping)">
+            <div class="mapping-item" [class.selected]="selectedMapping?.name === mapping.name" (click)="selectMapping(mapping)" [attr.data-testid]="'map-' + type + '-mapping'">
                 <div class="mapping-info">
                     <strong>{{ mapping.name }}</strong>
                     <span class="mapping-details">Ch{{ mapping.triggerMidiChannel }} | {{ mapping.triggerDeviceName || 'No device' }} | {{ mapping.rules.length }} rules</span>
                 </div>
                 <div class="mapping-actions" (click)="$event.stopPropagation()">
-                    <button class="icon-btn-small" (click)="editMapping(mapping)" title="Edit">✏️</button>
+                    <button class="icon-btn-small" (click)="editMapping(mapping)" title="Edit"
+                        [attr.data-testid]="'map-' + type + '-mapping-edit'"
+                    >✏️</button>
                     <button class="icon-btn-small delete" (click)="deleteMapping(mapping.name)" title="Delete">🗑</button>
                 </div>
             </div>

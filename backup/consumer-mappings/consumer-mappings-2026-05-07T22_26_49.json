@@ -1,0 +1,961 @@
+[
+  {
+    "name": "c4 octave",
+    "triggerMidiChannel": "2",
+    "triggerDeviceName": "c4",
+    "rules": [
+      {
+        "name": "voice 1 octave -3",
+        "value": 23,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 octave -2",
+        "value": 23,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 octave -1",
+        "value": 23,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 octave 0",
+        "value": 23,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 octave +1",
+        "value": 23,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 octave +2",
+        "value": 23,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 octave +3",
+        "value": 23,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave -3",
+        "value": 24,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave -2",
+        "value": 24,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave -1",
+        "value": 24,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave 0",
+        "value": 24,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave +1",
+        "value": 24,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave +2",
+        "value": 24,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 octave +3",
+        "value": 24,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave -3",
+        "value": 25,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave -2",
+        "value": 25,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave -1",
+        "value": 25,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave 0",
+        "value": 25,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave +1",
+        "value": 25,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave +2",
+        "value": 25,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 octave +3",
+        "value": 25,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave -3",
+        "value": 26,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave -2",
+        "value": 26,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave -1",
+        "value": 26,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave 0",
+        "value": 26,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave +1",
+        "value": 26,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave +2",
+        "value": 26,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 octave +3",
+        "value": 26,
+        "dataValue": 7,
+        "type": "cc"
+      }
+    ]
+  },
+  {
+    "name": "c4 octave view",
+    "triggerMidiChannel": "10",
+    "triggerDeviceName": "c4",
+    "rules": [
+      {
+        "name": "octave -3",
+        "value": 1,
+        "dataValue": 0,
+        "type": "cc"
+      },
+      {
+        "name": "octave -2",
+        "value": 1,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "octave -1",
+        "value": 1,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "octave 0",
+        "value": 1,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "octave +1",
+        "value": 1,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "octave +2",
+        "value": 1,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "octave +3",
+        "value": 1,
+        "dataValue": 6,
+        "type": "cc"
+      }
+    ]
+  },
+  {
+    "name": "c4 voices view",
+    "triggerMidiChannel": "10",
+    "triggerDeviceName": "c4",
+    "rules": [
+      {
+        "name": "touch voice 1",
+        "value": 0,
+        "dataValue": 0,
+        "type": "cc"
+      },
+      {
+        "name": "touch voice 2",
+        "value": 0,
+        "type": "cc",
+        "dataValue": 1
+      },
+      {
+        "name": "touch voice 3",
+        "value": 0,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "touch voice 4",
+        "value": 0,
+        "dataValue": 3,
+        "type": "cc"
+      }
+    ]
+  },
+  {
+    "name": "c4 semi",
+    "triggerMidiChannel": "2",
+    "triggerDeviceName": "c4",
+    "rules": [
+      {
+        "name": "voice 1 semi -11",
+        "value": 19,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -10",
+        "value": 19,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -9",
+        "value": 19,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -8",
+        "value": 19,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -7",
+        "value": 19,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -6",
+        "value": 19,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -5",
+        "value": 19,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -4",
+        "value": 19,
+        "dataValue": 8,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -3",
+        "value": 19,
+        "dataValue": 9,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -2",
+        "value": 19,
+        "dataValue": 10,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi -1",
+        "value": 19,
+        "dataValue": 11,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 0",
+        "value": 19,
+        "dataValue": 12,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 1",
+        "value": 19,
+        "dataValue": 13,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 2",
+        "value": 19,
+        "dataValue": 14,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 3",
+        "value": 19,
+        "dataValue": 15,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 4",
+        "value": 19,
+        "dataValue": 16,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 5",
+        "value": 19,
+        "dataValue": 17,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 6",
+        "value": 19,
+        "dataValue": 18,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 7",
+        "value": 19,
+        "dataValue": 19,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 8",
+        "value": 19,
+        "dataValue": 20,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 9",
+        "value": 19,
+        "dataValue": 21,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 10",
+        "value": 19,
+        "dataValue": 22,
+        "type": "cc"
+      },
+      {
+        "name": "voice 1 semi 11",
+        "value": 19,
+        "dataValue": 23,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -11",
+        "value": 20,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -10",
+        "value": 20,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -9",
+        "value": 20,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -8",
+        "value": 20,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -7",
+        "value": 20,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -6",
+        "value": 20,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -5",
+        "value": 20,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -4",
+        "value": 20,
+        "dataValue": 8,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -3",
+        "value": 20,
+        "dataValue": 9,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -2",
+        "value": 20,
+        "dataValue": 10,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi -1",
+        "value": 20,
+        "dataValue": 11,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 0",
+        "value": 20,
+        "dataValue": 12,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 1",
+        "value": 20,
+        "dataValue": 13,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 2",
+        "value": 20,
+        "dataValue": 14,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 3",
+        "value": 20,
+        "dataValue": 15,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 4",
+        "value": 20,
+        "dataValue": 16,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 5",
+        "value": 20,
+        "dataValue": 17,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 6",
+        "value": 20,
+        "dataValue": 18,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 7",
+        "value": 20,
+        "dataValue": 19,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2semi 8",
+        "value": 20,
+        "dataValue": 20,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 9",
+        "value": 20,
+        "dataValue": 21,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 10",
+        "value": 20,
+        "dataValue": 22,
+        "type": "cc"
+      },
+      {
+        "name": "voice 2 semi 11",
+        "value": 20,
+        "dataValue": 23,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -11",
+        "value": 21,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -10",
+        "value": 21,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -9",
+        "value": 21,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -8",
+        "value": 21,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -7",
+        "value": 21,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -6",
+        "value": 21,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -5",
+        "value": 21,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -4",
+        "value": 21,
+        "dataValue": 8,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -3",
+        "value": 21,
+        "dataValue": 9,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -2",
+        "value": 21,
+        "dataValue": 10,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi -1",
+        "value": 21,
+        "dataValue": 11,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 0",
+        "value": 21,
+        "dataValue": 12,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 1",
+        "value": 21,
+        "dataValue": 13,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 2",
+        "value": 21,
+        "dataValue": 14,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 3",
+        "value": 21,
+        "dataValue": 15,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 4",
+        "value": 21,
+        "dataValue": 16,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 5",
+        "value": 21,
+        "dataValue": 17,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 6",
+        "value": 21,
+        "dataValue": 18,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 7",
+        "value": 21,
+        "dataValue": 19,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 8",
+        "value": 21,
+        "dataValue": 20,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 9",
+        "value": 21,
+        "dataValue": 21,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 10",
+        "value": 21,
+        "dataValue": 22,
+        "type": "cc"
+      },
+      {
+        "name": "voice 3 semi 11",
+        "value": 21,
+        "dataValue": 23,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -11",
+        "value": 22,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -10",
+        "value": 22,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -9",
+        "value": 22,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -8",
+        "value": 22,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -7",
+        "value": 22,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -6",
+        "value": 22,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -5",
+        "value": 22,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -4",
+        "value": 22,
+        "dataValue": 8,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -3",
+        "value": 22,
+        "dataValue": 9,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -2",
+        "value": 22,
+        "dataValue": 10,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi -1",
+        "value": 22,
+        "dataValue": 11,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 0",
+        "value": 22,
+        "dataValue": 12,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 1",
+        "value": 22,
+        "dataValue": 13,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 2",
+        "value": 22,
+        "dataValue": 14,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 3",
+        "value": 22,
+        "dataValue": 15,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 4",
+        "value": 22,
+        "dataValue": 16,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 5",
+        "value": 22,
+        "dataValue": 17,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 6",
+        "value": 22,
+        "dataValue": 18,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 7",
+        "value": 22,
+        "dataValue": 19,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 8",
+        "value": 22,
+        "dataValue": 20,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 9",
+        "value": 22,
+        "dataValue": 21,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 10",
+        "value": 22,
+        "dataValue": 22,
+        "type": "cc"
+      },
+      {
+        "name": "voice 4 semi 11",
+        "value": 22,
+        "dataValue": 23,
+        "type": "cc"
+      }
+    ]
+  },
+  {
+    "name": "c4 semi view",
+    "triggerMidiChannel": "10",
+    "triggerDeviceName": "c4",
+    "rules": [
+      {
+        "name": "semi -11",
+        "value": 19,
+        "dataValue": 0,
+        "type": "cc"
+      },
+      {
+        "name": "semi -10",
+        "value": 19,
+        "dataValue": 1,
+        "type": "cc"
+      },
+      {
+        "name": "semi -9",
+        "value": 19,
+        "dataValue": 2,
+        "type": "cc"
+      },
+      {
+        "name": "semi -8",
+        "value": 19,
+        "dataValue": 3,
+        "type": "cc"
+      },
+      {
+        "name": "semi -7",
+        "value": 19,
+        "dataValue": 4,
+        "type": "cc"
+      },
+      {
+        "name": "semi -6",
+        "value": 19,
+        "dataValue": 5,
+        "type": "cc"
+      },
+      {
+        "name": "semi -5",
+        "value": 19,
+        "dataValue": 6,
+        "type": "cc"
+      },
+      {
+        "name": "semi -4",
+        "value": 19,
+        "dataValue": 7,
+        "type": "cc"
+      },
+      {
+        "name": "semi -3",
+        "value": 19,
+        "dataValue": 8,
+        "type": "cc"
+      },
+      {
+        "name": "semi -2",
+        "value": 19,
+        "dataValue": 9,
+        "type": "cc"
+      },
+      {
+        "name": "semi -1",
+        "value": 19,
+        "dataValue": 10,
+        "type": "cc"
+      },
+      {
+        "name": "semi 0",
+        "value": 19,
+        "dataValue": 11,
+        "type": "cc"
+      },
+      {
+        "name": "semi 1",
+        "value": 19,
+        "dataValue": 12,
+        "type": "cc"
+      },
+      {
+        "name": "semi 2",
+        "value": 19,
+        "dataValue": 13,
+        "type": "cc"
+      },
+      {
+        "name": "semi 3",
+        "value": 19,
+        "dataValue": 14,
+        "type": "cc"
+      },
+      {
+        "name": "semi 4",
+        "value": 19,
+        "dataValue": 15,
+        "type": "cc"
+      },
+      {
+        "name": "semi 5",
+        "value": 19,
+        "dataValue": 16,
+        "type": "cc"
+      },
+      {
+        "name": "semi 6",
+        "value": 19,
+        "dataValue": 17,
+        "type": "cc"
+      },
+      {
+        "name": "semi 7",
+        "value": 19,
+        "dataValue": 18,
+        "type": "cc"
+      },
+      {
+        "name": "semi 8",
+        "value": 19,
+        "dataValue": 19,
+        "type": "cc"
+      },
+      {
+        "name": "semi 9",
+        "value": 19,
+        "dataValue": 20,
+        "type": "cc"
+      },
+      {
+        "name": "semi 10",
+        "value": 19,
+        "dataValue": 21,
+        "type": "cc"
+      },
+      {
+        "name": "semi 11",
+        "value": 19,
+        "dataValue": 22,
+        "type": "cc"
+      }
+    ]
+  }
+]

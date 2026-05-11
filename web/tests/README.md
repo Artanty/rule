@@ -26,3 +26,10 @@ export sbr
 bulk select
 bulk apply mapping
 drag reorder
+
+
+https://www.youtube.com/watch?v=nSHPCLUwwVk
+
+
+https://ohdoylerules.com/tricks/how-i-use-ai-in-sublime-text/
+https://github.com/james2doyle/sublime-simpleai

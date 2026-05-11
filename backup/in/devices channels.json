@@ -1,0 +1,19 @@
+[
+  { "device": "hub", "midiChannel": 1 },
+  { "device": "c4", "midiChannel": 2 },
+  { "device": "ash", "midiChannel": 3 },
+  { "device": "ultrawave", "midiChannel": 4 },
+  { "device": "mgranny", "midiChannel": 12 },
+  { "device": "korg", "midiChannel": 16 },
+  { "device": "admiral", "midiChannel": 15 },
+  { "device": "polymoon", "midiChannel": 14 },
+  { "device": "sxLab chord", "midiChannel": 6 },
+  { "device": "h90", "midiChannel": 11 },
+  { "device": "ipad", "midiChannel": 10 },
+  { "device": "mac logic", "midiChannel": 9 },
+  { "device": "rc-5", "midiChannel": 8 },
+  { "device": "morningstar", "midiChannel": 15 },
+  { "device": "zoia", "midiChannel": 12 },
+  { "device": "zoom L6", "midiChannel": 7 },
+  { "device": "ipad streamByter out", "midiChannel": 5 }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "value": 41,
+    "name": "knob 1",
+    "type": "cc"
+  },
+  {
+    "value": 42,
+    "name": "knob 2",
+    "type": "cc"
+  },
+  {
+    "value": 43,
+    "name": "knob 3",
+    "type": "cc"
+  },
+  {
+    "value": 44,
+    "name": "knob 4",
+    "type": "cc"
+  },
+  {
+    "value": 45,
+    "name": "knob 5",
+    "type": "cc"
+  },
+  {
+    "value": 46,
+    "name": "knob 6",
+    "type": "cc"
+  },
+  {
+    "value": 47,
+    "name": "knob 7",
+    "type": "cc"
+  },
+  {
+    "value": 48,
+    "name": "knob 8",
+    "type": "cc"
+  }
+]
