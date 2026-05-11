@@ -7,24 +7,20 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ValidationComponent } from './validation/validation.component';
 import { RulesComponent } from './rules/rules.component';
-import { StreambyterComponent } from './streambyter/streambyter.component';
 import { MappingEditorComponent } from './mapping-editor/mapping-editor.component';
 import { TriggerMappingsComponent } from './trigger-mappings/trigger-mappings.component';
 import { MappingsEditorComponent } from './mappings-editor/mappings-editor.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-
+import { StreambyterComponent } from './streambyter/streambyter.component';
 @NgModule({
   declarations: [
     AppComponent,
     ValidationComponent,
     RulesComponent,
     MappingsEditorComponent,
-    StreambyterComponent,
     MappingEditorComponent,
-    TriggerMappingsComponent, //delete
-    
-    
-
+    TriggerMappingsComponent,
+    StreambyterComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,52 @@
+<div class="toolbar">
+    <div class="toolbar-group">
+        <div class="rules-count">Rules: {{ rulesCount }}</div>
+
+        <input type="file" [id]="importFileInputId" style="display: none" (change)="importClick.emit()">
+        <button class="btn" (click)="triggerFileInput()">
+            📂 Import
+        </button>
+        <button class="btn primary" (click)="loadExample.emit()" data-testid="load-example">
+            📝 Example
+        </button>
+        <button class="btn warn" (click)="clearRules.emit()" data-testid="clear-rules">
+            🗑 Clear
+        </button>
+        <button class="btn success" (click)="addRule.emit()" data-testid="add-rule">
+            ➕ Add
+        </button>
+        <button class="btn custom" (click)="addCustomRule.emit()">
+            ✏️ Custom
+        </button>
+        <button class="btn" (click)="refreshMaps.emit()">
+            🔄 Refresh
+        </button>
+
+        <!-- Drag Mode Toggle Button -->
+        <button class="btn" [class.primary]="dragEnabled" (click)="toggleDragMode.emit()">
+            {{ dragEnabled ? '⋮⋮ Drag ON' : '⋮⋮ Drag OFF' }}
+        </button>
+
+        <div class="script-name-group">
+            <input type="text" [(ngModel)]="fileName"
+                   (ngModelChange)="onFileNameChange($event)"
+                   placeholder="Script name" class="script-name-input" title="Script name for export">
+        </div>
+
+        <button class="btn generate-btn" (click)="generateScript.emit()" data-testid="generate-script">
+            🔧 Generate
+        </button>
+    </div>
+</div>
+
+<!-- Toggle Row -->
+<div class="toggle-row">
+    <label class="toggle-label">
+        <input type="checkbox" [checked]="showDelayInput" (change)="onShowDelayInputChange($any($event.target).checked)">
+        <span>Show Delay Input</span>
+    </label>
+    <label class="toggle-label">
+        <input type="checkbox" [checked]="wideRuleNames" (change)="onWideRuleNamesChange($any($event.target).checked)">
+        <span>Wide Rule Names (600px)</span>
+    </label>
+</div>

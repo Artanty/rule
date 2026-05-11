@@ -1,0 +1,74 @@
+<div class="rules-panel"
+     cdkDropList
+     [cdkDropListData]="rules"
+     (cdkDropListDropped)="onDragDrop($event)"
+     [cdkDropListDisabled]="!dragEnabled">
+
+    @if (rules.length === 0) {
+        <div class="empty-state">
+            <p>No rules yet. Click "Add" or "Custom" to get started.</p>
+        </div>
+    }
+
+    @for (rule of rules; track $index; let i = $index) {
+        <div class="rule-row" [attr.data-rule-index]="i"
+             cdkDrag
+             [cdkDragDisabled]="!dragEnabled"
+             [class.drag-disabled]="!dragEnabled">
+
+            <!-- Drag Handle -->
+            @if (dragEnabled) {
+                <div class="drag-handle" cdkDragHandle>
+                    ⋮⋮
+                </div>
+            }
+
+            @if (rule.type === 'custom') {
+                <div class="custom-rule-row" [class.with-drag-handle]="dragEnabled">
+                    <div class="custom-rule-header">
+                        <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled" title="Enable/Disable" (change)="onToggleEnabled(i)">
+                        <input type="text" [(ngModel)]="rule.name" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
+                        <span class="rule-badge">CUSTOM</span>
+                        <button class="icon-btn-small" (click)="onToggleCollapsed(i)" title="Toggle code">📄</button>
+                        <div class="action-icons">
+                            <button class="icon-btn" (click)="onDuplicate(i)" title="Duplicate">📋</button>
+                            <button class="icon-btn" (click)="onDelete(i)" title="Delete">🗑</button>
+                        </div>
+                    </div>
+                    @if (!rule.collapsed) {
+                        <div class="custom-code-preview">
+                            <textarea [(ngModel)]="rule.customCode"
+                                      class="custom-code-full"
+                                      rows="4"
+                                      placeholder="# Write your custom StreamByter code here&#10;# Example:&#10;# IF M0 == B0 07&#10;#   SND M0 M1 7F&#10;# END"></textarea>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <!-- Standard rule row - simplified for now -->
+                <div class="rule-row-content" [class.with-drag-handle]="dragEnabled">
+                    <!-- Selection Checkbox -->
+                    <input type="checkbox" [(ngModel)]="rule.selected" class="rule-select">
+
+                    <!-- Name -->
+                    <div class="rule-name-cell" [class.wide]="wideRuleNames">
+                        <input type="text" [(ngModel)]="rule.name" class="rule-name-input" [class.wide]="wideRuleNames" placeholder="Rule name" maxlength="100">
+                    </div>
+
+                    <!-- Placeholder for trigger and output sections -->
+                    <div class="rule-details">
+                        [Trigger: {{ rule.trigger.type }}] → [Output: {{ rule.output.type }}]
+                    </div>
+
+                    <!-- Action Icons -->
+                    <div class="action-icons">
+                        <input type="checkbox" [(ngModel)]="rule.enabled" class="rule-enabled" title="Enable/Disable" (change)="onToggleEnabled(i)">
+                        <button class="icon-btn" (click)="onGenerateName(i)" title="Generate name">🎨</button>
+                        <button class="icon-btn" (click)="onDuplicate(i)" title="Duplicate">📋</button>
+                        <button class="icon-btn" (click)="onDelete(i)" title="Delete">🗑</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

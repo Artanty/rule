@@ -1,0 +1,160 @@
+/* Rule List Styles */
+.rules-panel {
+  margin: 10px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+.rule-row {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  background: white;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+.drag-handle {
+  cursor: grab;
+  padding: 0 8px;
+  color: #999;
+  font-size: 12px;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.rule-select {
+  margin-right: 8px;
+}
+
+.rule-name-cell {
+  flex: 1;
+  min-width: 200px;
+
+  &.wide {
+    min-width: 600px;
+  }
+}
+
+.rule-name-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+
+  &.wide {
+    font-size: 14px;
+  }
+}
+
+.rule-details {
+  flex: 2;
+  padding: 0 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+.action-icons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 16px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.rule-enabled {
+  margin-left: 8px;
+}
+
+/* Custom Rule Styles */
+.custom-rule-row {
+  width: 100%;
+
+  &.with-drag-handle {
+    margin-left: 20px;
+  }
+}
+
+.custom-rule-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.rule-badge {
+  background: #007acc;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.icon-btn-small {
+  padding: 2px 6px;
+  font-size: 14px;
+}
+
+.custom-code-preview {
+  margin-top: 8px;
+}
+
+.custom-code-full {
+  width: 100%;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 8px;
+  resize: vertical;
+}
+
+/* Drag and Drop */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-animating {
+  transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.drag-disabled {
+  .drag-handle {
+    display: none;
+  }
+}

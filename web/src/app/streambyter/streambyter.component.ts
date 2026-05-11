@@ -1,169 +1,302 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StorageService, DeviceMapEntry, CcLibraryEntry, TriggerMapping } from '../services/storage.service';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
-interface Rule {
-    name: string;
-    enabled: boolean;
-    type: 'standard' | 'custom';
-    customCode?: string;
-    collapsed?: boolean;
-    selected?: boolean;
-    showMappingSelector?: boolean;
-    selectedMappingRuleKey?: any;
-    triggerSource: {
-        type: 'mapping' | 'device' | 'channel';
-        value: string | number;
-        mappingName?: string;
-    };
-    consumerSource: {
-        type: 'mapping' | 'device' | 'channel';
-        value: string | number;
-        mappingName?: string;
-    };
-    output: {
-        type: 'cc' | 'program' | 'note';
-        channel: number;
-        ccNumber: number;
-        valueMode: 'constant' | 'trigger';
-        constantValue: number;
-        program: number;
-        note: number;
-        velocity: number;
-        velocityMode: 'constant' | 'trigger';
-        delayMs: number;
-        injectOutput?: boolean;
-    };
-    trigger: {
-        type: 'noteOn' | 'controlChange';
-        channel: number;
-        noteMode: 'specific' | 'any';
-        specificNote: number;
-        ccNumber: number;
-        valueMode: 'specific' | 'any' | 'range';
-        specificValue: number;
-        rangeMin: number;
-        rangeMax: number;
-        consume: 'eat' | 'pass';
-        cloneTrigger?: boolean;
-    };
-}
+import { RuleService, Rule } from '../services/rule.service';
+import { ScriptGeneratorService } from '../services/script-generator.service';
+import { FileService } from '../services/file.service';
+import { BulkOperationsService } from '../services/bulk-operations.service';
+import { StorageService, DeviceMapEntry, CcLibraryEntry, TriggerMapping } from '../services/storage.service';
 
 @Component({
     selector: 'app-streambyter',
     templateUrl: './streambyter.component.html',
     styleUrls: ['./streambyter.component.scss'],
-    standalone: false,
+    standalone: false,    
 })
 export class StreambyterComponent implements OnInit {
     rules: Rule[] = [];
     generatedScript: string = '';
     showGenerated: boolean = false;
     fileName: string = '';
-    
+    importFileInputId = 'importRulesInput';
+
     deviceMap: DeviceMapEntry[] = [];
     ccLibrary: { [channel: string]: CcLibraryEntry[] } = {};
-    
-    importFileInputId = 'importRulesInput';
+
     channels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-    
+
     showDelayInput: boolean = false;
     wideRuleNames: boolean = false;
-    
-    exampleRules: Rule[] = [
-        {
-            name: "CC to Note",
-            enabled: true,
-            type: 'standard',
-            customCode: '',
-            collapsed: true,
-            selected: false,
-            triggerSource: { type: 'device', value: 1 },
-            consumerSource: { type: 'channel', value: 1 },
-            output: {
-                type: "note",
-                channel: 1,
-                ccNumber: 0,
-                valueMode: "constant",
-                constantValue: 0,
-                program: 0,
-                note: 60,
-                velocity: 100,
-                velocityMode: "constant",
-                delayMs: 0,
-                injectOutput: false
-            },
-            trigger: {
-                type: "controlChange",
-                channel: 1,
-                noteMode: "specific",
-                specificNote: 60,
-                ccNumber: 7,
-                valueMode: "any",
-                specificValue: 0,
-                rangeMin: 0,
-                rangeMax: 127,
-                consume: "eat",
-                cloneTrigger: false
-            }
-        },
-        {
-            name: "Note Velocity Scale",
-            enabled: true,
-            type: 'standard',
-            customCode: '',
-            collapsed: true,
-            selected: false,
-            triggerSource: { type: 'channel', value: 2 },
-            consumerSource: { type: 'channel', value: 2 },
-            output: {
-                type: "cc",
-                channel: 2,
-                ccNumber: 11,
-                valueMode: "trigger",
-                constantValue: 0,
-                program: 0,
-                note: 60,
-                velocity: 64,
-                velocityMode: "trigger",
-                delayMs: 0,
-                injectOutput: false
-            },
-            trigger: {
-                type: "noteOn",
-                channel: 2,
-                noteMode: "any",
-                specificNote: 60,
-                ccNumber: 0,
-                valueMode: "any",
-                specificValue: 0,
-                rangeMin: 0,
-                rangeMax: 127,
-                consume: "pass",
-                cloneTrigger: false
-            }
-        }
-    ];
-    
+    openMappingsEditor = false;
+
     triggerMappings: TriggerMapping[] = [];
-    openMappingsEditor: boolean = false;
     bulkMappingName: string | null = null;
     dragEnabled: boolean = true;
-    
+
     constructor(
+        public ruleService: RuleService,
+        private scriptGenerator: ScriptGeneratorService,
+        private fileService: FileService,
+        private bulkOperationsService: BulkOperationsService,
         private storageService: StorageService,
         private cdr: ChangeDetectorRef
     ) {}
-    
+
     ngOnInit() {
         this.loadMidiMaps();
         this.loadTriggerMappings();
+        this.loadExampleRules();
     }
 
-    loadTriggerMappings() {
+    // Toolbar event handlers
+    onImportClick(): void {
+        // Handle file import
+    }
+
+    onLoadExample(): void {
+        this.loadExampleRules();
+    }
+
+    onClearRules(): void {
+        this.ruleService.setRules([]);
+        this.showGenerated = false;
+        this.generatedScript = '';
+        this.fileName = '';
+        this.cdr.detectChanges();
+    }
+
+    onAddRule(): void {
+        const newRule = this.ruleService.createDefaultRule();
+        this.ruleService.addRule(newRule);
+        this.cdr.detectChanges();
+    }
+
+    onAddCustomRule(): void {
+        const newRule = this.ruleService.createCustomRule();
+        this.ruleService.addRule(newRule);
+        this.cdr.detectChanges();
+    }
+
+    onRefreshMaps(): void {
+        this.loadMidiMaps();
+        this.loadTriggerMappings();
+        this.ruleService.setRules([...this.ruleService.getRules()]);
+        this.cdr.detectChanges();
+    }
+
+    onToggleDragMode(): void {
+        this.dragEnabled = !this.dragEnabled;
+    }
+
+    onGenerateScript(): void {
+        this.generatedScript = this.scriptGenerator.generateScript(this.ruleService.getRules(), this.fileName);
+        this.showGenerated = true;
+        this.cdr.detectChanges();
+    }
+
+    onFileNameChange(fileName: string): void {
+        this.fileName = fileName;
+    }
+
+    onShowDelayInputChange(show: boolean): void {
+        this.showDelayInput = show;
+    }
+
+    onWideRuleNamesChange(wide: boolean): void {
+        this.wideRuleNames = wide;
+    }
+
+    // Rule list event handlers
+    onRuleChange(event: { index: number; rule: Rule }): void {
+        this.ruleService.updateRule(event.index, event.rule);
+        this.cdr.detectChanges();
+    }
+
+    onRuleDelete(index: number): void {
+        if (confirm(`Delete rule "${this.ruleService.getRules()[index].name}"?`)) {
+            this.ruleService.deleteRule(index);
+            this.cdr.detectChanges();
+        }
+    }
+
+    onRuleDuplicate(index: number): void {
+        const duplicatedRule = this.ruleService.duplicateRule(index);
+        if (duplicatedRule) {
+            this.ruleService.addRule(duplicatedRule);
+            this.cdr.detectChanges();
+        }
+    }
+
+    onRuleToggleEnabled(index: number): void {
+        this.ruleService.toggleRuleEnabled(index);
+        this.cdr.detectChanges();
+    }
+
+    onRuleToggleCollapsed(index: number): void {
+        this.ruleService.toggleRuleCollapsed(index);
+        this.cdr.detectChanges();
+    }
+
+    onRulesReorder(rules: Rule[]): void {
+        this.ruleService.setRules(rules);
+        this.cdr.detectChanges();
+    }
+
+    onGenerateName(index: number): void {
+        // This would need to be implemented with the bulk operations service
+        // For now, just a placeholder
+    }
+
+    // Bulk actions event handlers
+    onSelectAll(): void {
+        this.ruleService.selectAll();
+        this.cdr.detectChanges();
+    }
+
+    onSelectRegular(): void {
+        this.ruleService.selectRegular();
+        this.cdr.detectChanges();
+    }
+
+    onSelectNone(): void {
+        this.ruleService.selectNone();
+        this.cdr.detectChanges();
+    }
+
+    onGenerateNamesForSelected(): void {
+        this.bulkOperationsService.generateNamesForSelectedRules(
+            this.ruleService.getRules(),
+            this.storageService
+        );
+        this.cdr.detectChanges();
+    }
+
+    onApplyBulkMapping(): void {
+        this.bulkOperationsService.applyBulkMapping(
+            this.ruleService.getRules(),
+            this.bulkMappingName
+        );
+        this.cdr.detectChanges();
+    }
+
+    onDeleteSelected(): void {
+        this.ruleService.deleteSelected();
+        this.cdr.detectChanges();
+    }
+
+    onBulkMappingNameChange(name: string | null): void {
+        this.bulkMappingName = name;
+    }
+
+    // Script output event handlers
+    onCopyToClipboard(): void {
+        // Handled in component
+    }
+
+    onDownloadScript(): void {
+        this.fileService.exportAsSbr(this.generatedScript, this.fileName);
+    }
+
+    onDownloadAsJson(): void {
+        this.fileService.exportAsJson(
+            this.ruleService.getRules(),
+            this.generatedScript,
+            this.fileName
+        );
+    }
+
+    // Private methods
+    private loadMidiMaps(): void {
+        this.deviceMap = this.storageService.getDeviceMap();
+        this.ccLibrary = this.storageService.getCcLibrary();
+    }
+
+    private loadTriggerMappings(): void {
         this.triggerMappings = this.storageService.getTriggerMappings();
+        this.cdr.detectChanges();
+    }
+
+    private loadExampleRules(): void {
+        // Load example rules - simplified for now
+        const exampleRules: Rule[] = [
+            {
+                name: "CC to Note",
+                enabled: true,
+                type: 'standard',
+                customCode: '',
+                collapsed: true,
+                selected: false,
+                triggerSource: { type: 'device', value: 1 },
+                consumerSource: { type: 'channel', value: 1 },
+                output: {
+                    type: "note",
+                    channel: 1,
+                    ccNumber: 0,
+                    valueMode: "constant",
+                    constantValue: 0,
+                    program: 0,
+                    note: 60,
+                    velocity: 100,
+                    velocityMode: "constant",
+                    delayMs: 0,
+                    injectOutput: false
+                },
+                trigger: {
+                    type: "controlChange",
+                    channel: 1,
+                    noteMode: "specific",
+                    specificNote: 60,
+                    ccNumber: 7,
+                    valueMode: "any",
+                    specificValue: 0,
+                    rangeMin: 0,
+                    rangeMax: 127,
+                    consume: "eat",
+                    cloneTrigger: false
+                }
+            },
+            {
+                name: "Note Velocity Scale",
+                enabled: true,
+                type: 'standard',
+                customCode: '',
+                collapsed: true,
+                selected: false,
+                triggerSource: { type: 'channel', value: 2 },
+                consumerSource: { type: 'channel', value: 2 },
+                output: {
+                    type: "cc",
+                    channel: 2,
+                    ccNumber: 11,
+                    valueMode: "trigger",
+                    constantValue: 0,
+                    program: 0,
+                    note: 60,
+                    velocity: 64,
+                    velocityMode: "trigger",
+                    delayMs: 0,
+                    injectOutput: false
+                },
+                trigger: {
+                    type: "noteOn",
+                    channel: 2,
+                    noteMode: "any",
+                    specificNote: 60,
+                    ccNumber: 0,
+                    valueMode: "any",
+                    specificValue: 0,
+                    rangeMin: 0,
+                    rangeMax: 127,
+                    consume: "pass",
+                    cloneTrigger: false
+                }
+            }
+        ];
+
+        this.rules = exampleRules;
+        this.fileName = '';
         this.cdr.detectChanges();
     }
     
@@ -633,11 +766,6 @@ export class StreambyterComponent implements OnInit {
         this.cdr.detectChanges();
     }
     
-    loadMidiMaps() {
-        this.deviceMap = this.storageService.getDeviceMap();
-        this.ccLibrary = this.storageService.getCcLibrary();
-    }
-    
     getDeviceName(channel: number): string {
         return this.storageService.getDeviceName(channel);
     }
@@ -804,9 +932,7 @@ export class StreambyterComponent implements OnInit {
     }
     
     loadExample() {
-        this.rules = JSON.parse(JSON.stringify(this.exampleRules));
-        this.fileName = '';
-        this.cdr.detectChanges();
+        this.loadExampleRules();
     }
     
     clearRules() {

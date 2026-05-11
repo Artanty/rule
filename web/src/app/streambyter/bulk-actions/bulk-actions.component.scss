@@ -1,0 +1,78 @@
+/* Bulk Actions Styles */
+.bulk-actions {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  background: white;
+  color: #495057;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #e9ecef;
+    border-color: #adb5bd;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.primary {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #0056b3;
+      border-color: #004085;
+    }
+  }
+
+  &.warn {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #c82333;
+      border-color: #bd2130;
+    }
+  }
+}
+
+.bulk-mapping {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid #dee2e6;
+}
+
+.selected-count {
+  font-weight: bold;
+  color: #495057;
+  font-size: 14px;
+}
+
+select {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  background: white;
+  font-size: 12px;
+}

@@ -1,0 +1,21 @@
+@if (showGenerated) {
+    <div class="output-panel">
+        <div class="output-header">
+            <h3>📄 Generated Script</h3>
+            <div class="output-actions">
+                <button class="btn small" (click)="onCopyToClipboard()">📋 Copy</button>
+            </div>
+        </div>
+
+        <div class="export-buttons">
+            <button class="btn export-sbr" (click)="downloadScript.emit()" data-testid="export-sbr">
+                💾 Export .sbr
+            </button>
+            <button class="btn export-json" (click)="downloadAsJson.emit()" data-testid="export-json">
+                📄 Export .json
+            </button>
+        </div>
+
+        <textarea readonly class="script-output-textarea" data-testid="generated-script">{{ generatedScript }}</textarea>
+    </div>
+}
