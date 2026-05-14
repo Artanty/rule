@@ -290,7 +290,8 @@ export class StreambyterComponent implements OnInit {
                 };
                 rule.output.channel = mapping.triggerMidiChannel;
                 rule.showMappingSelector = true;
-            
+                
+                // Try to find a matching rule based on current output values
                 let matchedRule = null;
                 const currentOutputType = rule.output.type;
                 const currentCcNumber = rule.output.ccNumber;
@@ -298,13 +299,15 @@ export class StreambyterComponent implements OnInit {
                 const currentProgramNumber = rule.output.program;
                 const currentConstantValue = rule.output.constantValue;
                 const currentValueMode = rule.output.valueMode;
-            
+                
                 if (currentOutputType === 'cc') {
+                    // First try to match by CC number AND constant value
                     matchedRule = mapping.rules.find(r => 
                         r.type === 'cc' && 
                         r.value === currentCcNumber &&
                         (currentValueMode === 'constant' ? r.dataValue === currentConstantValue : true)
                     );
+                    // If not found, try by CC number only
                     if (!matchedRule) {
                         matchedRule = mapping.rules.find(r => r.type === 'cc' && r.value === currentCcNumber);
                     }
@@ -320,8 +323,9 @@ export class StreambyterComponent implements OnInit {
                 } else if (currentOutputType === 'program') {
                     matchedRule = mapping.rules.find(r => r.type === 'program' && r.value === currentProgramNumber);
                 }
-            
+                
                 if (matchedRule) {
+                    // Apply the matched rule's values
                     if (matchedRule.type === 'cc') {
                         rule.output.type = 'cc';
                         rule.output.ccNumber = matchedRule.value;
@@ -346,28 +350,50 @@ export class StreambyterComponent implements OnInit {
                         rule.output.type = 'program';
                         rule.output.program = matchedRule.value;
                     }
+                    // Set the selected key using composite key format
                     (rule as any).selectedMappingRuleKey = `${matchedRule.type}_${matchedRule.value}_${matchedRule.dataValue !== undefined ? matchedRule.dataValue : 'null'}`;
                 } else {
                     (rule as any).selectedMappingRuleKey = undefined;
                 }
             }
-        } else {
+        } else if (selectedValue.startsWith('device:')) {
+            const channel = parseInt(selectedValue.substring('device:'.length), 10);
             rule.showMappingSelector = false;
             (rule as any).selectedMappingRuleKey = undefined;
-        
-            if (selectedValue.startsWith('device:')) {
-                const channel = parseInt(selectedValue.substring('device:'.length), 10);
-                rule.consumerSource = { type: 'device', value: channel };
-                rule.output.channel = channel;
-            } else if (selectedValue.startsWith('channel:')) {
-                const channel = parseInt(selectedValue.substring('channel:'.length), 10);
-                rule.consumerSource = { type: 'channel', value: channel };
-                rule.output.channel = channel;
+            rule.consumerSource = {
+                type: 'device',
+                value: channel,
+                mappingName: undefined
+            };
+            rule.output.channel = channel;
+            // Reset output type to default CC
+            if (rule.output.type !== 'cc') {
+                rule.output.type = 'cc';
+                rule.output.ccNumber = 0;
+                rule.output.valueMode = 'constant';
+                rule.output.constantValue = 0;
+            }
+        } else if (selectedValue.startsWith('channel:')) {
+            const channel = parseInt(selectedValue.substring('channel:'.length), 10);
+            rule.showMappingSelector = false;
+            (rule as any).selectedMappingRuleKey = undefined;
+            rule.consumerSource = {
+                type: 'channel',
+                value: channel,
+                mappingName: undefined
+            };
+            rule.output.channel = channel;
+            // Reset output type to default CC
+            if (rule.output.type !== 'cc') {
+                rule.output.type = 'cc';
+                rule.output.ccNumber = 0;
+                rule.output.valueMode = 'constant';
+                rule.output.constantValue = 0;
             }
         }
         this.cdr.detectChanges();
     }
-  
+
     getMappingRuleOptions(rule: Rule): { value: string; label: string; ruleData: any }[] {
         if (rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
             const consumerMappings = this.storageService.getConsumerMappings();
@@ -693,6 +719,7 @@ export class StreambyterComponent implements OnInit {
     }
     
     getOutputCcOptions(channel: number, currentValue?: number, rule?: Rule): { value: number; label: string }[] {
+        // Case 1: MAPPING - show mapping's CC rules
         if (rule && rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
@@ -701,32 +728,44 @@ export class StreambyterComponent implements OnInit {
                 if (ccRules.length === 0) {
                     return [{ value: 0, label: 'No CC rules in this mapping' }];
                 }
-                return ccRules.map(rule => {
-                    let label = `${rule.name} (${rule.value})`;
-                    if (rule.dataValue !== undefined) {
-                        label += ` → value: ${rule.dataValue}`;
+                return ccRules.map(r => {
+                    let label = `${r.name} (${r.value})`;
+                    if (r.dataValue !== undefined) {
+                        label += ` → value: ${r.dataValue}`;
                     }
-                    return { value: rule.value, label: label };
+                    return { value: r.value, label: label };
                 });
             }
         }
-        const chStr = String(channel);
-        let entries: CcLibraryEntry[] = [];
-        if (this.ccLibrary[chStr]) {
-            entries = this.ccLibrary[chStr].filter(e => e.type === 'cc');
-        }
-        if (entries.length === 0) {
-            for (let i = 0; i <= 127; i++) {
-                entries.push({ name: `CC#${i}`, value: i, type: 'cc' });
+        
+        // Case 2: DEVICE - show device's mapped CC names from ccLibrary
+        if (rule && rule.consumerSource.type === 'device') {
+            const chStr = String(rule.output.channel);
+            let entries: CcLibraryEntry[] = [];
+            if (this.ccLibrary[chStr]) {
+                entries = this.ccLibrary[chStr].filter(e => e.type === 'cc');
             }
+            if (entries.length === 0) {
+                for (let i = 0; i <= 127; i++) {
+                    entries.push({ name: `CC#${i}`, value: i, type: 'cc' });
+                }
+            }
+            return entries.map(e => ({
+                value: e.value,
+                label: `${e.name} (${e.value})`
+            }));
         }
-        return entries.map(e => ({
-            value: e.value,
-            label: `${e.name} (${e.value})`
-        }));
+        
+        // Case 3: CHANNEL - show raw 0-127 CC numbers
+        const options: { value: number; label: string }[] = [];
+        for (let i = 0; i <= 127; i++) {
+            options.push({ value: i, label: `CC#${i}` });
+        }
+        return options;
     }
 
     getOutputNoteOptions(channel: number, currentValue?: number, rule?: Rule): { value: number; label: string }[] {
+        // Case 1: MAPPING - show mapping's note rules
         if (rule && rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
@@ -735,40 +774,56 @@ export class StreambyterComponent implements OnInit {
                 if (noteRules.length === 0) {
                     return [{ value: 60, label: 'No note rules in this mapping' }];
                 }
-                return noteRules.map(rule => {
-                    let label = `${rule.name} (${rule.value})`;
-                    if (rule.dataValue !== undefined) {
-                        label += ` → vel: ${rule.dataValue}`;
+                return noteRules.map(r => {
+                    let label = `${r.name} (${r.value})`;
+                    if (r.dataValue !== undefined) {
+                        label += ` → vel: ${r.dataValue}`;
                     }
-                    return { value: rule.value, label: label };
+                    return { value: r.value, label: label };
                 });
             }
         }
-        const chStr = String(channel);
-        let entries: CcLibraryEntry[] = [];
-        if (this.ccLibrary[chStr]) {
-            entries = this.ccLibrary[chStr].filter(e => e.type === 'note');
-        }
-        if (entries.length === 0) {
-            for (let i = 0; i <= 127; i++) {
-                entries.push({ name: `Note#${i}`, value: i, type: 'note' });
+        
+        // Case 2: DEVICE - show device's mapped note names from ccLibrary
+        if (rule && rule.consumerSource.type === 'device') {
+            const chStr = String(rule.output.channel);
+            let entries: CcLibraryEntry[] = [];
+            if (this.ccLibrary[chStr]) {
+                entries = this.ccLibrary[chStr].filter(e => e.type === 'note');
             }
+            if (entries.length === 0) {
+                for (let i = 0; i <= 127; i++) {
+                    entries.push({ name: `Note#${i}`, value: i, type: 'note' });
+                }
+            }
+            return entries.map(e => ({
+                value: e.value,
+                label: `${e.name} (${e.value})`
+            }));
         }
-        return entries.map(e => ({
-            value: e.value,
-            label: `${e.name} (${e.value})`
-        }));
+        
+        // Case 3: CHANNEL - show raw 0-127 note numbers
+        const options: { value: number; label: string }[] = [];
+        for (let i = 0; i <= 127; i++) {
+            options.push({ value: i, label: `Note#${i}` });
+        }
+        return options;
     }
     
     getOutputProgramOptions(rule?: Rule): { value: number; label: string }[] {
+        // Case 1: MAPPING - show mapping's program rules
         if (rule && rule.consumerSource.type === 'mapping' && rule.consumerSource.mappingName) {
             const consumerMappings = this.storageService.getConsumerMappings();
             const mapping = consumerMappings.find(m => m.name === rule.consumerSource.mappingName);
             if (mapping) {
                 const options = this.getConsumerProgramOptionsFromMapping(mapping);
-                return options.map(o => ({ value: o.value, label: o.label }));
+                if (options.length > 0) {
+                    return options.map(o => ({ value: o.value, label: o.label }));
+                }
             }
         }
+        
+        // Case 2: DEVICE or CHANNEL - show raw 0-127 program numbers
         const options: { value: number; label: string }[] = [];
         for (let i = 0; i <= 127; i++) {
             options.push({ value: i, label: `Program ${i}` });
@@ -2107,7 +2162,7 @@ export class StreambyterComponent implements OnInit {
     }
 
     private parseRangeRule(lines: string[], startIndex: number, rule: Rule, conditionLine: string, triggerSourceType: any, triggerSourceValue: any, mappingName: string | null, consumerSourceType: any, consumerSourceValue: any, consumerMappingName: string | null, hasConsumerSourceLine: boolean): number {
-        // debugger;
+        
         const match = conditionLine.match(/IF\s+M0\s*==\s*B([0-9A-F])\s+([0-9A-F]{2})$/i);
         if (!match) return startIndex + 1;
         

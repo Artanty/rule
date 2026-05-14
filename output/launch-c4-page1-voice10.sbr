@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
     <key>StreamByter-Rules</key>
-    <string># launch-c4-page1-voice
-# Generated: 14.05.2026, 15:48:56
+    <string># launch-c4-page1-voice10
+# Generated: 14.05.2026, 15:34:20
 
 # == RULE 1: [launch for c4 - knobs] knob 1 [0-63] → [c4 voice] voice 1 off (0) ==
 # trigger-source: [mapping] "launch for c4 - knobs"

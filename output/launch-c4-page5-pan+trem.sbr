@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>StreamByter-Rules</key>
+    <string># launch-c4-page5-pan+trem
+# Generated: 14.05.2026, 15:53:24
+
+# == RULE 1: [launch for c4 - knobs] master treble → [c4] voice 1 processor pan ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 29
+  ASS M0 = B1
+  ASS M1 = 32
+  SND M0 M1 M2
+END
+
+# == RULE 2: [c4] voice 1 processor pan → [Channel 10] CC#50 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 32
+  ASS M0 = B9
+  ASS M1 = 32
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 3: [launch for c4 - knobs] voice 1 source → [c4] voice 2 processor pan ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 2A
+  ASS M0 = B1
+  ASS M1 = 33
+  SND M0 M1 M2
+END
+
+# == RULE 4: [c4] voice 2 processor pan → [Channel 10] CC#51 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 33
+  ASS M0 = B9
+  ASS M1 = 33
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 5: [launch for c4 - knobs] voice 2 source → [c4] voice 3 processor pan ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 2B
+  ASS M0 = B1
+  ASS M1 = 34
+  SND M0 M1 M2
+END
+
+# == RULE 6: [c4] voice 3 processor pan → [Channel 10] CC#52 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 34
+  ASS M0 = B9
+  ASS M1 = 34
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 7: [launch for c4 - knobs] voice 3 source → [c4] voice 4 processor pan ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 2C
+  ASS M0 = B1
+  ASS M1 = 35
+  SND M0 M1 M2
+END
+
+# == RULE 8: [c4] voice 4 processor pan → [Channel 10] CC#53 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 35
+  ASS M0 = B9
+  ASS M1 = 35
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 9: [launch for c4 - knobs] voice 4 source → [c4] voice 1 tremolo ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 2D
+  ASS M0 = B1
+  ASS M1 = 36
+  SND M0 M1 M2
+END
+
+# == RULE 10: [c4] voice 1 tremolo → [Channel 10] CC#54 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 36
+  ASS M0 = B9
+  ASS M1 = 36
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 11: [launch for c4 - knobs] voice 1 destination → [c4] voice 2 tremolo ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 2E
+  ASS M0 = B1
+  ASS M1 = 37
+  SND M0 M1 M2
+END
+
+# == RULE 12: [c4] voice 2 tremolo → [Channel 10] CC#55 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 37
+  ASS M0 = B9
+  ASS M1 = 37
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 13: [launch for c4 - knobs] voice 2 destination → [c4] voice 3 tremolo ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 2F
+  ASS M0 = B1
+  ASS M1 = 38
+  SND M0 M1 M2
+END
+
+# == RULE 14: [c4] voice 3 tremolo → [Channel 10] CC#56 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 38
+  ASS M0 = B9
+  ASS M1 = 38
+  SND M0 M1 M2
+  BLOCK
+END
+
+# == RULE 15: [launch for c4 - knobs] voice 3 destination → [c4] voice 4 tremolo ==
+# trigger-source: [mapping] "launch for c4 - knobs"
+# consumer-source: [device] "2"
+IF M0 == B1 30
+  ASS M0 = B1
+  ASS M1 = 39
+  SND M0 M1 M2
+END
+
+# == RULE 16: [c4] voice 4 tremolo → [Channel 10] CC#57 ==
+# trigger-source: [device] "2"
+# consumer-source: [channel] "10"
+IF M0 == B1 39
+  ASS M0 = B9
+  ASS M1 = 39
+  SND M0 M1 M2
+  BLOCK
+END
+</string>
+</dict>
+</plist>
